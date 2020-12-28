@@ -1,0 +1,18 @@
+server:
+  port: @server.port@
+
+spring:
+  datasource:
+    # 本地db文件的路径
+    url: jdbc:sqlite:@db.path@
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    database-platform: org.hibernate.dialect.SQLiteDialect
+
+logging:
+  file:
+    path: @log.path@
