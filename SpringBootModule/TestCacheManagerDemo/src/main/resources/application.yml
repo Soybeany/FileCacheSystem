@@ -1,0 +1,30 @@
+server:
+  port: @server.port@
+
+spring:
+  datasource:
+    # 本地db文件的路径
+    url: jdbc:sqlite:d:/cache-test/cache_manager.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    database-platform: org.hibernate.dialect.SQLiteDialect
+
+logging:
+  file:
+    path: @log.path@
+
+user-config:
+  # 保留的旧密钥数
+  old-key-count: 1
+  # 预生成的密钥数
+  future-key-count: 1
+  # 每隔多久应该生成一个新的密钥
+  renew-frequency-sec: @renew-frequency-sec@
+  # 任务同步的间隔时间，兼作心跳检测
+  task-sync-interval-sec: @task-sync-interval-sec@
+  # 任务同步的最大天数，即只同步最近多少天的任务
+  task-sync-max-day: @task-sync-max-day@
