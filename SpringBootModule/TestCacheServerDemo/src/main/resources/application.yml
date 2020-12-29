@@ -5,11 +5,15 @@ spring:
   datasource:
     # 本地db文件的路径
     url: jdbc:sqlite:@db.path@
-  profiles:
-    include: config
 
   jpa:
+    hibernate:
+      ddl-auto: update
     show-sql: true
+    open-in-view: false
+
+  profiles:
+    include: config
 
 logging:
   file:
