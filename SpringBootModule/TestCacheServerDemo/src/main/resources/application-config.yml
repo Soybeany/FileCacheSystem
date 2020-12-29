@@ -15,19 +15,19 @@ config:
   # 任务重试的次数
   task-retry-count: @task-retry-count@
 
-  # 定时器配置，首次时间格式为yyyy-MM-dd hh:mm:ss
+  # 定时器配置，参考时间格式为yyyy-MM-dd hh:mm:ss
   timers:
     # 清理长期不再使用的文件
     - name: FileCleaner
-      first-time: @fileCleaner.first-time@
+      refer-time: @fileCleaner.refer-time@
       interval-sec: @fileCleaner.interval-sec@
     # 清理长期不再使用的记录
     - name: RecordCleaner
-      first-time: @recordCleaner.first-time@
+      refer-time: @recordCleaner.refer-time@
       interval-sec: @recordCleaner.interval-sec@
     # 执行主动缓存
     - name: TaskExecuteTimer
-      first-time: @taskExecuteTimer.first-time@
+      refer-time: @taskExecuteTimer.refer-time@
       interval-sec: @taskExecuteTimer.interval-sec@
 
   # 管理服务器配置，多个host使用“,”或“;”进行分隔

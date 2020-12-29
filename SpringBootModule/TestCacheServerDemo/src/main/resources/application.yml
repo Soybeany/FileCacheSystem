@@ -1,0 +1,16 @@
+server:
+  port: @server.port@
+
+spring:
+  datasource:
+    # 本地db文件的路径
+    url: jdbc:sqlite:@db.path@
+  profiles:
+    include: config
+
+  jpa:
+    show-sql: true
+
+logging:
+  file:
+    path: @log.path@

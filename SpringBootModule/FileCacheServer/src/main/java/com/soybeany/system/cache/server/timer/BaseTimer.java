@@ -1,7 +1,6 @@
 package com.soybeany.system.cache.server.timer;
 
 import com.soybeany.system.cache.core.model.CacheCoreTimer;
-import com.soybeany.system.cache.core.util.CacheCoreTimeUtils;
 import com.soybeany.system.cache.server.config.TimerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author Soybeany
@@ -26,7 +26,7 @@ abstract class BaseTimer extends CacheCoreTimer {
 
     @Override
     protected LocalDateTime onSetupFirstTriggerTime() {
-        return CacheCoreTimeUtils.toLocalDateTime(info.firstTime);
+        return LocalDateTime.parse(info.referTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     @Override

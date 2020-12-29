@@ -2,8 +2,10 @@ package com.soybeany.system.cache.server.config;
 
 import com.soybeany.system.cache.core.interfaces.HostProvider;
 import com.soybeany.system.cache.core.model.PollingHostProvider;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,8 +15,10 @@ import java.util.List;
  * @date 2020/11/30
  */
 @Component
+@EnableJpaAuditing
+@EnableJpaRepositories(basePackages = "com.soybeany.system.cache.server.repository")
+@EntityScan(basePackages = "com.soybeany.system.cache.server.repository")
 @ConfigurationProperties(prefix = "config")
-@PropertySource(value = {"classpath:/config.yml"}, factory = SimplePropertySourceFactory.class)
 public class AppConfig {
 
     public List<ServerInfo> appServers;

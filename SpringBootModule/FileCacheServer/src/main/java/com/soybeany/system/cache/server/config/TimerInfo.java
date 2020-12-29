@@ -1,7 +1,5 @@
 package com.soybeany.system.cache.server.config;
 
-import java.util.Date;
-
 /**
  * @author Soybeany
  * @date 2020/12/14
@@ -9,15 +7,15 @@ import java.util.Date;
 public class TimerInfo {
 
     public String name;
-    public Date firstTime;
+    public String referTime;
     public long intervalSec;
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setFirstTime(Date firstTime) {
-        this.firstTime = firstTime;
+    public void setReferTime(String referTime) {
+        this.referTime = referTime;
     }
 
     public void setIntervalSec(long intervalSec) {

@@ -1,17 +1,15 @@
-package com.soybeany.system.cache.server;
+package com.soybeany.system.cache.demo.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 /**
  * @author Soybeany
  * @date 2020/11/30
  */
-@EnableJpaAuditing
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.soybeany.system.cache.demo", "com.soybeany.system.cache.server"})
 public class CacheServerApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {

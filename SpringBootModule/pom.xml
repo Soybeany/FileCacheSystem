@@ -15,7 +15,8 @@
         <module>FileCacheManager</module>
         <module>FileCacheServer</module>
         <module>TestAppDemo</module>
-        <module>TestManagerDemo</module>
+        <module>TestCacheManagerDemo</module>
+        <module>TestCacheServerDemo</module>
     </modules>
 
     <dependencies>
