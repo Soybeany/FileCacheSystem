@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * @date 2020/12/18
  */
 @Component
-public class TaskExecuteTimer extends BaseTimer {
+class TaskExecuteTimer extends BaseTimer {
 
     @Autowired
     private TaskService taskService;

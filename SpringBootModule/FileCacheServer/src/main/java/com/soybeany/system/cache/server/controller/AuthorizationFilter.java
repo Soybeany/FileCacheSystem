@@ -13,7 +13,7 @@ import java.io.IOException;
  * @date 2020/12/23
  */
 @Component
-public class AuthorizationFilter extends OptFilter implements Filter {
+class AuthorizationFilter extends OptFilter implements Filter {
 
     @Autowired
     private AppConfig appConfig;

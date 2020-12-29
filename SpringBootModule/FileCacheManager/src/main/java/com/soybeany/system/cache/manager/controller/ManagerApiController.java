@@ -23,7 +23,7 @@ import static com.soybeany.system.cache.core.interfaces.FileCacheHttpContract.PO
  * @date 2020/12/11
  */
 @RestController
-public class ApiController {
+class ManagerApiController {
 
     @Autowired
     private UserConfig userConfig;

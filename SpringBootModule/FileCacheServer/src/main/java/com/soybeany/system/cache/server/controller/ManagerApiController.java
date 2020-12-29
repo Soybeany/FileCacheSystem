@@ -17,7 +17,7 @@ import static com.soybeany.system.cache.core.interfaces.FileCacheHttpContract.PO
  * @date 2020/12/22
  */
 @RestController
-public class ManagerApiController {
+class ManagerApiController {
 
     @Autowired
     private TaskService taskService;

@@ -110,7 +110,10 @@ class TaskServiceImpl implements TaskService {
     private void executeTask(String fileUid) {
         boolean success = true;
         try {
-            checkTaskCanExecute(fileUid);
+            if (!isTaskShouldExecute(fileUid)) {
+                LOG.info("“" + fileUid + "”未到可执行时间，暂不执行");
+                return;
+            }
             cacheInfoService.ensureFileAndGetFileInfo(FileUid.fromString(fileUid));
             LOG.info("“" + fileUid + "”执行成功");
         } catch (Exception e) {
@@ -124,12 +127,10 @@ class TaskServiceImpl implements TaskService {
         editTaskInfo(success, fileUid);
     }
 
-    private void checkTaskCanExecute(String fileUid) {
+    private boolean isTaskShouldExecute(String fileUid) {
         TaskInfo taskInfo = taskInfoRepository.findByFileUid(fileUid);
         int curHour = LocalDateTime.now().getHour();
-        if (curHour < taskInfo.canExeFrom || curHour > taskInfo.canExeTo) {
-            throw new RuntimeException("此任务需在“" + taskInfo.canExeFrom + "~" + taskInfo.canExeTo + "”时间段执行，当前为“" + curHour + "”");
-        }
+        return curHour >= taskInfo.canExeFrom && curHour <= taskInfo.canExeTo;
     }
 
     private void editTaskInfo(boolean success, String fileUid) {
