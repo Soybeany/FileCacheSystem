@@ -1,5 +1,6 @@
 package com.soybeany.system.cache.core.interfaces;
 
+import com.soybeany.util.file.BdFileUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -61,11 +62,19 @@ public interface FileCacheHttpContract {
     default Response getResponse(Request request) throws IOException {
         Response response = CLIENT.newCall(request).execute();
         if (!response.isSuccessful()) {
+            // 关流
+            BdFileUtils.closeStream(response);
+            // 抛出异常信息
             String decodedMsg = response.header("errMsg");
             String errMsg = (null != decodedMsg ? URLDecoder.decode(decodedMsg, "UTF-8") : null);
             throw new IOException("请求外部系统异常，code:" + response.code() + "，errMsg:" + errMsg);
         }
         return response;
+    }
+
+    default void sendRequest(Request request) throws IOException {
+        Response response = getResponse(request);
+        BdFileUtils.closeStream(response);
     }
 
     default ResponseBody getNonNullBody(ResponseBody body) throws IOException {

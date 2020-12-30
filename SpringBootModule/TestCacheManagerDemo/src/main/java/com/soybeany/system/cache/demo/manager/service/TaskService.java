@@ -80,7 +80,7 @@ class TaskServiceImpl extends BaseService implements TaskService, FileCacheHttpC
                 .header(FileCacheHttpContract.AUTHORIZATION, info.authorization)
                 .post(RequestBody.create(JSON_TYPE, GSON.toJson(cacheTasks)))
                 .build();
-        getResponse(request);
+        sendRequest(request);
         // 更新信息
         if (!tasks.isEmpty()) {
             info.syncedTimestamp = tasks.get(0).getLastModifyTime();
