@@ -38,13 +38,17 @@ public interface FileCacheHttpContract {
 
     String AUTHORIZATION = "Authorization";
 
-    OkHttpClient CLIENT = new OkHttpClient.Builder()
-            .connectTimeout(5, TimeUnit.SECONDS)
-            .readTimeout(5, TimeUnit.SECONDS)
-            .writeTimeout(5, TimeUnit.SECONDS)
-            .build();
+    OkHttpClient CLIENT = getNewClient(5);
 
     // ********************方法********************
+
+    static OkHttpClient getNewClient(int timeoutSec) {
+        return new OkHttpClient.Builder()
+                .connectTimeout(timeoutSec, TimeUnit.SECONDS)
+                .readTimeout(timeoutSec, TimeUnit.SECONDS)
+                .writeTimeout(timeoutSec, TimeUnit.SECONDS)
+                .build();
+    }
 
     default Response getResponse(HostProvider hostProvider, String path, Map<String, String> headers) throws IOException {
         if (!path.startsWith("/")) {
@@ -60,7 +64,7 @@ public interface FileCacheHttpContract {
     }
 
     default Response getResponse(Request request) throws IOException {
-        Response response = CLIENT.newCall(request).execute();
+        Response response = getClient().newCall(request).execute();
         if (!response.isSuccessful()) {
             // 关流
             BdFileUtils.closeStream(response);
@@ -82,6 +86,10 @@ public interface FileCacheHttpContract {
             throw new IOException("响应主体为空");
         }
         return body;
+    }
+
+    default OkHttpClient getClient() {
+        return CLIENT;
     }
 
     // ********************类********************

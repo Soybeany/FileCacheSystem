@@ -29,6 +29,12 @@
       "defaultValue": 30
     },
     {
+      "name": "config.download-timeout-sec",
+      "type": "java.lang.Integer",
+      "description": "下载请求的超时.",
+      "defaultValue": 10
+    },
+    {
       "name": "config.task-concurrent-max-count",
       "type": "java.lang.Integer",
       "description": "允许并发的最大任务数(主动模式).",

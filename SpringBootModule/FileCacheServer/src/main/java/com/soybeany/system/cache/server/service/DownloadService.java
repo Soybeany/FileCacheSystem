@@ -3,12 +3,14 @@ package com.soybeany.system.cache.server.service;
 import com.soybeany.system.cache.core.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.core.model.FileUid;
 import com.soybeany.system.cache.core.model.PollingHostProvider;
+import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.config.ServerInfo;
 import com.soybeany.system.cache.server.model.CacheInfo;
 import com.soybeany.system.cache.server.model.CacheInfoWithExpiry;
 import com.soybeany.system.cache.server.repository.TempFileInfo;
 import com.soybeany.system.cache.server.repository.TempFileRepository;
 import com.soybeany.util.file.BdFileUtils;
+import okhttp3.OkHttpClient;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.slf4j.Logger;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,9 +46,18 @@ class DownloadServiceImpl implements DownloadService, FileCacheHttpContract {
     private static final Pattern RANGE_PATTERN = Pattern.compile("bytes (\\d+)-(\\d*)/(\\d+)");
 
     @Autowired
+    private AppConfig appConfig;
+    @Autowired
     private ConfigService configService;
     @Autowired
     private TempFileRepository tempFileRepository;
+
+    private OkHttpClient client;
+
+    @Override
+    public OkHttpClient getClient() {
+        return client;
+    }
 
     @Override
     public CacheInfoWithExpiry downloadFile(FileUid fileUid, File localFile) throws IOException {
@@ -73,6 +85,11 @@ class DownloadServiceImpl implements DownloadService, FileCacheHttpContract {
             throw new RuntimeException(msg);
         }
         return contentInfo;
+    }
+
+    @PostConstruct
+    private void onInit() {
+        client = FileCacheHttpContract.getNewClient(appConfig.downloadTimeoutSec);
     }
 
     private File getTempFile(TempFileInfo tempFileInfo) {

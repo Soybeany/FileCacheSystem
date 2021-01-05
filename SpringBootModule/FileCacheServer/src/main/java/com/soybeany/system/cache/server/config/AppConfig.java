@@ -29,6 +29,7 @@ public class AppConfig {
     public long recordExpirySec;
     public long tempFileExpirySec;
     public long contentInfoLockTimeoutSec;
+    public int downloadTimeoutSec;
     public int taskConcurrentMaxCount;
     public int taskRetryCount;
 
@@ -64,6 +65,10 @@ public class AppConfig {
 
     public void setContentInfoLockTimeoutSec(long contentInfoLockTimeoutSec) {
         this.contentInfoLockTimeoutSec = contentInfoLockTimeoutSec;
+    }
+
+    public void setDownloadTimeoutSec(int downloadTimeoutSec) {
+        this.downloadTimeoutSec = downloadTimeoutSec;
     }
 
     public void setTaskConcurrentMaxCount(int taskConcurrentMaxCount) {
