@@ -21,6 +21,10 @@
         <module>SpringBootModule</module>
     </modules>
 
+    <properties>
+        <bdlib.version>2.5.12</bdlib.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -29,6 +33,26 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.github.Soybeany.bdlib-server</groupId>
+                <artifactId>bd-util</artifactId>
+                <version>${bdlib.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.Soybeany.bdlib-server</groupId>
+                <artifactId>bd-config</artifactId>
+                <version>${bdlib.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.Soybeany.bdlib-server</groupId>
+                <artifactId>bd-download</artifactId>
+                <version>${bdlib.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <pluginManagement>

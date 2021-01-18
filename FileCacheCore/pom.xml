@@ -21,7 +21,6 @@
         <dependency>
             <groupId>com.github.Soybeany.bdlib-server</groupId>
             <artifactId>bd-util</artifactId>
-            <version>2.5.7</version>
         </dependency>
 
         <dependency>
