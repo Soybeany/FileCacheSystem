@@ -61,9 +61,10 @@ class ClientApiController {
         } catch (Exception e) {
             String uuid = UUID.randomUUID().toString();
             LOG.error(e.getMessage() + "(" + uuid + ")");
-            if (!response.isCommitted()) {
-                response.reset();
+            if (response.isCommitted()) {
+                return null;
             }
+            response.reset();
             response.setHeader("errMsg", uuid);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return handler.onHandleException(e);
