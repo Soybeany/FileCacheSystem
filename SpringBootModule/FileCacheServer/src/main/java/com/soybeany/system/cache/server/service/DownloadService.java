@@ -9,6 +9,7 @@ import com.soybeany.system.cache.server.model.CacheInfo;
 import com.soybeany.system.cache.server.model.CacheInfoWithExpiry;
 import com.soybeany.system.cache.server.repository.TempFileInfo;
 import com.soybeany.system.cache.server.repository.TempFileRepository;
+import com.soybeany.system.cache.server.util.SaveUtils;
 import com.soybeany.util.file.BdFileUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
@@ -177,7 +178,7 @@ class DownloadServiceImpl implements DownloadService, FileCacheHttpContract {
             }
             tempFileInfo.downloadedLength = getTempFileLength();
             tempFileInfo.totalLength = info.getContentLength();
-            tempFileRepository.save(tempFileInfo);
+            SaveUtils.syncSave(tempFileRepository, tempFileInfo);
         }
 
         private void deleteTempFileInfoIfExist() {

@@ -5,6 +5,7 @@ import com.soybeany.system.cache.core.model.FileUid;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.repository.TaskInfo;
 import com.soybeany.system.cache.server.repository.TaskInfoRepository;
+import com.soybeany.system.cache.server.util.SaveUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -143,7 +144,7 @@ class TaskServiceImpl implements TaskService {
         } else {
             taskInfo.priority--;
         }
-        taskInfoRepository.save(taskInfo);
+        SaveUtils.syncSave(taskInfoRepository, taskInfo);
     }
 
 }

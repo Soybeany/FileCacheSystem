@@ -4,6 +4,7 @@ import com.soybeany.system.cache.core.model.FileUid;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.config.ServerInfo;
 import com.soybeany.system.cache.server.repository.*;
+import com.soybeany.system.cache.server.util.SaveUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +73,7 @@ class CleanServiceImpl implements CleanService {
             FileUid fileUid = FileUid.fromString(info.fileUid);
             cleanCount = deleteFile(fileUid.server, new File(configService.getCacheDir(fileUid.server), fileUid.fileToken), cleanCount);
             info.downloaded = false;
-            fileInfoRepository.save(info);
+            SaveUtils.syncSave(fileInfoRepository, info);
         }
         return cleanCount;
     }

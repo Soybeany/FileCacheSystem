@@ -8,6 +8,7 @@ import com.soybeany.system.cache.server.model.CacheInfoWithExpiry;
 import com.soybeany.system.cache.server.model.CacheInfoWithFile;
 import com.soybeany.system.cache.server.repository.FileInfo;
 import com.soybeany.system.cache.server.repository.FileInfoRepository;
+import com.soybeany.system.cache.server.util.SaveUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +70,7 @@ class CacheInfoServiceImpl implements CacheInfoService {
             // 修改访问记录
             fileInfo.visitCount++;
             updateExpiryTime(fileInfo);
-            fileInfoRepository.save(fileInfo);
+            SaveUtils.syncSave(fileInfoRepository, fileInfo);
             // 生成内容信息
             return toContentInfo(getDataFile(fileUid), fileInfo);
         } finally {
@@ -107,7 +108,7 @@ class CacheInfoServiceImpl implements CacheInfoService {
             // 设置为已下载
             fileInfo.downloaded = true;
             updateExpiryTime(fileInfo);
-            return fileInfoRepository.save(fileInfo);
+            return SaveUtils.syncSave(fileInfoRepository, fileInfo);
         } finally {
             lock.unlock();
         }
