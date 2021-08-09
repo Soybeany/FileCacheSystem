@@ -8,6 +8,7 @@ public class ServerInfo {
 
     public String name;
     public String fileDownloadUrl;
+    public String urlSuffix;
     public String authorization;
 
     public void setName(String name) {
@@ -16,6 +17,10 @@ public class ServerInfo {
 
     public void setFileDownloadUrl(String fileDownloadUrl) {
         this.fileDownloadUrl = fileDownloadUrl;
+    }
+
+    public void setUrlSuffix(String urlSuffix) {
+        this.urlSuffix = urlSuffix;
     }
 
     public void setAuthorization(String authorization) {

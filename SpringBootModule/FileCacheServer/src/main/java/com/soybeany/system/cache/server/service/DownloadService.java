@@ -114,7 +114,7 @@ class DownloadServiceImpl implements DownloadService, FileCacheHttpContract {
 
         public FileRetriever(FileUid fileUid, TempFileInfo tempFileInfo, File tempFile) {
             this.info = configService.getServerInfo(fileUid.server);
-            this.fileToken = fileUid.fileToken;
+            this.fileToken = fileUid.fileToken + (info.urlSuffix != null ? info.urlSuffix : "");
             this.fileUid = FileUid.toString(fileUid);
             this.tempFileInfo = tempFileInfo;
             this.tempFile = tempFile;
