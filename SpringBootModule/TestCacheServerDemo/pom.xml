@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>TestCacheServerDemo</artifactId>
-    <packaging>${packaging.type}</packaging>
+    <packaging>war</packaging>
 
     <properties>
         <!-- application -->

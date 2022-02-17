@@ -1,7 +1,7 @@
 package com.soybeany.system.cache.demo.manager.service;
 
+import com.soybeany.system.cache.core.interfaces.ISecretKeyRepository;
 import com.soybeany.system.cache.core.model.SecretKeyInfo;
-import com.soybeany.system.cache.core.provider.SecretKeyProvider;
 import com.soybeany.system.cache.demo.manager.repository.SecretKeyEntity;
 import com.soybeany.system.cache.demo.manager.repository.SecretKeyEntityRepository;
 import org.springframework.beans.BeanUtils;
@@ -18,7 +18,7 @@ import java.util.List;
  */
 @Primary
 @Service
-class SecretKeyServiceImpl implements SecretKeyProvider.Repository {
+class SecretKeyServiceImpl implements ISecretKeyRepository {
 
     @Autowired
     private SecretKeyEntityRepository repository;
@@ -27,23 +27,20 @@ class SecretKeyServiceImpl implements SecretKeyProvider.Repository {
     public List<SecretKeyInfo> getSecretKeyList() {
         List<SecretKeyInfo> list = new LinkedList<>();
         for (SecretKeyEntity entity : repository.findAll()) {
-            list.add(toInfo(entity));
+            SecretKeyInfo info = new SecretKeyInfo();
+            BeanUtils.copyProperties(entity, info);
+            list.add(info);
         }
         return list;
     }
 
     @Override
-    public void replaceToNewSecretKey(SecretKeyInfo old) throws Exception {
-        if (null != old) {
-            removeEntity(old.key);
-        }
-        createAndSaveNewEntity();
-    }
-
-    @Override
     public void generateNewSecretKeys(int count) throws Exception {
         for (int i = 0; i < count; i++) {
-            createAndSaveNewEntity();
+            SecretKeyInfo info = SecretKeyInfo.getDefaultNew(getCurrentTimestamp());
+            SecretKeyEntity entity = new SecretKeyEntity();
+            BeanUtils.copyProperties(info, entity);
+            repository.save(entity);
         }
     }
 
@@ -53,7 +50,7 @@ class SecretKeyServiceImpl implements SecretKeyProvider.Repository {
             return;
         }
         for (SecretKeyInfo info : keyInfoList) {
-            removeEntity(info.key);
+            repository.findByKey(info.getKey()).ifPresent(entity -> repository.delete(entity));
         }
     }
 
@@ -62,20 +59,4 @@ class SecretKeyServiceImpl implements SecretKeyProvider.Repository {
         return System.currentTimeMillis();
     }
 
-    private SecretKeyInfo toInfo(SecretKeyEntity entity) {
-        SecretKeyInfo info = new SecretKeyInfo();
-        BeanUtils.copyProperties(entity, info);
-        return info;
-    }
-
-    private void removeEntity(String key) {
-        repository.findByKey(key).ifPresent(entity -> repository.delete(entity));
-    }
-
-    private void createAndSaveNewEntity() throws Exception {
-        SecretKeyInfo info = SecretKeyInfo.getDefaultNew(getCurrentTimestamp());
-        SecretKeyEntity entity = new SecretKeyEntity();
-        BeanUtils.copyProperties(info, entity);
-        repository.save(entity);
-    }
 }

@@ -1,6 +1,6 @@
 package com.soybeany.system.cache.manager.timer;
 
-import com.soybeany.system.cache.core.model.CacheCoreTimer;
+import com.soybeany.system.cache.core.service.BaseTimerService;
 import com.soybeany.system.cache.manager.config.UserConfig;
 import com.soybeany.system.cache.manager.service.TaskService;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  * @date 2020/12/18
  */
 @Component
-public class TaskSyncTimer extends CacheCoreTimer {
+public class TaskSyncTimer extends BaseTimerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskSyncTimer.class);
 
@@ -50,12 +50,12 @@ public class TaskSyncTimer extends CacheCoreTimer {
     }
 
     @PostConstruct
-    public void onInit() {
-        init(false);
+    private void onInit() {
+        init();
     }
 
     @PreDestroy
-    public void onDestroy() {
+    private void onDestroy() {
         destroy();
     }
 }

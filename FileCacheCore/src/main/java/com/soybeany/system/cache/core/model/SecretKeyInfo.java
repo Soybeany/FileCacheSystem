@@ -3,6 +3,7 @@ package com.soybeany.system.cache.core.model;
 import com.soybeany.system.cache.core.token.Payload;
 import com.soybeany.util.HexUtils;
 import com.soybeany.util.SerializeUtils;
+import lombok.Data;
 
 import javax.crypto.SecretKey;
 import java.util.UUID;
@@ -11,19 +12,23 @@ import java.util.UUID;
  * @author Soybeany
  * @date 2020/12/25
  */
+@Data
 public class SecretKeyInfo {
+
     /**
      * 用于映射的key
      */
-    public String key;
+    private String key;
+
     /**
      * 具体的密钥json
      */
-    public String secretKeyJson;
+    private String secretKeyJson;
+
     /**
      * 创建时间戳
      */
-    public long createTimestamp;
+    private long createTimestamp;
 
     public static SecretKeyInfo getDefaultNew(long createTimestamp) throws Exception {
         SecretKeyInfo keyInfo = new SecretKeyInfo();
@@ -41,27 +46,4 @@ public class SecretKeyInfo {
         return SerializeUtils.deserialize(HexUtils.hexToByteArray(secretKeyJson));
     }
 
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getSecretKeyJson() {
-        return secretKeyJson;
-    }
-
-    public void setSecretKeyJson(String secretKeyJson) {
-        this.secretKeyJson = secretKeyJson;
-    }
-
-    public long getCreateTimestamp() {
-        return createTimestamp;
-    }
-
-    public void setCreateTimestamp(long createTimestamp) {
-        this.createTimestamp = createTimestamp;
-    }
 }

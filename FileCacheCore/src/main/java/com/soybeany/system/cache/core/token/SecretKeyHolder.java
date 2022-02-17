@@ -1,8 +1,5 @@
 package com.soybeany.system.cache.core.token;
 
-import com.soybeany.util.HexUtils;
-import com.soybeany.util.SerializeUtils;
-
 import javax.crypto.SecretKey;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -22,14 +19,15 @@ public abstract class SecretKeyHolder implements Serializable {
     /**
      * 最新密钥的key
      */
-    public String newestKey;
+    public final String newestKey;
 
-    public SecretKeyHolder() {
+    public SecretKeyHolder(String newestKey) {
+        this.newestKey = newestKey;
     }
 
     public SecretKeyHolder(SecretKeyHolder holder) {
+        this(holder.newestKey);
         map.putAll(holder.map);
-        newestKey = holder.newestKey;
     }
 
     public SecretKey getSecretKey(String key) {
@@ -39,24 +37,16 @@ public abstract class SecretKeyHolder implements Serializable {
         return map.get(key);
     }
 
-    public static class WithExpiry extends SecretKeyHolder {
+    public static class WithTtl extends SecretKeyHolder {
 
         /**
-         * 失效时间(millis)
+         * 存活时间(millis)
          */
-        public final int expiryMillis;
+        public final int pTtl;
 
-        public static WithExpiry deserialize(String content) throws Exception {
-            return SerializeUtils.deserialize(HexUtils.hexToByteArray(content));
-        }
-
-        public static String serialize(WithExpiry obj) throws Exception {
-            return HexUtils.bytesToHex(SerializeUtils.serialize(obj));
-        }
-
-        public WithExpiry(SecretKeyHolder holder, long expiryMillis) {
+        public WithTtl(SecretKeyHolder holder, int pTtl) {
             super(holder);
-            this.expiryMillis = (int) expiryMillis;
+            this.pTtl = pTtl;
         }
     }
 }

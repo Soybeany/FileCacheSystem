@@ -14,13 +14,15 @@
     <dependencies>
         <dependency>
             <groupId>com.github.Soybeany.bdlib-server</groupId>
-            <artifactId>bd-cachev2</artifactId>
-            <version>2.5.6</version>
+            <artifactId>bd-util</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.github.Soybeany.bdlib-server</groupId>
-            <artifactId>bd-util</artifactId>
+            <artifactId>bd-cachev2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Soybeany.bd-sync</groupId>
+            <artifactId>rpc-core</artifactId>
         </dependency>
 
         <dependency>

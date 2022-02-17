@@ -30,12 +30,12 @@ abstract class BaseService {
 
     @SuppressWarnings("AlibabaThreadPoolCreation")
     @PostConstruct
-    void onInit() {
+    private void onInit() {
         executorService = Executors.newCachedThreadPool();
     }
 
     @PreDestroy
-    void onDestroy() {
+    private void onDestroy() {
         executorService.shutdown();
     }
 

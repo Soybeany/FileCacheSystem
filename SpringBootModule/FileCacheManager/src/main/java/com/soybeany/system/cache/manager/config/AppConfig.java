@@ -1,8 +1,8 @@
 package com.soybeany.system.cache.manager.config;
 
+import com.soybeany.system.cache.core.interfaces.ISecretKeyRepository;
 import com.soybeany.system.cache.core.model.CacheTask;
-import com.soybeany.system.cache.core.provider.MapRepositoryImpl;
-import com.soybeany.system.cache.core.provider.SecretKeyProvider;
+import com.soybeany.system.cache.manager.key.MapRepositoryImpl;
 import com.soybeany.system.cache.manager.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ class AppConfig {
 
     @ConditionalOnMissingBean
     @Bean
-    SecretKeyProvider.Repository defaultSecretKeyRepository() {
+    ISecretKeyRepository defaultSecretKeyRepository() {
         return new MapRepositoryImpl();
     }
 

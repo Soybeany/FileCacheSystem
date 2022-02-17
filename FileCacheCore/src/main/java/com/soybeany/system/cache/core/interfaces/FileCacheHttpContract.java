@@ -1,16 +1,5 @@
 package com.soybeany.system.cache.core.interfaces;
 
-import com.soybeany.util.file.BdFileUtils;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-
-import java.io.IOException;
-import java.net.URLDecoder;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 /**
  * @author Soybeany
  * @date 2020/12/14
@@ -22,9 +11,7 @@ public interface FileCacheHttpContract {
     String OPT_PREFIX = "/opt";
     String CLIENT_PREFIX = "/api";
 
-    // *****管理服务器，面向服务器，需授权*****
-
-    String GET_SECRET_KEY_LIST = OPT_PREFIX + "/getSecretKeyList";
+    String TOPIC_TASK_LIST = "bd_file-cache_task-list";
 
     // *****客户服务器，面向服务器，需授权*****
 
@@ -38,92 +25,4 @@ public interface FileCacheHttpContract {
 
     String AUTHORIZATION = "Authorization";
 
-    OkHttpClient CLIENT = getNewClient(5);
-
-    // ********************方法********************
-
-    static OkHttpClient getNewClient(int timeoutSec) {
-        return new OkHttpClient.Builder()
-                .connectTimeout(timeoutSec, TimeUnit.SECONDS)
-                .readTimeout(timeoutSec, TimeUnit.SECONDS)
-                .writeTimeout(timeoutSec, TimeUnit.SECONDS)
-                .build();
-    }
-
-    default Response getResponse(HostProvider hostProvider, String path, Map<String, String> headers) throws IOException {
-        if (!path.startsWith("/")) {
-            path = "/" + path;
-        }
-        Request.Builder builder = new Request.Builder().url(hostProvider.get() + path);
-        if (null != headers) {
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                builder.header(entry.getKey(), entry.getValue());
-            }
-        }
-        return getResponse(builder.build());
-    }
-
-    default Response getResponse(Request request) throws IOException {
-        Response response = getClient().newCall(request).execute();
-        if (!response.isSuccessful()) {
-            // 关流
-            BdFileUtils.closeStream(response);
-            // 抛出异常信息
-            String decodedMsg = response.header("errMsg");
-            String errMsg = (null != decodedMsg ? URLDecoder.decode(decodedMsg, "UTF-8") : null);
-            throw new IOException("请求外部系统异常，code:" + response.code() + "，errMsg:" + errMsg);
-        }
-        return response;
-    }
-
-    default void sendRequest(Request request) throws IOException {
-        Response response = getResponse(request);
-        BdFileUtils.closeStream(response);
-    }
-
-    default ResponseBody getNonNullBody(ResponseBody body) throws IOException {
-        if (null == body) {
-            throw new IOException("响应主体为空");
-        }
-        return body;
-    }
-
-    default OkHttpClient getClient() {
-        return CLIENT;
-    }
-
-    // ********************类********************
-
-    /**
-     * 标准的dto
-     */
-    class Dto<T> {
-
-        /**
-         * 标识是否正常
-         */
-        public final boolean norm;
-
-        public final T data;
-
-        public final String msg;
-
-        public static Dto<String> success() {
-            return norm("success");
-        }
-
-        public static <T> Dto<T> norm(T data) {
-            return new Dto<>(true, data, null);
-        }
-
-        public static <T> Dto<T> error(String msg) {
-            return new Dto<>(false, null, msg);
-        }
-
-        public Dto(boolean norm, T data, String msg) {
-            this.norm = norm;
-            this.data = data;
-            this.msg = msg;
-        }
-    }
 }

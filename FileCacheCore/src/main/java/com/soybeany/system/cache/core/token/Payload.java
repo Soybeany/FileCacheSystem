@@ -15,7 +15,7 @@ public class Payload {
     /**
      * 用于正式请求App服务器的fileId
      */
-    public final String fileId;
+    public final String fileToken;
 
     public static SecretKey generateNewKey() throws Exception {
         return AesUtils.generateKey();
@@ -31,7 +31,7 @@ public class Payload {
         return AesUtils.encrypt(json, secretKey);
     }
 
-    public Payload(String fileId) {
-        this.fileId = fileId;
+    public Payload(String fileToken) {
+        this.fileToken = fileToken;
     }
 }

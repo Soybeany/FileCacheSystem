@@ -1,0 +1,22 @@
+server:
+  port: 8181
+
+spring:
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:d:/cache-test/cache_server.db
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+
+logging:
+  file:
+    path: d:/cache-test/log/cache-server
+
+config:
+  registry-urls: http://localhost:8180/bd-api/sync
+  registry-sync-interval: 3
+  task-sync-interval: 10
