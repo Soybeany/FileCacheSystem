@@ -11,7 +11,7 @@ import com.soybeany.system.cache.core.model.SecretKeyHolder;
 @BdRpc(serviceId = "SecretKeyHolderProvider")
 public interface ISecretKeyHolderProvider {
 
-    @BdRpcCache(desc = "密钥管理器", ttl = 60)
+    @BdRpcCache(desc = "密钥管理器", ttl = 60, needLog = false)
     SecretKeyHolder getHolder() throws Exception;
 
 }

@@ -11,7 +11,7 @@ import com.soybeany.system.cache.core.model.CacheServerConfig;
 @BdRpc(serviceId = "CacheServerConfigProvider")
 public interface ICacheServerConfigProvider {
 
-    @BdRpcCache(desc = "缓存服务器配置", ttl = 3600, enableRenewExpiredCache = true)
+    @BdRpcCache(desc = "缓存服务器配置", ttl = 3600, enableRenewExpiredCache = true, needLog = false)
     CacheServerConfig getConfig();
 
 }

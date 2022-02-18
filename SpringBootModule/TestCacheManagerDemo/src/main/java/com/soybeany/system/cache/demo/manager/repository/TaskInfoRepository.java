@@ -14,6 +14,6 @@ public interface TaskInfoRepository extends JpaRepository<TaskInfo, Long> {
 
     TaskInfo findByFileUid(String fileUid);
 
-    List<TaskInfo> findByLastModifyTimeAfterAndLastModifyTimeBeforeOrderByLastModifyTimeDesc(Date after, Date before);
+    List<TaskInfo> findByLastModifyTimeAfterOrderByLastModifyTime(Date after);
 
 }

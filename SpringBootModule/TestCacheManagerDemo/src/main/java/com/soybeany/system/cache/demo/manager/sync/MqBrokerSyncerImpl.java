@@ -1,7 +1,6 @@
 package com.soybeany.system.cache.demo.manager.sync;
 
 import com.soybeany.mq.broker.api.IStorageManager;
-import com.soybeany.mq.broker.impl.StorageManagerMemImpl;
 import com.soybeany.system.cache.manager.sync.BaseCacheManagerSyncerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,7 +25,7 @@ public class MqBrokerSyncerImpl extends BaseCacheManagerSyncerImpl {
 
     @Override
     protected IStorageManager onSetupStorageManager() {
-        return new StorageManagerMemImpl();
+        return manager;
     }
 
     @PostConstruct

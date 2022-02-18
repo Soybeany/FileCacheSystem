@@ -11,7 +11,7 @@ import com.soybeany.system.cache.core.model.CacheAppInfo;
 @BdRpc(serviceId = "CacheAppInfoProvider")
 public interface ICacheAppInfoProvider {
 
-    @BdRpcCache(desc = "应用服务器信息", ttl = 30 * 60)
+    @BdRpcCache(desc = "应用服务器信息", ttl = 30 * 60, needLog = false)
     CacheAppInfo getInfo();
 
 }
