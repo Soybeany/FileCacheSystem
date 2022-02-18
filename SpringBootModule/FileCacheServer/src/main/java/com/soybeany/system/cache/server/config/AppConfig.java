@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
  * @author Soybeany
  * @date 2020/11/30
  */
+@Setter
 @Getter
 @Component
 @EnableJpaAuditing
@@ -21,9 +22,7 @@ import org.springframework.stereotype.Component;
 public class AppConfig {
 
     private String[] registryUrls;
-    @Setter
     private Integer registrySyncInterval;
-    @Setter
     private Integer taskSyncInterval;
 
     public void setRegistryUrls(String urls) {

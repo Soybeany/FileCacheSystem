@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.core.token;
+package com.soybeany.system.cache.core.model;
 
 /**
  * @author Soybeany

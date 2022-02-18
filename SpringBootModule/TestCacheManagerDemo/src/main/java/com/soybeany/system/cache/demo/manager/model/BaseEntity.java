@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.demo.manager.repository;
+package com.soybeany.system.cache.demo.manager.model;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;

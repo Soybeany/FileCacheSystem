@@ -1,11 +1,12 @@
 package com.soybeany.system.cache.server.sync;
 
-import com.soybeany.mq.core.plugin.MqRegistryPlugin;
-import com.soybeany.rpc.consumer.BaseRpcRegistrySyncerImpl;
+import com.soybeany.mq.client.plugin.MqClientRegistryPlugin;
+import com.soybeany.rpc.consumer.BaseRpcConsumerRegistrySyncerImpl;
 import com.soybeany.rpc.core.model.RpcServerInfo;
-import com.soybeany.sync.core.api.IClientPlugin;
-import com.soybeany.sync.core.picker.DataPicker;
-import com.soybeany.sync.core.picker.DataPickerSimpleImpl;
+import com.soybeany.sync.client.api.IClientPlugin;
+import com.soybeany.sync.client.picker.DataPicker;
+import com.soybeany.sync.client.picker.DataPickerSimpleImpl;
+import com.soybeany.system.cache.core.api.FileCacheHttpContract;
 import com.soybeany.system.cache.server.config.AppConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import java.util.Set;
  */
 @Slf4j
 @Component
-public class RegistrySyncerImpl extends BaseRpcRegistrySyncerImpl {
+public class RegistrySyncerImpl extends BaseRpcConsumerRegistrySyncerImpl {
 
     @Autowired
     private AppConfig appConfig;
@@ -31,7 +32,7 @@ public class RegistrySyncerImpl extends BaseRpcRegistrySyncerImpl {
     @Override
     protected void onSetupPlugins(List<IClientPlugin<?, ?>> plugins) {
         super.onSetupPlugins(plugins);
-        plugins.add(new MqRegistryPlugin());
+        plugins.add(new MqClientRegistryPlugin());
     }
 
     @Override
@@ -41,7 +42,7 @@ public class RegistrySyncerImpl extends BaseRpcRegistrySyncerImpl {
 
     @Override
     public void onSetupPkgPathToScan(Set<String> set) {
-        set.add("com.soybeany.system.cache");
+        set.add(FileCacheHttpContract.PKG_PATH_TO_SCAN);
     }
 
     @Override

@@ -1,29 +1,9 @@
 {
   "properties": [
     {
-      "name": "user-config.authorization",
-      "type": "java.lang.String",
-      "description": "Description for user-config.authorization."
-    },
-    {
-      "name": "user-config.old-key-count",
-      "type": "java.lang.String",
-      "description": "Description for user-config.old-key-count."
-    },
-    {
-      "name": "user-config.future-key-count",
-      "type": "java.lang.String",
-      "description": "Description for user-config.future-key-count."
-    },
-    {
       "name": "user-config.renew-frequency-sec",
       "type": "java.lang.String",
       "description": "Description for user-config.renew-frequency-sec."
-    },
-    {
-      "name": "user-config.task-sync-interval-sec",
-      "type": "java.lang.String",
-      "description": "Description for user-config.task-sync-interval-sec."
     },
     {
       "name": "user-config.task-sync-max-day",

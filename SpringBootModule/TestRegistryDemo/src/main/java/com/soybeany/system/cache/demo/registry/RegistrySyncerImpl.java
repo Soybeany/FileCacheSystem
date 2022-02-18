@@ -1,8 +1,8 @@
 package com.soybeany.system.cache.demo.registry;
 
 import com.soybeany.rpc.registry.BaseRpcRegistrySyncerImpl;
-import com.soybeany.rpc.registry.IRpcStorageManager;
-import com.soybeany.rpc.registry.RpcStorageManagerMemImpl;
+import com.soybeany.rpc.registry.api.IRpcStorageManager;
+import com.soybeany.rpc.registry.impl.RpcStorageManagerMemImpl;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;

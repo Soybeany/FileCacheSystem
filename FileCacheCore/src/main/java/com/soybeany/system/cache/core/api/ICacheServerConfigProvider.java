@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.core.interfaces;
+package com.soybeany.system.cache.core.api;
 
 import com.soybeany.rpc.core.anno.BdRpc;
 import com.soybeany.rpc.core.anno.BdRpcCache;

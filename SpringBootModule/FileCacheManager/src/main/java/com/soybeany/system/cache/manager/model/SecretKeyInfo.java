@@ -1,6 +1,6 @@
-package com.soybeany.system.cache.core.model;
+package com.soybeany.system.cache.manager.model;
 
-import com.soybeany.system.cache.core.token.Payload;
+import com.soybeany.system.cache.core.model.Payload;
 import com.soybeany.util.HexUtils;
 import com.soybeany.util.SerializeUtils;
 import lombok.Data;
@@ -18,31 +18,29 @@ public class SecretKeyInfo {
     /**
      * 用于映射的key
      */
-    private String key;
+    private final String key;
 
     /**
      * 具体的密钥json
      */
-    private String secretKeyJson;
+    private final String secretKeyJson;
 
     /**
      * 创建时间戳
      */
-    private long createTimestamp;
+    private final long createTimestamp;
 
     public static SecretKeyInfo getDefaultNew(long createTimestamp) throws Exception {
-        SecretKeyInfo keyInfo = new SecretKeyInfo();
-        keyInfo.key = UUID.randomUUID().toString().replaceAll("-", "").substring(16);
-        keyInfo.secretKeyJson = fromSecretKey(Payload.generateNewKey());
-        keyInfo.createTimestamp = createTimestamp;
-        return keyInfo;
+        String key = UUID.randomUUID().toString().replaceAll("-", "").substring(16);
+        String secretKeyJson = fromSecretKey(Payload.generateNewKey());
+        return new SecretKeyInfo(key, secretKeyJson, createTimestamp);
     }
 
     public static String fromSecretKey(SecretKey secretKey) throws Exception {
         return HexUtils.bytesToHex(SerializeUtils.serialize(secretKey));
     }
 
-    public SecretKey toSecretKey() throws Exception {
+    public SecretKey getSecretKey() throws Exception {
         return SerializeUtils.deserialize(HexUtils.hexToByteArray(secretKeyJson));
     }
 

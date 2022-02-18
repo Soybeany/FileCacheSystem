@@ -1,7 +1,7 @@
 package com.soybeany.system.cache.server.service;
 
-import com.soybeany.rpc.core.api.IRpcServiceProxy;
-import com.soybeany.system.cache.core.interfaces.ICacheServerConfigProvider;
+import com.soybeany.rpc.consumer.api.IRpcServiceProxy;
+import com.soybeany.system.cache.core.api.ICacheServerConfigProvider;
 import com.soybeany.system.cache.core.model.CacheServerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

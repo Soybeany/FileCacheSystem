@@ -1,7 +1,7 @@
 package com.soybeany.system.cache.server.service;
 
-import com.soybeany.system.cache.core.token.Payload;
-import com.soybeany.system.cache.core.token.TokenPart;
+import com.soybeany.system.cache.core.model.Payload;
+import com.soybeany.system.cache.core.model.TokenPart;
 
 /**
  * @author Soybeany

@@ -1,7 +1,7 @@
 package com.soybeany.system.cache.manager.key;
 
-import com.soybeany.system.cache.core.interfaces.ISecretKeyRepository;
-import com.soybeany.system.cache.core.model.SecretKeyInfo;
+import com.soybeany.system.cache.manager.model.SecretKeyInfo;
+import com.soybeany.system.cache.manager.service.ISecretKeyRepository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,26 +17,18 @@ public class MapRepositoryImpl implements ISecretKeyRepository {
     private final Map<String, SecretKeyInfo> mMap = new HashMap<>();
 
     @Override
-    public List<SecretKeyInfo> getSecretKeyList() {
+    public List<SecretKeyInfo> getSecretKeys() {
         return new ArrayList<>(mMap.values());
     }
 
     @Override
-    public synchronized void generateNewSecretKeys(int count) throws Exception {
-        for (int i = 0; i < count; i++) {
-            SecretKeyInfo keyInfo = SecretKeyInfo.getDefaultNew(getCurrentTimestamp());
-            mMap.put(keyInfo.getKey(), keyInfo);
-        }
+    public void addSecretKey(SecretKeyInfo info) {
+        mMap.put(info.getKey(), info);
     }
 
     @Override
-    public void removeSecretKeys(List<SecretKeyInfo> keyInfoList) {
-        if (null == keyInfoList) {
-            return;
-        }
-        for (SecretKeyInfo info : keyInfoList) {
-            mMap.remove(info.getKey());
-        }
+    public void deleteSecretKey(String key) {
+        mMap.remove(key);
     }
 
     @Override

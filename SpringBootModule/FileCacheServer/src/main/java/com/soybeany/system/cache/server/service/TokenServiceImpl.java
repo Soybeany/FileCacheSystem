@@ -1,9 +1,9 @@
 package com.soybeany.system.cache.server.service;
 
-import com.soybeany.rpc.core.api.IRpcServiceProxy;
-import com.soybeany.system.cache.core.interfaces.ISecretKeyHolderProvider;
-import com.soybeany.system.cache.core.token.Payload;
-import com.soybeany.system.cache.core.token.TokenPart;
+import com.soybeany.rpc.consumer.api.IRpcServiceProxy;
+import com.soybeany.system.cache.core.api.ISecretKeyHolderProvider;
+import com.soybeany.system.cache.core.model.Payload;
+import com.soybeany.system.cache.core.model.TokenPart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

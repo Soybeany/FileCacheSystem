@@ -1,8 +1,8 @@
 package com.soybeany.system.cache.server.sync;
 
 import com.google.gson.reflect.TypeToken;
-import com.soybeany.mq.core.api.IMqMsgHandler;
-import com.soybeany.system.cache.core.interfaces.FileCacheHttpContract;
+import com.soybeany.mq.consumer.api.IMqMsgHandler;
+import com.soybeany.system.cache.core.api.FileCacheHttpContract;
 import com.soybeany.system.cache.core.model.CacheTask;
 import com.soybeany.system.cache.server.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;

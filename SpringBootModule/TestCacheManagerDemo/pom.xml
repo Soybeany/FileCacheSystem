@@ -12,17 +12,6 @@
     <artifactId>TestCacheManagerDemo</artifactId>
     <packaging>war</packaging>
 
-    <properties>
-        <!-- 常规 -->
-        <server.port>8182</server.port>
-        <log.path>d:/cache-test/log/manager-server</log.path>
-        <!-- 密钥 -->
-        <renew-frequency-sec>600</renew-frequency-sec>
-        <!-- 任务 -->
-        <task-sync-interval-sec>10</task-sync-interval-sec>
-        <task-sync-max-day>1</task-sync-max-day>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.soybeany.system.cache</groupId>
@@ -42,6 +31,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 

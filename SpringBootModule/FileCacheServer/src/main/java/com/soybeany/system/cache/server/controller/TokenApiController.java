@@ -1,10 +1,9 @@
 package com.soybeany.system.cache.server.controller;
 
 import com.soybeany.download.FileServerUtils;
-import com.soybeany.system.cache.core.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.core.model.FileUid;
-import com.soybeany.system.cache.core.token.Payload;
-import com.soybeany.system.cache.core.token.TokenPart;
+import com.soybeany.system.cache.core.model.Payload;
+import com.soybeany.system.cache.core.model.TokenPart;
 import com.soybeany.system.cache.server.model.CacheFileInfo;
 import com.soybeany.system.cache.server.service.FileManagerService;
 import com.soybeany.system.cache.server.service.TokenService;
@@ -32,7 +31,7 @@ class TokenApiController {
     @Autowired
     private FileManagerService fileManagerService;
 
-    @GetMapping(FileCacheHttpContract.GET_FILE_PATH + "/{token}")
+    @GetMapping("/api/file/{token}")
     void getFile(@PathVariable String token, HttpServletRequest request, HttpServletResponse response) {
         try {
             TokenPart tokenPart = TokenPart.fromToken(token);

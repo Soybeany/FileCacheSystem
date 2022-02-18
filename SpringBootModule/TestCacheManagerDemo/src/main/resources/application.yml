@@ -1,5 +1,5 @@
 server:
-  port: @server.port@
+  port: 8182
 
 spring:
   datasource:
@@ -14,16 +14,13 @@ spring:
 
 logging:
   file:
-    path: @log.path@
+    path: d:/cache-test/log/manager-server
 
 user-config:
-  # 保留的旧密钥数
-  old-key-count: 1
-  # 预生成的密钥数
-  future-key-count: 1
   # 每隔多久应该生成一个新的密钥
-  renew-frequency-sec: @renew-frequency-sec@
-  # 任务同步的间隔时间，兼作心跳检测
-  task-sync-interval-sec: @task-sync-interval-sec@
+  renew-frequency-sec: 600
   # 任务同步的最大天数，即只同步最近多少天的任务
-  task-sync-max-day: @task-sync-max-day@
+  task-sync-max-day: 1
+config:
+  registry-urls:
+  broker-urls:

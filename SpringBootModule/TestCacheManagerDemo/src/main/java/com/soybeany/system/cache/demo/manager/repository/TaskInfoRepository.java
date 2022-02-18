@@ -1,5 +1,6 @@
 package com.soybeany.system.cache.demo.manager.repository;
 
+import com.soybeany.system.cache.demo.manager.model.TaskInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Date;

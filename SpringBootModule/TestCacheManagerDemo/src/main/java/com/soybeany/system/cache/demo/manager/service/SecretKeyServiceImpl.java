@@ -1,15 +1,16 @@
 package com.soybeany.system.cache.demo.manager.service;
 
-import com.soybeany.system.cache.core.interfaces.ISecretKeyRepository;
-import com.soybeany.system.cache.core.model.SecretKeyInfo;
-import com.soybeany.system.cache.demo.manager.repository.SecretKeyEntity;
+import com.soybeany.system.cache.demo.manager.model.SecretKeyEntity;
 import com.soybeany.system.cache.demo.manager.repository.SecretKeyEntityRepository;
+import com.soybeany.system.cache.manager.model.SecretKeyInfo;
+import com.soybeany.system.cache.manager.service.ISecretKeyRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,34 +25,26 @@ class SecretKeyServiceImpl implements ISecretKeyRepository {
     private SecretKeyEntityRepository repository;
 
     @Override
-    public List<SecretKeyInfo> getSecretKeyList() {
-        List<SecretKeyInfo> list = new LinkedList<>();
+    public List<SecretKeyInfo> getSecretKeys() {
+        List<SecretKeyInfo> list = new ArrayList<>();
         for (SecretKeyEntity entity : repository.findAll()) {
-            SecretKeyInfo info = new SecretKeyInfo();
-            BeanUtils.copyProperties(entity, info);
-            list.add(info);
+            list.add(new SecretKeyInfo(entity.getKey(), entity.getSecretKeyJson(), entity.getCreateTimestamp()));
         }
         return list;
     }
 
+    @Transactional
     @Override
-    public void generateNewSecretKeys(int count) throws Exception {
-        for (int i = 0; i < count; i++) {
-            SecretKeyInfo info = SecretKeyInfo.getDefaultNew(getCurrentTimestamp());
-            SecretKeyEntity entity = new SecretKeyEntity();
-            BeanUtils.copyProperties(info, entity);
-            repository.save(entity);
-        }
+    public synchronized void addSecretKey(SecretKeyInfo info) {
+        SecretKeyEntity entity = new SecretKeyEntity();
+        BeanUtils.copyProperties(info, entity);
+        repository.save(entity);
     }
 
+    @Transactional
     @Override
-    public void removeSecretKeys(List<SecretKeyInfo> keyInfoList) {
-        if (null == keyInfoList) {
-            return;
-        }
-        for (SecretKeyInfo info : keyInfoList) {
-            repository.findByKey(info.getKey()).ifPresent(entity -> repository.delete(entity));
-        }
+    public synchronized void deleteSecretKey(String key) {
+        repository.findByKey(key).ifPresent(entity -> repository.delete(entity));
     }
 
     @Override

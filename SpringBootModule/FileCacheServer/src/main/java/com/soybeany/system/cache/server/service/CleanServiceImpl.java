@@ -98,15 +98,18 @@ class CleanServiceImpl extends BaseTimerService {
 
     private void cleanUnknownFile() {
         int count = 0;
-        for (String server : fileStorageService.getServers()) {
-            File[] files = fileStorageService.getFiles(server);
-            if (null == files) {
-                continue;
-            }
-            for (File file : files) {
-                String fileUidStr = FileUid.toFileUid(server, file.getName());
-                if (!fileInfoRepository.existsFileInfoByFileUid(fileUidStr)) {
-                    count = deleteFile(file, count);
+        String[] servers = fileStorageService.getServers();
+        if (null != servers) {
+            for (String server : servers) {
+                File[] files = fileStorageService.getFiles(server);
+                if (null == files) {
+                    continue;
+                }
+                for (File file : files) {
+                    String fileUidStr = FileUid.toFileUid(server, file.getName());
+                    if (!fileInfoRepository.existsFileInfoByFileUid(fileUidStr)) {
+                        count = deleteFile(file, count);
+                    }
                 }
             }
         }
