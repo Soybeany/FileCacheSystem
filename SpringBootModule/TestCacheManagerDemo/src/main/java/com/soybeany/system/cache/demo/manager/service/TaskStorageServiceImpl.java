@@ -71,9 +71,11 @@ public class TaskStorageServiceImpl implements IStorageManager {
         MqConsumerMsg msg = new MqConsumerMsg();
         msg.setStamp(tasks.get(tasks.size() - 1).getLastModifyTime().getTime());
         for (TaskInfo task : tasks) {
-            msg.getMessages().add(GSON.toJson(task, CacheTask.class));
+            CacheTask cacheTask = new CacheTask(task.getFileUid())
+                    .canExeFrom(task.getCanExeFrom())
+                    .canExeTo(task.getCanExeTo());
+            msg.getMessages().add(GSON.toJson(cacheTask));
         }
-
         result.put(TOPIC_TASK_LIST, msg);
         return result;
     }

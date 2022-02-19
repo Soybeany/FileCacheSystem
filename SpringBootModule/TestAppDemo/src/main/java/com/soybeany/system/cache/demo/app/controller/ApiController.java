@@ -2,6 +2,7 @@ package com.soybeany.system.cache.demo.app.controller;
 
 import com.soybeany.mq.core.exception.MqPluginException;
 import com.soybeany.rpc.provider.api.IRpcServiceExecutor;
+import com.soybeany.sync.core.model.SyncDTO;
 import com.soybeany.system.cache.demo.app.service.AuthorizationVerifyService;
 import com.soybeany.system.cache.demo.app.service.FileDownloadService;
 import com.soybeany.system.cache.demo.app.service.TaskService;
@@ -33,8 +34,8 @@ public class ApiController {
     private IRpcServiceExecutor invoker;
 
     @PostMapping("/rpc")
-    public void rpc(HttpServletRequest request, HttpServletResponse response) {
-        invoker.execute(request, response);
+    public SyncDTO rpc(HttpServletRequest request, HttpServletResponse response) {
+        return invoker.execute(request, response);
     }
 
     // ***********************缓存服务器调用****************************

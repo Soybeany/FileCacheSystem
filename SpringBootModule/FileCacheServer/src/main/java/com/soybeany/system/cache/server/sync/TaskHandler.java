@@ -1,6 +1,5 @@
 package com.soybeany.system.cache.server.sync;
 
-import com.google.gson.reflect.TypeToken;
 import com.soybeany.mq.consumer.api.IMqMsgHandler;
 import com.soybeany.system.cache.core.api.FileCacheContract;
 import com.soybeany.system.cache.core.model.CacheTask;
@@ -16,10 +15,7 @@ import java.util.List;
  * @date 2022/1/26
  */
 @Component
-public class TaskHandler extends IMqMsgHandler.JsonMsg<List<CacheTask>> {
-
-    private static final Type TYPE = new TypeToken<List<CacheTask>>() {
-    }.getType();
+public class TaskHandler extends IMqMsgHandler.JsonMsg<CacheTask> {
 
     @Autowired
     private TaskService taskService;
@@ -30,12 +26,13 @@ public class TaskHandler extends IMqMsgHandler.JsonMsg<List<CacheTask>> {
     }
 
     @Override
-    protected void onHandle(List<CacheTask> tasks) {
+    protected void onHandleObjects(List<CacheTask> tasks) {
         taskService.saveTasks(tasks);
     }
 
     @Override
     protected Type onSetupObjType() {
-        return TYPE;
+        return CacheTask.class;
     }
+
 }

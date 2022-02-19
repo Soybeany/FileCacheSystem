@@ -8,6 +8,7 @@ import com.soybeany.mq.consumer.impl.TopicInfoRepositoryMemImpl;
 import com.soybeany.mq.core.api.IMqBrokerSyncUrlProvider;
 import com.soybeany.rpc.consumer.api.IRpcServiceProxy;
 import com.soybeany.system.cache.server.config.AppConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,7 @@ import java.util.Optional;
  * @author Soybeany
  * @date 2022/1/20
  */
+@Slf4j
 @Component
 public class MqBrokerSyncerImpl extends BaseMqConsumerBrokerSyncerImpl {
 
@@ -42,7 +44,10 @@ public class MqBrokerSyncerImpl extends BaseMqConsumerBrokerSyncerImpl {
 
     @Override
     protected IMqExceptionHandler onSetupExceptionHandler() {
-        return null;
+        return (e, s, iMqMsgHandler) -> {
+            log.warn("出现异常:" + e.getMessage());
+            return false;
+        };
     }
 
     @Override
