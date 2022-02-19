@@ -16,7 +16,7 @@ public class CacheServerConfigProviderImpl implements ICacheServerConfigProvider
         return new CacheServerConfig(
                 "D:\\cache-test\\cache",
                 "D:\\cache-test\\temp",
-                10,
+                300,
                 10,
                 5,
                 10,

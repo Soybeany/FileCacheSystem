@@ -4,7 +4,7 @@ package com.soybeany.system.cache.core.api;
  * @author Soybeany
  * @date 2020/12/14
  */
-public interface FileCacheHttpContract {
+public interface FileCacheContract {
 
     /**
      * 任务推送的主题

@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.soybeany.system.cache.core.api.FileCacheHttpContract.TOPIC_TASK_LIST;
+import static com.soybeany.system.cache.core.api.FileCacheContract.TOPIC_TASK_LIST;
 
 /**
  * @author Soybeany
@@ -37,6 +37,7 @@ public class TaskStorageServiceImpl implements IStorageManager {
     @Transactional
     @Override
     public synchronized void save(Map<String, List<MqProducerMsg>> map) {
+        // todo 实体结构不支持起始时间、结束时间的配置，故不起作用
         List<TaskInfo> tasks = new ArrayList<>();
         Optional.ofNullable(map.get(TOPIC_TASK_LIST))
                 .ifPresent(list -> list.forEach(msg -> tasks.add(toTask(msg.getMsg()))));
@@ -85,7 +86,7 @@ public class TaskStorageServiceImpl implements IStorageManager {
 
     private TaskInfo toTask(String json) {
         CacheTask task = GSON.fromJson(json, CacheTask.class);
-        TaskInfo info = Optional.ofNullable(taskInfoRepository.findByFileUid(task.fileUid))
+        TaskInfo info = Optional.ofNullable(taskInfoRepository.findByFileUid(task.getFileUid()))
                 .orElseGet(TaskInfo::new);
         BeanUtils.copyProperties(task, info);
         return info;

@@ -1,15 +1,20 @@
 package com.soybeany.system.cache.core.model;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author Soybeany
  * @date 2020/12/22
  */
+@RequiredArgsConstructor
 public class CacheTask {
 
     /**
      * 文件标签，表示一个唯一的任务
      */
-    public String fileUid;
+    @Getter
+    private final String fileUid;
 
     /**
      * 可执行的开始时间(小时:0~23)
@@ -25,20 +30,22 @@ public class CacheTask {
         return null != canExeFrom ? canExeFrom : 0;
     }
 
-    public void setCanExeFrom(Integer canExeFrom) {
+    public CacheTask canExeFrom(Integer canExeFrom) {
         checkValue(canExeFrom);
         checkRange(canExeFrom, this.canExeTo);
         this.canExeFrom = canExeFrom;
+        return this;
     }
 
     public int getCanExeTo() {
         return null != canExeTo ? canExeTo : 23;
     }
 
-    public void setCanExeTo(Integer canExeTo) {
+    public CacheTask canExeTo(Integer canExeTo) {
         checkValue(canExeTo);
         checkRange(this.canExeFrom, canExeTo);
         this.canExeTo = canExeTo;
+        return this;
     }
 
     private void checkValue(Integer value) {

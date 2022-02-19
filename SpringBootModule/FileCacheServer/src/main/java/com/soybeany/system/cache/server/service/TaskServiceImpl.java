@@ -93,11 +93,11 @@ public class TaskServiceImpl extends BaseTimerService implements TaskService {
     }
 
     private TaskInfoP toTaskInfo(CacheTask task) {
-        TaskInfoP info = taskInfoRepository.findByFileUid(task.fileUid);
+        TaskInfoP info = taskInfoRepository.findByFileUid(task.getFileUid());
         if (null == info) {
             info = new TaskInfoP();
         }
-        info.fileUid = task.fileUid;
+        info.fileUid = task.getFileUid();
         info.priority = configService.get().getTaskRetryCount();
         info.canExeFrom = task.getCanExeFrom();
         info.canExeTo = task.getCanExeTo();

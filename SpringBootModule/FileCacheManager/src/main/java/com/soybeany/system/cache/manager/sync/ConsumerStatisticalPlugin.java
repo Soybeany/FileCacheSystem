@@ -7,7 +7,7 @@ import com.soybeany.mq.core.model.MqConsumerMsg;
 import com.soybeany.mq.core.model.MqConsumerOutput;
 import com.soybeany.mq.core.model.MqTopicInfo;
 import com.soybeany.sync.core.exception.SyncException;
-import com.soybeany.system.cache.core.api.FileCacheHttpContract;
+import com.soybeany.system.cache.core.api.FileCacheContract;
 import com.soybeany.system.cache.manager.service.ITaskSyncListener;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class ConsumerStatisticalPlugin extends MqBrokerPluginC {
         // 回调监听器
         MqTopicInfo targetTopic = null;
         for (MqTopicInfo topic : in.getTopics()) {
-            if (FileCacheHttpContract.TOPIC_TASK_LIST.equals(topic.getTopic())) {
+            if (FileCacheContract.TOPIC_TASK_LIST.equals(topic.getTopic())) {
                 targetTopic = topic;
                 break;
             }
@@ -43,6 +43,7 @@ public class ConsumerStatisticalPlugin extends MqBrokerPluginC {
         long oldStamp = targetTopic.getStamp();
         long newStamp = Optional.ofNullable(out.getMessages().get(targetTopic.getTopic()))
                 .map(MqConsumerMsg::getStamp).orElse(0L);
+        // todo 检查持久化异常时，有无抛出异常
         listeners.forEach(listener -> listener.onConsumerSync(clientIp, oldStamp, newStamp));
     }
 }

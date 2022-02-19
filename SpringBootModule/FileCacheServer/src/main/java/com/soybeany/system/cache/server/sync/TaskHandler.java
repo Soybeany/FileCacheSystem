@@ -2,7 +2,7 @@ package com.soybeany.system.cache.server.sync;
 
 import com.google.gson.reflect.TypeToken;
 import com.soybeany.mq.consumer.api.IMqMsgHandler;
-import com.soybeany.system.cache.core.api.FileCacheHttpContract;
+import com.soybeany.system.cache.core.api.FileCacheContract;
 import com.soybeany.system.cache.core.model.CacheTask;
 import com.soybeany.system.cache.server.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class TaskHandler extends IMqMsgHandler.JsonMsg<List<CacheTask>> {
 
     @Override
     public String onSetupTopic() {
-        return FileCacheHttpContract.TOPIC_TASK_LIST;
+        return FileCacheContract.TOPIC_TASK_LIST;
     }
 
     @Override

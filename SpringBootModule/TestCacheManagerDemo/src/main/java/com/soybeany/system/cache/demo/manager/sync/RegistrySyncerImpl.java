@@ -3,7 +3,7 @@ package com.soybeany.system.cache.demo.manager.sync;
 import com.soybeany.rpc.provider.BaseRpcProviderRegistrySyncerImpl;
 import com.soybeany.sync.client.picker.DataPicker;
 import com.soybeany.sync.client.picker.DataPickerSimpleImpl;
-import com.soybeany.system.cache.core.api.FileCacheHttpContract;
+import com.soybeany.system.cache.core.api.FileCacheContract;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -34,7 +34,7 @@ public class RegistrySyncerImpl extends BaseRpcProviderRegistrySyncerImpl {
 
     @Override
     public void onSetupPkgPathToScan(Set<String> set) {
-        set.add(FileCacheHttpContract.PKG_PATH_TO_SCAN);
+        set.add(FileCacheContract.PKG_PATH_TO_SCAN);
     }
 
     @PostConstruct

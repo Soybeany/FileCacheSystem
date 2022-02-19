@@ -6,7 +6,7 @@ import com.soybeany.download.core.FileInfo;
 import com.soybeany.download.core.TempFileInfo;
 import com.soybeany.rpc.consumer.api.IRpcServiceProxy;
 import com.soybeany.rpc.consumer.model.RpcProxySelector;
-import com.soybeany.system.cache.core.api.FileCacheHttpContract;
+import com.soybeany.system.cache.core.api.FileCacheContract;
 import com.soybeany.system.cache.core.api.ICacheAppInfoProvider;
 import com.soybeany.system.cache.core.model.CacheAppInfo;
 import com.soybeany.system.cache.core.model.FileUid;
@@ -64,7 +64,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
     private DownloadConfig getDownloadConfig(FileUid fileUid) {
         CacheAppInfo info = providerSelector.get(fileUid.server).getInfo();
         return new DownloadConfig(info.getCompleteUrl(fileUid.fileToken))
-                .header(FileCacheHttpContract.AUTHORIZATION, info.authorization())
+                .header(FileCacheContract.AUTHORIZATION, info.authorization())
                 .timeout(configService.get().getDownloadTimeoutSec());
     }
 
