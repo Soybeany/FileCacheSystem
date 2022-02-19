@@ -2,6 +2,7 @@ package com.soybeany.system.cache.server.service;
 
 import com.soybeany.system.cache.core.model.FileUid;
 import com.soybeany.system.cache.server.exception.FileStorageException;
+import com.soybeany.util.file.BdFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Override
     public File saveFile(FileUid fileUid, File tempFile) throws FileStorageException {
         File file = getFile(fileUid);
+        BdFileUtils.mkParentDirs(file);
         if (file.exists() && !file.delete()) {
             throw new FileStorageException("旧文件(" + file.getName() + ")无法删除");
         }

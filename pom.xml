@@ -27,8 +27,8 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <packaging.type>jar</packaging.type>
-        <bdlib.version>2.6.19</bdlib.version>
-        <bdSync.version>1.2.8</bdSync.version>
+        <bdlib.version>2.6.20</bdlib.version>
+        <bdSync.version>1.2.9</bdSync.version>
     </properties>
 
     <dependencies>

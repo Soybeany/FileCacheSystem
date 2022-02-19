@@ -140,8 +140,10 @@ public class FileDownloadServiceImpl implements FileDownloadService {
             private void deleteTempFileAndInfo(Optional<TempFileInfoP> tempFileInfoP) {
                 tempFileInfoP.ifPresent(tfi -> dbDAO.deleteTempFileInfo(tfi));
                 File tempFile = tempFileInfo.getTempFile();
-                boolean deleted = tempFile.delete();
-                log.info("临时文件“" + tempFile.getName() + "”删除" + (deleted ? "成功" : "失败"));
+                if (tempFile.exists()) {
+                    boolean deleted = tempFile.delete();
+                    log.info("临时文件“" + tempFile.getName() + "”删除" + (deleted ? "成功" : "失败"));
+                }
             }
 
         });

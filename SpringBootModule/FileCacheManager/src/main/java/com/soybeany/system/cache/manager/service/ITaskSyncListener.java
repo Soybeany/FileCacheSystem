@@ -6,6 +6,6 @@ package com.soybeany.system.cache.manager.service;
  */
 public interface ITaskSyncListener {
 
-    void onConsumerSync(String clientIp, long oldStamp, long newStamp);
+    void onConsumerSync(String clientIp, long stamp);
 
 }

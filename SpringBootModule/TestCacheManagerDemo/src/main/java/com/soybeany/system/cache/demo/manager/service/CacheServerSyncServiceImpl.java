@@ -21,7 +21,7 @@ public class CacheServerSyncServiceImpl implements ITaskSyncListener {
 
     @Transactional
     @Override
-    public synchronized void onConsumerSync(String clientIp, long oldStamp, long newStamp) {
+    public synchronized void onConsumerSync(String clientIp, long stamp) {
         CacheServerInfo info = cacheServerInfoRepository.findByHost(clientIp).orElseGet(() -> {
             CacheServerInfo newOne = new CacheServerInfo();
             newOne.setHost(clientIp);
@@ -29,7 +29,7 @@ public class CacheServerSyncServiceImpl implements ITaskSyncListener {
             newOne.setDesc("待配置");
             return newOne;
         });
-        info.setSyncedTimestamp(new Date(newStamp));
+        info.setSyncedTimestamp(new Date(stamp));
         info.setLastSyncTime(new Date());
         cacheServerInfoRepository.save(info);
     }

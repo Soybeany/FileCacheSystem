@@ -68,12 +68,14 @@ public class ApiController {
     // ***********************管理员调用****************************
 
     @PostMapping("/task")
-    public void postTask(HttpServletResponse response, String fileToken) {
+    public String postTask(HttpServletResponse response, String fileToken) {
         try {
             taskService.postTask(fileToken);
+            return "ok";
         } catch (MqPluginException e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return null;
         }
     }
 

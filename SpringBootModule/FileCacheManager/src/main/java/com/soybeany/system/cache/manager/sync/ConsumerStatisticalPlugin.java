@@ -43,7 +43,7 @@ public class ConsumerStatisticalPlugin extends MqBrokerPluginC {
         long oldStamp = targetTopic.getStamp();
         long newStamp = Optional.ofNullable(out.getMessages().get(targetTopic.getTopic()))
                 .map(MqConsumerMsg::getStamp).orElse(0L);
-        // todo 检查持久化异常时，有无抛出异常
-        listeners.forEach(listener -> listener.onConsumerSync(clientIp, oldStamp, newStamp));
+        long stamp = Math.max(oldStamp, newStamp);
+        listeners.forEach(listener -> listener.onConsumerSync(clientIp, stamp));
     }
 }
