@@ -2,7 +2,6 @@ package com.soybeany.system.cache.demo.manager.controller;
 
 import com.soybeany.rpc.provider.api.IRpcServiceExecutor;
 import com.soybeany.sync.core.model.SyncDTO;
-import com.soybeany.sync.server.api.IServerSyncer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,18 +21,9 @@ public class SyncController {
     @Autowired
     private IRpcServiceExecutor invoker;
 
-    @Autowired
-    private IServerSyncer serverSyncer;
-
     @PostMapping("/rpc")
     SyncDTO rpc(HttpServletRequest request, HttpServletResponse response) {
         return invoker.execute(request, response);
     }
-
-    @PostMapping("/broker")
-    public SyncDTO broker(HttpServletRequest request) {
-        return serverSyncer.sync(request);
-    }
-
 
 }

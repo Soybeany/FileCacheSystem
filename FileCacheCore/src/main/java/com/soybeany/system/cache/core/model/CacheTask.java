@@ -3,12 +3,14 @@ package com.soybeany.system.cache.core.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @author Soybeany
  * @date 2020/12/22
  */
 @RequiredArgsConstructor
-public class CacheTask {
+public class CacheTask implements Serializable {
 
     /**
      * 文件标签，表示一个唯一的任务

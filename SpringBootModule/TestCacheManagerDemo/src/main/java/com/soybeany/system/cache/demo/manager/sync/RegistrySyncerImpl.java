@@ -23,7 +23,7 @@ public class RegistrySyncerImpl extends BaseRpcProviderRegistrySyncerImpl {
     }
 
     @Override
-    public int onSetupSyncIntervalInSec() {
+    protected int onSetupSyncIntervalSec() {
         return 3;
     }
 
@@ -33,7 +33,7 @@ public class RegistrySyncerImpl extends BaseRpcProviderRegistrySyncerImpl {
     }
 
     @Override
-    public void onSetupPkgPathToScan(Set<String> set) {
+    protected void onSetupImplPkgToScan(Set<String> set) {
         set.add(FileCacheContract.PKG_PATH_TO_SCAN);
     }
 

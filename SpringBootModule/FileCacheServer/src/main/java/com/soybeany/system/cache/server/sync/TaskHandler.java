@@ -5,9 +5,9 @@ import com.soybeany.system.cache.core.api.FileCacheContract;
 import com.soybeany.system.cache.core.model.CacheTask;
 import com.soybeany.system.cache.server.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 /**
@@ -15,8 +15,9 @@ import java.util.List;
  * @date 2022/1/26
  */
 @Component
-public class TaskHandler extends IMqMsgHandler.JsonMsg<CacheTask> {
+public class TaskHandler implements IMqMsgHandler<CacheTask> {
 
+    @Lazy
     @Autowired
     private TaskService taskService;
 
@@ -26,13 +27,8 @@ public class TaskHandler extends IMqMsgHandler.JsonMsg<CacheTask> {
     }
 
     @Override
-    protected void onHandleObjects(List<CacheTask> tasks) {
+    public void onHandle(List<CacheTask> tasks) {
         taskService.saveTasks(tasks);
-    }
-
-    @Override
-    protected Type onSetupObjType() {
-        return CacheTask.class;
     }
 
 }

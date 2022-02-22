@@ -20,7 +20,7 @@
 
         <dependency>
             <groupId>com.github.Soybeany.bd-sync</groupId>
-            <artifactId>rpc-provider</artifactId>
+            <artifactId>rpc-unit</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.Soybeany.bd-sync</groupId>

@@ -1,6 +1,9 @@
 package com.soybeany.system.cache.server.sync;
 
-import com.soybeany.mq.client.plugin.MqClientRegistryPlugin;
+import com.soybeany.mq.consumer.api.IMqExceptionHandler;
+import com.soybeany.mq.consumer.api.IMqMsgHandler;
+import com.soybeany.mq.consumer.impl.TopicInfoRepositoryMemImpl;
+import com.soybeany.mq.consumer.plugin.MqConsumerPlugin;
 import com.soybeany.rpc.consumer.BaseRpcConsumerRegistrySyncerImpl;
 import com.soybeany.rpc.core.model.RpcServerInfo;
 import com.soybeany.sync.client.api.IClientPlugin;
@@ -24,15 +27,24 @@ import java.util.Set;
  */
 @Slf4j
 @Component
-public class RegistrySyncerImpl extends BaseRpcConsumerRegistrySyncerImpl {
+public class RegistrySyncerImpl extends BaseRpcConsumerRegistrySyncerImpl implements IMqExceptionHandler {
 
     @Autowired
     private AppConfig appConfig;
+    @Autowired
+    private List<IMqMsgHandler<?>> handlers;
 
     @Override
     protected void onSetupPlugins(List<IClientPlugin<?, ?>> plugins) {
         super.onSetupPlugins(plugins);
-        plugins.add(new MqClientRegistryPlugin());
+        plugins.add(new MqConsumerPlugin(
+                Optional.ofNullable(appConfig.getTaskSyncInterval()).orElse(30),
+                this,
+                handlers,
+                new TopicInfoRepositoryMemImpl(),
+                this,
+                true
+        ));
     }
 
     @Override
@@ -41,7 +53,7 @@ public class RegistrySyncerImpl extends BaseRpcConsumerRegistrySyncerImpl {
     }
 
     @Override
-    public void onSetupPkgPathToScan(Set<String> set) {
+    protected void onSetupApiPkgToScan(Set<String> set) {
         set.add(FileCacheContract.PKG_PATH_TO_SCAN);
     }
 
@@ -51,8 +63,15 @@ public class RegistrySyncerImpl extends BaseRpcConsumerRegistrySyncerImpl {
     }
 
     @Override
-    public int onSetupSyncIntervalInSec() {
+    protected int onSetupSyncIntervalSec() {
         return Optional.ofNullable(appConfig.getRegistrySyncInterval()).orElse(30);
+    }
+
+    @Override
+    public boolean onException(String topic, Exception e, long oldStamp, long newStamp, List<?> msgList) {
+        log.warn("消息处理异常(" + e.getClass().getSimpleName() + "-" + e.getMessage()
+                + ")，topic(" + topic + ")，stamp(" + oldStamp + "->" + newStamp + ")，" + msgList.size() + "条");
+        return true;
     }
 
     @PostConstruct
