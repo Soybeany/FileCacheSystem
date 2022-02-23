@@ -12,7 +12,6 @@ import com.soybeany.system.cache.manager.config.UserConfig;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -32,7 +31,6 @@ public class TaskStorageServiceImpl implements IMqMsgStorageManager {
     @Autowired
     private TaskInfoRepository taskInfoRepository;
 
-    @Transactional
     @Override
     public synchronized <T extends Serializable> void save(String topic, MqProducerMsg<T> msg) {
         if (!TOPIC_TASK_LIST.equals(topic)) {

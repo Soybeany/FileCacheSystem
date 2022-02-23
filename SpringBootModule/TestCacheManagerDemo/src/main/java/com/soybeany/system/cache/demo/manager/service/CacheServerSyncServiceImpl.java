@@ -5,7 +5,6 @@ import com.soybeany.system.cache.demo.manager.repository.CacheServerInfoReposito
 import com.soybeany.system.cache.manager.service.ITaskSyncListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -19,7 +18,6 @@ public class CacheServerSyncServiceImpl implements ITaskSyncListener {
     @Autowired
     private CacheServerInfoRepository cacheServerInfoRepository;
 
-    @Transactional
     @Override
     public synchronized void onConsumerSync(String clientIp, long stamp) {
         CacheServerInfo info = cacheServerInfoRepository.findByHost(clientIp).orElseGet(() -> {

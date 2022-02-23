@@ -8,7 +8,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,6 @@ class SecretKeyServiceImpl implements ISecretKeyRepository {
         return list;
     }
 
-    @Transactional
     @Override
     public synchronized void addSecretKey(SecretKeyInfo info) {
         SecretKeyEntity entity = new SecretKeyEntity();
@@ -41,7 +39,6 @@ class SecretKeyServiceImpl implements ISecretKeyRepository {
         repository.save(entity);
     }
 
-    @Transactional
     @Override
     public synchronized void deleteSecretKey(String key) {
         repository.findByKey(key).ifPresent(entity -> repository.delete(entity));
