@@ -2,6 +2,7 @@ package com.soybeany.system.cache.demo.app.service;
 
 import com.soybeany.download.FileServerUtils;
 import com.soybeany.download.core.FileInfo;
+import com.soybeany.system.cache.app.BaseDownloadServiceImpl;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,12 +16,17 @@ import java.io.IOException;
  * @date 2022/2/19
  */
 @Service
-public class FileDownloadServiceImpl implements FileDownloadService {
+public class DownloadServiceImpl extends BaseDownloadServiceImpl {
 
     private static final String DIR = "D:\\cache-test\\app";
 
     @Override
-    public void download(HttpServletRequest request, HttpServletResponse response, String fileToken) throws IOException {
+    protected String onSetupDownloadUrl() {
+        return "http://localhost:8183/api/download";
+    }
+
+    @Override
+    public void onDownload(HttpServletRequest request, HttpServletResponse response, String fileToken) throws IOException {
         File file = new File(DIR, fileToken);
         if (!file.exists()) {
             throw new FileNotFoundException();
