@@ -10,7 +10,7 @@ public interface TaskService {
 
     String GROUP = "efb";
 
-    String getPayload(String fileToken) throws Exception;
+    String getToken(String fileToken) throws Exception;
 
     void postTask(String fileToken) throws MqPluginException;
 

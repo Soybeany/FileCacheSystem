@@ -54,10 +54,10 @@ public class ApiController {
 
     // ***********************普通用户调用****************************
 
-    @GetMapping("/payload")
-    public String getPayload(HttpServletResponse response, String fileToken) {
+    @GetMapping("/token")
+    public String getToken(HttpServletResponse response, String fileToken) {
         try {
-            return taskService.getPayload(fileToken);
+            return taskService.getToken(fileToken);
         } catch (Exception e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

@@ -4,10 +4,7 @@ import com.soybeany.mq.core.exception.MqPluginException;
 import com.soybeany.rpc.consumer.api.IRpcServiceProxy;
 import com.soybeany.system.cache.app.ITaskSendService;
 import com.soybeany.system.cache.core.api.ISecretKeyHolderProvider;
-import com.soybeany.system.cache.core.model.CacheTask;
-import com.soybeany.system.cache.core.model.FileUid;
-import com.soybeany.system.cache.core.model.Payload;
-import com.soybeany.system.cache.core.model.SecretKeyHolder;
+import com.soybeany.system.cache.core.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +26,12 @@ public class TaskServiceImpl implements TaskService {
     private ISecretKeyHolderProvider provider;
 
     @Override
-    public String getPayload(String fileToken) throws Exception {
+    public String getToken(String fileToken) throws Exception {
         SecretKeyHolder holder = provider.getHolder();
-        SecretKey key = holder.getSecretKey(holder.newestKey);
-        return Payload.fromPayload(new Payload(fileToken), key);
+        String key = holder.newestKey;
+        SecretKey secretKey = holder.getSecretKey(key);
+        String payload = Payload.fromPayload(new Payload(fileToken), secretKey);
+        return TokenPart.toToken(new TokenPart(TaskService.GROUP, key, payload));
     }
 
     @Override

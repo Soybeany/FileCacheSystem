@@ -1,9 +1,12 @@
 package com.soybeany.system.cache.core.model;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author Soybeany
  * @date 2020/12/1
  */
+@RequiredArgsConstructor
 public class TokenPart {
 
     private static final String SEPARATOR = "-";
@@ -24,9 +27,4 @@ public class TokenPart {
         return new TokenPart(parts[0], parts[1], parts[2]);
     }
 
-    public TokenPart(String server, String key, String payload) {
-        this.server = server;
-        this.key = key;
-        this.payload = payload;
-    }
 }

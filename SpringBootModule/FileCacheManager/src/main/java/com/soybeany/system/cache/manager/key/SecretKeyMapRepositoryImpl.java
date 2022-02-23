@@ -12,7 +12,7 @@ import java.util.Map;
  * @author Soybeany
  * @date 2020/12/8
  */
-public class MapRepositoryImpl implements ISecretKeyRepository {
+public class SecretKeyMapRepositoryImpl implements ISecretKeyRepository {
 
     private final Map<String, SecretKeyInfo> mMap = new HashMap<>();
 
