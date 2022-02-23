@@ -13,7 +13,7 @@ public interface TaskService {
     /**
      * 保存指定的任务
      */
-    void saveTasks(List<CacheTask> tasks);
+    void saveTasks(List<CacheTask.WithStamp> tasks);
 
 }
 

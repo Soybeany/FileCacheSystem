@@ -10,6 +10,6 @@ import com.soybeany.system.cache.server.model.CacheFileInfo;
  */
 public interface FileDownloadService {
 
-    CacheFileInfo downloadFile(FileUid fileUid) throws FileDownloadException;
+    CacheFileInfo downloadFile(FileUid fileUid, String storageName) throws FileDownloadException;
 
 }

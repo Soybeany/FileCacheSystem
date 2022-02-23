@@ -17,7 +17,7 @@ public abstract class BaseTimerService {
     @SuppressWarnings("AlibabaThreadPoolCreation")
     protected void init() {
         mExecutor = Executors.newSingleThreadScheduledExecutor();
-        execute(0);
+        execute(DEFAULT_DELAY / 2);
     }
 
     protected void destroy() {

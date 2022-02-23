@@ -5,7 +5,6 @@ import com.soybeany.system.cache.core.model.FileUid;
 import com.soybeany.system.cache.core.service.BaseTimerService;
 import com.soybeany.system.cache.server.model.TaskInfoP;
 import com.soybeany.system.cache.server.repository.DbDAO;
-import com.soybeany.system.cache.server.repository.TaskInfoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,21 +39,19 @@ public class TaskServiceImpl extends BaseTimerService implements TaskService {
     private FileManagerService fileManagerService;
     @Autowired
     private DbDAO dbDAO;
-    @Autowired
-    private TaskInfoRepository taskInfoRepository;
 
     private final Set<String> executingTasks = new HashSet<>();
 
     @Override
-    public void saveTasks(List<CacheTask> tasks) {
+    public synchronized void saveTasks(List<CacheTask.WithStamp> tasks) {
         if (null == tasks || tasks.isEmpty()) {
             return;
         }
         List<TaskInfoP> list = new ArrayList<>();
-        for (CacheTask task : tasks) {
+        for (CacheTask.WithStamp task : tasks) {
             list.add(toTaskInfo(task));
         }
-        dbDAO.saveAll("TaskInfo", taskInfoRepository, list);
+        dbDAO.saveAllTaskInfo(list);
     }
 
     @Override
@@ -62,7 +59,7 @@ public class TaskServiceImpl extends BaseTimerService implements TaskService {
         // 设置最新的并发数配置
         setupPoolSize(configService.get().getTaskConcurrentMaxCount());
         // 查询需要执行的任务
-        List<TaskInfoP> tasks = taskInfoRepository.findTasksToExecute(LocalDateTime.now().getHour());
+        List<TaskInfoP> tasks = dbDAO.findTaskInfoTasksToExecute(LocalDateTime.now().getHour());
         // 将新的任务添加到执行队列
         int newAdded = 0;
         for (TaskInfoP taskInfoP : tasks) {
@@ -92,13 +89,14 @@ public class TaskServiceImpl extends BaseTimerService implements TaskService {
         executor.setMaximumPoolSize(size);
     }
 
-    private TaskInfoP toTaskInfo(CacheTask task) {
-        TaskInfoP info = taskInfoRepository.findByFileUid(task.getFileUid());
+    private TaskInfoP toTaskInfo(CacheTask.WithStamp task) {
+        TaskInfoP info = dbDAO.findTaskInfoByFileUid(task.getFileUid());
         if (null == info) {
             info = new TaskInfoP();
         }
         info.fileUid = task.getFileUid();
         info.priority = configService.get().getTaskRetryCount();
+        info.stamp = task.getStamp();
         info.canExeFrom = task.getCanExeFrom();
         info.canExeTo = task.getCanExeTo();
         return info;
@@ -121,7 +119,7 @@ public class TaskServiceImpl extends BaseTimerService implements TaskService {
     }
 
     private void updateTaskInfo(boolean success, String fileUid) {
-        TaskInfoP taskInfoP = taskInfoRepository.findByFileUid(fileUid);
+        TaskInfoP taskInfoP = dbDAO.findTaskInfoByFileUid(fileUid);
         if (null == taskInfoP) {
             return;
         }

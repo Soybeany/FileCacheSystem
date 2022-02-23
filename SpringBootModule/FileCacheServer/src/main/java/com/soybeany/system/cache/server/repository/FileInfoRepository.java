@@ -1,6 +1,5 @@
 package com.soybeany.system.cache.server.repository;
 
-import com.soybeany.system.cache.server.exception.FileInfoNotFoundException;
 import com.soybeany.system.cache.server.model.FileInfoP;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,11 +11,7 @@ import java.util.Optional;
  * @author Soybeany
  * @date 2020/12/4
  */
-public interface FileInfoRepository extends JpaRepository<FileInfoP, Long> {
-
-    default FileInfoP findByFileUidOrThrow(String fileUid) throws FileInfoNotFoundException {
-        return findByFileUid(fileUid).orElseThrow(FileInfoNotFoundException::new);
-    }
+interface FileInfoRepository extends JpaRepository<FileInfoP, Long> {
 
     /**
      * 查找指定fileToken的记录
@@ -26,7 +21,7 @@ public interface FileInfoRepository extends JpaRepository<FileInfoP, Long> {
     /**
      * 判断指定fileToken的记录是否存在
      */
-    boolean existsFileInfoByFileUid(String fileUid);
+    boolean existsByFileUidOrStorageName(String fileUid, String storageName);
 
     /**
      * 查询全部失效的记录

@@ -15,7 +15,7 @@ import java.util.List;
  * @date 2022/1/26
  */
 @Component
-public class TaskHandler implements IMqMsgHandler<CacheTask> {
+public class TaskHandler implements IMqMsgHandler<CacheTask.WithStamp> {
 
     @Lazy
     @Autowired
@@ -27,7 +27,7 @@ public class TaskHandler implements IMqMsgHandler<CacheTask> {
     }
 
     @Override
-    public void onHandle(List<CacheTask> tasks) {
+    public void onHandle(List<CacheTask.WithStamp> tasks) {
         taskService.saveTasks(tasks);
     }
 

@@ -3,12 +3,11 @@ package com.soybeany.system.cache.server.service;
 import com.soybeany.system.cache.core.model.FileUid;
 import com.soybeany.system.cache.core.util.CacheCoreTimeUtils;
 import com.soybeany.system.cache.server.exception.CacheServerException;
-import com.soybeany.system.cache.server.exception.FileInfoNotFoundException;
 import com.soybeany.system.cache.server.exception.FileNotReadyException;
 import com.soybeany.system.cache.server.model.CacheFileInfo;
 import com.soybeany.system.cache.server.model.FileInfoP;
 import com.soybeany.system.cache.server.repository.DbDAO;
-import com.soybeany.system.cache.server.repository.FileInfoRepository;
+import com.soybeany.util.file.BdFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,8 +37,6 @@ public class FileManagerServiceImpl implements FileManagerService {
     private FileDownloadService fileDownloadService;
     @Autowired
     private DbDAO dbDAO;
-    @Autowired
-    private FileInfoRepository fileInfoRepository;
 
     @Override
     public CacheFileInfo getFile(FileUid fileUid) throws CacheServerException {
@@ -67,15 +64,15 @@ public class FileManagerServiceImpl implements FileManagerService {
         return fileInfo;
     }
 
-    private void saveFileInfo(String fileUidStr, CacheFileInfo info) {
-        FileInfoP entity = fileInfoRepository.findByFileUid(fileUidStr).orElseGet(() -> {
+    private synchronized void saveFileInfo(String fileUidStr, CacheFileInfo info) {
+        FileInfoP entity = dbDAO.findFileInfoByFileUid(fileUidStr).orElseGet(() -> {
             FileInfoP infoP = new FileInfoP();
             infoP.fileUid = fileUidStr;
             return infoP;
         });
         entity.expiryTime = CacheCoreTimeUtils.toDate(LocalDateTime.now().plusSeconds(info.getAge()));
+        entity.storageName = info.getFile().getName();
         entity.visitCount++;
-        entity.downloaded = true;
         entity.eTag = info.eTag();
         entity.contentType = info.contentType();
         entity.contentDisposition = info.contentDisposition();
@@ -84,13 +81,20 @@ public class FileManagerServiceImpl implements FileManagerService {
     }
 
     private CacheFileInfo retrieveFile(FileUid fileUid, String fileUidStr) throws CacheServerException {
-        // 获取本地文件
-        File file = fileStorageService.loadFile(fileUid);
-        if (file.exists()) {
-            return toCacheFileInfo(fileUidStr, file);
+        FileInfoP info = dbDAO.findFileInfoByFileUid(fileUidStr).orElse(null);
+        // 表中没有记录，则按新文件下载
+        if (null == info) {
+            return fileDownloadService.downloadFile(fileUid, BdFileUtils.getUuid());
         }
-        // 下载文件后再返回
-        return fileDownloadService.downloadFile(fileUid);
+        // 本地若有文件，直接返回
+        File file = fileStorageService.loadFile(fileUid, info.storageName);
+        if (file.exists()) {
+            long contentLength = Optional.ofNullable(info.contentLength).orElse(-1L);
+            int age = (int) (info.expiryTime.getTime() - System.currentTimeMillis()) / 1000;
+            return new CacheFileInfo(info.contentDisposition, contentLength, info.eTag, age, file);
+        }
+        // 重新下载文件后返回
+        return fileDownloadService.downloadFile(fileUid, info.storageName);
     }
 
     private CacheFileInfo operateWithLock(int lockTimeoutSec, String fileUid, ICallback callback) throws InterruptedException, CacheServerException {
@@ -108,13 +112,6 @@ public class FileManagerServiceImpl implements FileManagerService {
         } finally {
             lock.unlock();
         }
-    }
-
-    private CacheFileInfo toCacheFileInfo(String fileUid, File file) throws FileInfoNotFoundException {
-        FileInfoP info = fileInfoRepository.findByFileUidOrThrow(fileUid);
-        long contentLength = Optional.ofNullable(info.contentLength).orElse(-1L);
-        int age = (int) (info.expiryTime.getTime() - System.currentTimeMillis()) / 1000;
-        return new CacheFileInfo(info.contentDisposition, contentLength, info.eTag, age, file);
     }
 
     // ***********************内部类****************************

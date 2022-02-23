@@ -2,7 +2,7 @@ package com.soybeany.system.cache.server.sync;
 
 import com.soybeany.mq.consumer.api.IMqExceptionHandler;
 import com.soybeany.mq.consumer.api.IMqMsgHandler;
-import com.soybeany.mq.consumer.impl.TopicInfoRepositoryMemImpl;
+import com.soybeany.mq.consumer.api.ITopicInfoRepository;
 import com.soybeany.mq.consumer.plugin.MqConsumerPlugin;
 import com.soybeany.rpc.consumer.BaseRpcConsumerRegistrySyncerImpl;
 import com.soybeany.rpc.core.model.RpcServerInfo;
@@ -33,6 +33,8 @@ public class RegistrySyncerImpl extends BaseRpcConsumerRegistrySyncerImpl implem
     private AppConfig appConfig;
     @Autowired
     private List<IMqMsgHandler<?>> handlers;
+    @Autowired
+    private ITopicInfoRepository topicInfoRepository;
 
     @Override
     protected void onSetupPlugins(List<IClientPlugin<?, ?>> plugins) {
@@ -41,7 +43,7 @@ public class RegistrySyncerImpl extends BaseRpcConsumerRegistrySyncerImpl implem
                 Optional.ofNullable(appConfig.getTaskSyncInterval()).orElse(30),
                 this,
                 handlers,
-                new TopicInfoRepositoryMemImpl(),
+                topicInfoRepository,
                 this,
                 true
         ));

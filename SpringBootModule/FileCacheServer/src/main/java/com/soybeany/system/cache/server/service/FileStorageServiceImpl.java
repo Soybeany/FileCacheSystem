@@ -19,13 +19,13 @@ public class FileStorageServiceImpl implements FileStorageService {
     private ConfigService configService;
 
     @Override
-    public File loadFile(FileUid fileUid) {
-        return getFile(fileUid);
+    public File loadFile(FileUid fileUid, String storageName) {
+        return getFile(fileUid, storageName);
     }
 
     @Override
-    public File saveFile(FileUid fileUid, File tempFile) throws FileStorageException {
-        File file = getFile(fileUid);
+    public File saveFile(FileUid fileUid, String storageName, File tempFile) throws FileStorageException {
+        File file = getFile(fileUid, storageName);
         BdFileUtils.mkParentDirs(file);
         if (file.exists() && !file.delete()) {
             throw new FileStorageException("旧文件(" + file.getName() + ")无法删除");
@@ -52,14 +52,15 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     @Override
-    public File loadTempFile(FileUid fileUid, String fileName) {
-        return new File(getFile(fileUid), fileName);
+    public File loadTempFile(String fileName) {
+        return new File(getTempFileDir(), fileName);
     }
 
     // ***********************内部方法****************************
 
-    private File getFile(FileUid fileUid) {
-        return new File(getCacheFileDir() + File.separator + fileUid.server, fileUid.fileToken);
+    private File getFile(FileUid fileUid, String storageName) {
+        String fileName = (null != storageName ? storageName : fileUid.fileToken);
+        return new File(getCacheFileDir() + File.separator + fileUid.server, fileName);
     }
 
     private String getCacheFileDir() {

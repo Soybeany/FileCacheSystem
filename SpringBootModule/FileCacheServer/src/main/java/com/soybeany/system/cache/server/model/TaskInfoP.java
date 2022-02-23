@@ -34,7 +34,14 @@ public class TaskInfoP extends BaseEntity.WithTimeStamp {
      * <br>下载失败，自动降1级
      * <br>下载成功，降为{@link #PRIORITY_FINISH}
      */
+    @Column
     public int priority;
+
+    /**
+     * 任务对应的stamp
+     */
+    @Column
+    public long stamp;
 
     /**
      * 可执行的开始时间(小时:0~23)

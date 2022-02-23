@@ -64,4 +64,18 @@ public class CacheTask implements Serializable {
             throw new RuntimeException("时间范围定义有误");
         }
     }
+
+    public static class WithStamp extends CacheTask {
+        /**
+         * 标识任务所属的戳
+         */
+        @Getter
+        private final long stamp;
+
+        public WithStamp(String fileUid, long stamp) {
+            super(fileUid);
+            this.stamp = stamp;
+        }
+    }
+
 }

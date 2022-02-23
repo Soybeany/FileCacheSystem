@@ -15,7 +15,6 @@ import com.soybeany.system.cache.server.exception.FileStorageException;
 import com.soybeany.system.cache.server.model.CacheFileInfo;
 import com.soybeany.system.cache.server.model.TempFileInfoP;
 import com.soybeany.system.cache.server.repository.DbDAO;
-import com.soybeany.system.cache.server.repository.TempFileRepository;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +35,7 @@ import java.util.concurrent.CountDownLatch;
 public class FileDownloadServiceImpl implements FileDownloadService {
 
     private static final int DEFAULT_AGE = 30 * 24 * 60 * 60;
+    private static final char[] LOCK = new char[0];
 
     @Autowired
     private ConfigService configService;
@@ -44,16 +44,14 @@ public class FileDownloadServiceImpl implements FileDownloadService {
     @Autowired
     private DbDAO dbDAO;
     @Autowired
-    private TempFileRepository tempFileRepository;
-    @Autowired
     private IRpcServiceProxy serviceProxy;
 
     private RpcProxySelector<ICacheAppInfoProvider> providerSelector;
 
     @Override
-    public CacheFileInfo downloadFile(FileUid fileUid) throws FileDownloadException {
+    public CacheFileInfo downloadFile(FileUid fileUid, String storageName) throws FileDownloadException {
         try {
-            return downloadFile(fileUid, getDownloadConfig(fileUid), getTempFileInfo(fileUid));
+            return downloadFile(fileUid, storageName, getDownloadConfig(fileUid), getTempFileInfo(fileUid));
         } catch (Exception e) {
             throw new FileDownloadException(e.getMessage());
         }
@@ -70,15 +68,15 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
     private TempFileInfo getTempFileInfo(FileUid fileUid) {
         return getTempFileInfoP(fileUid)
-                .map(info -> new TempFileInfo(fileStorageService.loadTempFile(fileUid, info.tempFileName), info.eTag))
+                .map(info -> new TempFileInfo(fileStorageService.loadTempFile(info.tempFileName), info.eTag))
                 .orElseGet(() -> TempFileInfo.getNew(fileStorageService.getTempFileDir()));
     }
 
     private Optional<TempFileInfoP> getTempFileInfoP(FileUid fileUid) {
-        return tempFileRepository.findByFileUid(FileUid.toString(fileUid));
+        return dbDAO.findTempFileInfoByFileUid(FileUid.toString(fileUid));
     }
 
-    private CacheFileInfo downloadFile(FileUid fileUid, DownloadConfig config, TempFileInfo tempFileInfo) throws Exception {
+    private CacheFileInfo downloadFile(FileUid fileUid, String storageName, DownloadConfig config, TempFileInfo tempFileInfo) throws Exception {
         Result result = new Result();
         CountDownLatch latch = new CountDownLatch(1);
         FileClientUtils.downloadFile(config, tempFileInfo, new FileClientUtils.ICallback() {
@@ -93,7 +91,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
                     return;
                 }
                 try {
-                    File file = fileStorageService.saveFile(fileUid, tempFile);
+                    File file = fileStorageService.saveFile(fileUid, storageName, tempFile);
                     int age = Optional.ofNullable(response.header("Age")).map(Integer::parseInt).orElse(DEFAULT_AGE);
                     result.beNorm(new CacheFileInfo(info.contentDisposition(), contentLength, info.eTag(), age, file));
                     isSuccess = true;
@@ -114,27 +112,29 @@ public class FileDownloadServiceImpl implements FileDownloadService {
             }
 
             private void handleTempFile(FileInfo info) {
-                Optional<TempFileInfoP> tempFileInfoP = getTempFileInfoP(fileUid);
-                String fileUidStr = FileUid.toString(fileUid);
-                File tempFile = tempFileInfo.getTempFile();
-                // 成功则删除临时记录与临时文件
-                if (isSuccess) {
-                    log.info("文件“" + fileUidStr + "”下载完成");
-                    deleteTempFileAndInfo(tempFileInfoP);
-                    return;
+                synchronized (LOCK) {
+                    Optional<TempFileInfoP> tempFileInfoP = getTempFileInfoP(fileUid);
+                    String fileUidStr = FileUid.toString(fileUid);
+                    File tempFile = tempFileInfo.getTempFile();
+                    // 成功则删除临时记录与临时文件
+                    if (isSuccess) {
+                        log.info("文件“" + fileUidStr + "”下载完成");
+                        deleteTempFileAndInfo(tempFileInfoP);
+                        return;
+                    }
+                    // 否则更新临时文件信息
+                    TempFileInfoP tfi = tempFileInfoP.orElseGet(() -> {
+                        TempFileInfoP newOne = new TempFileInfoP();
+                        newOne.fileUid = FileUid.toString(fileUid);
+                        newOne.tempFileName = tempFile.getName();
+                        return newOne;
+                    });
+                    tfi.eTag = info.eTag();
+                    tfi.downloadedLength = tempFile.length();
+                    tfi.totalLength = info.contentLength();
+                    dbDAO.saveTempFileInfo(tfi);
+                    log.info("文件“" + fileUidStr + "”部分已下载(" + tfi.downloadedLength + "/" + tfi.totalLength + ")，临时文件为“" + tempFile.getName());
                 }
-                // 否则更新临时文件信息
-                TempFileInfoP tfi = tempFileInfoP.orElseGet(() -> {
-                    TempFileInfoP newOne = new TempFileInfoP();
-                    newOne.fileUid = FileUid.toString(fileUid);
-                    newOne.tempFileName = tempFile.getName();
-                    return newOne;
-                });
-                tfi.eTag = info.eTag();
-                tfi.downloadedLength = tempFile.length();
-                tfi.totalLength = info.contentLength();
-                dbDAO.saveTempFileInfo(tfi);
-                log.info("文件“" + fileUidStr + "”部分已下载(" + tfi.downloadedLength + "/" + tfi.totalLength + ")，临时文件为“" + tempFile.getName());
             }
 
             private void deleteTempFileAndInfo(Optional<TempFileInfoP> tempFileInfoP) {

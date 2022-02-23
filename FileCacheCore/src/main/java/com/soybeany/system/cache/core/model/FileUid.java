@@ -14,8 +14,10 @@ public class FileUid {
     public final String fileToken;
 
     public static FileUid fromString(String string) {
-        String[] parts = string.split(SEPARATOR);
-        return new FileUid(parts[0], parts[1]);
+        int separatorIndex = string.indexOf(SEPARATOR);
+        String server = string.substring(0, separatorIndex);
+        String fileUid = string.substring(separatorIndex + SEPARATOR.length());
+        return new FileUid(server, fileUid);
     }
 
     public static String toFileUid(String server, String fileToken) {

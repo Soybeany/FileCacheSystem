@@ -11,7 +11,7 @@ import java.util.Optional;
  * @author Soybeany
  * @date 2020/12/18
  */
-public interface TempFileRepository extends JpaRepository<TempFileInfoP, Long> {
+interface TempFileRepository extends JpaRepository<TempFileInfoP, Long> {
 
     Optional<TempFileInfoP> findByFileUid(String fileUid);
 

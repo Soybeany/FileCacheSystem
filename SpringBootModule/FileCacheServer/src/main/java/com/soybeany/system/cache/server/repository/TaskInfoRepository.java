@@ -10,7 +10,7 @@ import java.util.List;
  * @author Soybeany
  * @date 2020/12/18
  */
-public interface TaskInfoRepository extends JpaRepository<TaskInfoP, Long> {
+interface TaskInfoRepository extends JpaRepository<TaskInfoP, Long> {
 
     TaskInfoP findByFileUid(String fileUid);
 
@@ -30,5 +30,10 @@ public interface TaskInfoRepository extends JpaRepository<TaskInfoP, Long> {
             "and last_modify_time < :minValidTime",
             nativeQuery = true)
     List<TaskInfoP> selectAllExceedRecords(int priority, long minValidTime);
+
+    @Query(value = "select stamp from task_info " +
+            "group by stamp order by stamp desc limit 1",
+            nativeQuery = true)
+    Long selectNewestStamp();
 
 }

@@ -34,24 +34,17 @@ public class FileInfoP extends BaseEntity.WithTimeStamp {
     public Date expiryTime;
 
     /**
-     * 最大允许不活跃的秒数
-     * <br>不活跃的秒数：最后一次访问距离现在的秒数
+     * 本地存储时的文件名
      */
-    @Deprecated
-    @Column(nullable = false)
-    public long maxInactiveSec;
+    @Nullable
+    @Column
+    public String storageName;
 
     /**
      * 该文件被访问的次数
      */
     @Column(nullable = false)
     public int visitCount;
-
-    /**
-     * 文件是否已下载
-     */
-    @Column(nullable = false)
-    public boolean downloaded;
 
     // ********************文件属性********************
 
@@ -82,5 +75,22 @@ public class FileInfoP extends BaseEntity.WithTimeStamp {
     @Nullable
     @Column
     public String contentDisposition;
+
+    // ***********************过期字段****************************
+
+    /**
+     * 最大允许不活跃的秒数
+     * <br>不活跃的秒数：最后一次访问距离现在的秒数
+     */
+    @Deprecated
+    @Column(nullable = false)
+    private long maxInactiveSec;
+
+    /**
+     * 文件是否已下载
+     */
+    @Deprecated
+    @Column(nullable = false)
+    private boolean downloaded = true;
 
 }

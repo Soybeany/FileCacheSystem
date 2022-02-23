@@ -26,6 +26,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
             throw new FileNotFoundException();
         }
         FileInfo fileInfo = FileInfo.getNewAttachment(file.getName(), file.length(), file.lastModified() + "");
+        response.setHeader("Age", "30");
         FileServerUtils.randomAccessDownloadFile(fileInfo, request, response, file);
     }
 

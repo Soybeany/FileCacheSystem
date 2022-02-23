@@ -70,7 +70,7 @@ public class TaskStorageServiceImpl implements IMqMsgStorageManager {
         MqConsumerMsg<T> msg = new MqConsumerMsg<>();
         msg.setStamp(tasks.get(tasks.size() - 1).getLastModifyTime().getTime());
         for (TaskInfo task : tasks) {
-            CacheTask cacheTask = new CacheTask(task.getFileUid())
+            CacheTask cacheTask = new CacheTask.WithStamp(task.getFileUid(), msg.getStamp())
                     .canExeFrom(task.getCanExeFrom())
                     .canExeTo(task.getCanExeTo());
             msg.getMsgList().add((T) cacheTask);
@@ -79,10 +79,10 @@ public class TaskStorageServiceImpl implements IMqMsgStorageManager {
         return result;
     }
 
-    private Date getStampDate(long referStamp) {
+    private Date getStampDate(Long referStamp) {
         LocalDateTime minTime = LocalDateTime.now().minusDays(userConfig.getTaskSyncMaxDay());
         long minStamp = CacheCoreTimeUtils.toMillis(minTime);
-        return new Date(Math.max(minStamp, referStamp));
+        return new Date(Math.max(minStamp, Optional.ofNullable(referStamp).orElse(0L)));
     }
 
     @SuppressWarnings("unchecked")

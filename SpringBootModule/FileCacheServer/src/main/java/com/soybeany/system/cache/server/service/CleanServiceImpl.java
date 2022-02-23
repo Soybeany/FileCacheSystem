@@ -6,9 +6,6 @@ import com.soybeany.system.cache.core.util.CacheCoreTimeUtils;
 import com.soybeany.system.cache.server.model.FileInfoP;
 import com.soybeany.system.cache.server.model.TaskInfoP;
 import com.soybeany.system.cache.server.repository.DbDAO;
-import com.soybeany.system.cache.server.repository.FileInfoRepository;
-import com.soybeany.system.cache.server.repository.TaskInfoRepository;
-import com.soybeany.system.cache.server.repository.TempFileRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,12 +30,6 @@ class CleanServiceImpl extends BaseTimerService {
     private FileStorageService fileStorageService;
     @Autowired
     private DbDAO dbDAO;
-    @Autowired
-    private FileInfoRepository fileInfoRepository;
-    @Autowired
-    private TaskInfoRepository taskInfoRepository;
-    @Autowired
-    private TempFileRepository tempFileRepository;
 
     @Override
     protected void onSignal() {
@@ -87,13 +78,13 @@ class CleanServiceImpl extends BaseTimerService {
 
     private void cleanFileAndInfo() {
         int count = 0;
-        List<FileInfoP> exceedList = fileInfoRepository.selectAllExceedRecords(System.currentTimeMillis());
+        List<FileInfoP> exceedList = dbDAO.selectFileInfoAllExceedRecords(System.currentTimeMillis());
         for (FileInfoP info : exceedList) {
             FileUid fileUid = FileUid.fromString(info.fileUid);
-            count = deleteFile(fileStorageService.loadFile(fileUid), count);
+            count = deleteFile(fileStorageService.loadFile(fileUid, info.storageName), count);
         }
         log.info("成功删除了" + count + "个缓存文件");
-        dbDAO.deleteAll("FileInfo", fileInfoRepository, exceedList);
+        dbDAO.deleteAllFileInfo(exceedList);
     }
 
     private void cleanUnknownFile() {
@@ -107,7 +98,7 @@ class CleanServiceImpl extends BaseTimerService {
                 }
                 for (File file : files) {
                     String fileUidStr = FileUid.toFileUid(server, file.getName());
-                    if (!fileInfoRepository.existsFileInfoByFileUid(fileUidStr)) {
+                    if (!dbDAO.existsFileInfoByFileUidOrStorageName(fileUidStr, file.getName())) {
                         count = deleteFile(file, count);
                     }
                 }
@@ -117,14 +108,14 @@ class CleanServiceImpl extends BaseTimerService {
     }
 
     private void cleanTask() {
-        List<TaskInfoP> exceedList = taskInfoRepository.selectAllExceedRecords(TaskInfoP.PRIORITY_FINISH, getExpiryTime(30));
-        dbDAO.deleteAll("TaskInfo", taskInfoRepository, exceedList);
+        List<TaskInfoP> exceedList = dbDAO.selectTaskInfoAllExceedRecords(TaskInfoP.PRIORITY_FINISH, getExpiryTime(30));
+        dbDAO.deleteAllTaskInfo(exceedList);
     }
 
     private void cleanTempFileAndInfo() {
         long expiryTime = getExpiryTime(7);
         // 删除过期的表记录
-        dbDAO.deleteAll("TempFileInfo", tempFileRepository, tempFileRepository.selectAllExceedRecords(expiryTime));
+        dbDAO.deleteAllTempFileInfo(dbDAO.selectTempFileInfoAllExceedRecords(expiryTime));
         // 删除过期的文件
         File[] tempFiles = new File(fileStorageService.getTempFileDir()).listFiles();
         if (null == tempFiles) {
