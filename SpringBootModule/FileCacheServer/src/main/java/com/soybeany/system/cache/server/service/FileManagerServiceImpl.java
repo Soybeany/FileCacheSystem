@@ -64,7 +64,7 @@ public class FileManagerServiceImpl implements FileManagerService {
         return fileInfo;
     }
 
-    private synchronized void saveFileInfo(String fileUidStr, CacheFileInfo info) {
+    private void saveFileInfo(String fileUidStr, CacheFileInfo info) {
         FileInfoP entity = dbDAO.findFileInfoByFileUid(fileUidStr).orElseGet(() -> {
             FileInfoP infoP = new FileInfoP();
             infoP.fileUid = fileUidStr;

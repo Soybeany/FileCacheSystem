@@ -43,7 +43,7 @@ public class TaskServiceImpl extends BaseTimerService implements TaskService {
     private final Set<String> executingTasks = new HashSet<>();
 
     @Override
-    public synchronized void saveTasks(List<CacheTask.WithStamp> tasks) {
+    public void saveTasks(List<CacheTask.WithStamp> tasks) {
         if (null == tasks || tasks.isEmpty()) {
             return;
         }

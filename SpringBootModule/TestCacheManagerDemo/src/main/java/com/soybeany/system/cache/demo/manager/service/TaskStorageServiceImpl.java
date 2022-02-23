@@ -32,7 +32,7 @@ public class TaskStorageServiceImpl implements IMqMsgStorageManager {
     private TaskInfoRepository taskInfoRepository;
 
     @Override
-    public synchronized <T extends Serializable> void save(String topic, MqProducerMsg<T> msg) {
+    public <T extends Serializable> void save(String topic, MqProducerMsg<T> msg) {
         if (!TOPIC_TASK_LIST.equals(topic)) {
             return;
         }
@@ -41,7 +41,7 @@ public class TaskStorageServiceImpl implements IMqMsgStorageManager {
     }
 
     @Override
-    public synchronized <T extends Serializable> Map<String, MqConsumerMsg<T>> load(Collection<MqTopicInfo> topics) {
+    public <T extends Serializable> Map<String, MqConsumerMsg<T>> load(Collection<MqTopicInfo> topics) {
         Map<String, MqConsumerMsg<T>> result = new HashMap<>();
         MqTopicInfo targetInfo = null;
         for (MqTopicInfo info : topics) {

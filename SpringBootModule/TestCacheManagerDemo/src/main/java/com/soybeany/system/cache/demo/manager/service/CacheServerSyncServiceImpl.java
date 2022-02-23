@@ -19,7 +19,7 @@ public class CacheServerSyncServiceImpl implements ITaskSyncListener {
     private CacheServerInfoRepository cacheServerInfoRepository;
 
     @Override
-    public synchronized void onConsumerSync(String clientIp, long stamp) {
+    public void onConsumerSync(String clientIp, long stamp) {
         CacheServerInfo info = cacheServerInfoRepository.findByHost(clientIp).orElseGet(() -> {
             CacheServerInfo newOne = new CacheServerInfo();
             newOne.setHost(clientIp);
