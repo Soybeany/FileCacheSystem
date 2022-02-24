@@ -33,7 +33,7 @@ public abstract class BaseRegistrySyncerImpl extends BaseRpcUnitRegistrySyncerIm
     @Autowired
     private IMqMsgSender sender;
 
-    private final String group = onSetupGroup();
+    private String group;
     private MqProducerPlugin producerPlugin;
     private ISecretKeyHolderProvider provider;
 
@@ -79,6 +79,7 @@ public abstract class BaseRegistrySyncerImpl extends BaseRpcUnitRegistrySyncerIm
     @PostConstruct
     private void onInit() {
         start();
+        group = onSetupGroup();
         provider = get(ISecretKeyHolderProvider.class);
     }
 

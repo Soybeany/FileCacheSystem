@@ -1,0 +1,29 @@
+{
+  "properties": [
+    {
+      "name": "config.registry-urls",
+      "type": "java.lang.String",
+      "description": "注册中心的url集合，使用“,”分隔."
+    },
+    {
+      "name": "config.registry-sync-interval",
+      "type": "java.lang.Integer",
+      "description": "注册中心同步的间隔."
+    },
+    {
+      "name": "config.port",
+      "type": "java.lang.Integer",
+      "description": "启用的端口."
+    },
+    {
+      "name": "config.context",
+      "type": "java.lang.String",
+      "description": "上下文."
+    },
+    {
+      "name": "config.group",
+      "type": "java.lang.String",
+      "description": "分组."
+    }
+  ]
+}

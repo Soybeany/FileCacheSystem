@@ -4,6 +4,8 @@ import com.soybeany.rpc.core.model.RpcServerInfo;
 import com.soybeany.sync.client.picker.DataPicker;
 import com.soybeany.sync.client.picker.DataPickerSimpleImpl;
 import com.soybeany.system.cache.app.sync.BaseRegistrySyncerImpl;
+import com.soybeany.system.cache.demo.app.config.AppConfig;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,9 +15,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class RegistrySyncerImpl extends BaseRegistrySyncerImpl {
 
+    @Autowired
+    private AppConfig appConfig;
+
     @Override
     protected String onSetupGroup() {
-        return "efb";
+        return appConfig.getGroup();
     }
 
     @Override
@@ -25,18 +30,17 @@ public class RegistrySyncerImpl extends BaseRegistrySyncerImpl {
 
     @Override
     protected String onSetupInvokeUrl(String ip) {
-        return "http://localhost:8183/api/rpc";
+        return getUrl(false, ip, appConfig.getPort(), appConfig.getContext(), "/api/rpc", "");
     }
-
 
     @Override
     public DataPicker<String> onSetupSyncServerPicker() {
-        return new DataPickerSimpleImpl<>("http://localhost:8180/bd-api/sync");
+        return new DataPickerSimpleImpl<>(appConfig.getRegistryUrls());
     }
 
     @Override
     protected int onSetupSyncIntervalSec() {
-        return 5;
+        return appConfig.getRegistrySyncInterval();
     }
 
 }

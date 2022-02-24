@@ -1,2 +1,13 @@
 server:
   port: 8183
+
+logging:
+  file:
+    path: d:/cache-test/log/cache-app
+
+config:
+  registry-urls: http://localhost:8180/bd-api/sync
+  registry-sync-interval: 5
+  port: 8183
+  context: ""
+  group: efb
