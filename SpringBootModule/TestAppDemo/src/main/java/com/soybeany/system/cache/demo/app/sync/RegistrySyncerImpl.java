@@ -3,7 +3,7 @@ package com.soybeany.system.cache.demo.app.sync;
 import com.soybeany.rpc.core.model.RpcServerInfo;
 import com.soybeany.sync.client.picker.DataPicker;
 import com.soybeany.sync.client.picker.DataPickerSimpleImpl;
-import com.soybeany.system.cache.app.BaseRegistrySyncerImpl;
+import com.soybeany.system.cache.app.sync.BaseRegistrySyncerImpl;
 import org.springframework.stereotype.Component;
 
 /**

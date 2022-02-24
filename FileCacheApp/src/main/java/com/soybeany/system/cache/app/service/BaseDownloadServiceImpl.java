@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.app;
+package com.soybeany.system.cache.app.service;
 
 import com.soybeany.system.cache.core.api.FileCacheContract;
 import com.soybeany.system.cache.core.model.CacheAppInfo;
@@ -18,7 +18,7 @@ public abstract class BaseDownloadServiceImpl implements DownloadService {
     private static final String AUTHORIZATION = BdFileUtils.getUuid();
 
     @Override
-    public CacheAppInfo getInfo() {
+    public CacheAppInfo getCacheAppInfo() {
         return new CacheAppInfo(onSetupDownloadUrl(), AUTHORIZATION);
     }
 

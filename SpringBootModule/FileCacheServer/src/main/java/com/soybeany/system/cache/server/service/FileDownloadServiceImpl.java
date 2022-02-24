@@ -7,7 +7,7 @@ import com.soybeany.download.core.TempFileInfo;
 import com.soybeany.rpc.consumer.api.IRpcServiceProxy;
 import com.soybeany.rpc.consumer.model.RpcProxySelector;
 import com.soybeany.system.cache.core.api.FileCacheContract;
-import com.soybeany.system.cache.core.api.ICacheAppInfoProvider;
+import com.soybeany.system.cache.core.api.IDownloadInfoProvider;
 import com.soybeany.system.cache.core.model.CacheAppInfo;
 import com.soybeany.system.cache.core.model.FileUid;
 import com.soybeany.system.cache.server.exception.FileDownloadException;
@@ -46,7 +46,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
     @Autowired
     private IRpcServiceProxy serviceProxy;
 
-    private RpcProxySelector<ICacheAppInfoProvider> providerSelector;
+    private RpcProxySelector<IDownloadInfoProvider> providerSelector;
 
     @Override
     public CacheFileInfo downloadFile(FileUid fileUid, String storageName) throws FileDownloadException {
@@ -60,7 +60,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
     // ***********************内部方法****************************
 
     private DownloadConfig getDownloadConfig(FileUid fileUid) {
-        CacheAppInfo info = providerSelector.get(fileUid.server).getInfo();
+        CacheAppInfo info = providerSelector.get(fileUid.server).getCacheAppInfo();
         return new DownloadConfig(info.getCompleteUrl(fileUid.fileToken))
                 .header(FileCacheContract.AUTHORIZATION, info.authorization())
                 .timeout(configService.get().getDownloadTimeoutSec());
@@ -156,7 +156,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
     @PostConstruct
     private void onInit() {
-        providerSelector = serviceProxy.getSelector(ICacheAppInfoProvider.class);
+        providerSelector = serviceProxy.getSelector(IDownloadInfoProvider.class);
     }
 
     // ***********************内部类****************************

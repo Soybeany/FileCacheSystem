@@ -9,7 +9,7 @@ import com.soybeany.system.cache.core.model.SecretKeyHolder;
  * @author Soybeany
  * @date 2022/1/25
  */
-@BdRpc(serviceId = "SecretKeyHolderProvider")
+@BdRpc
 public interface ISecretKeyHolderProvider {
 
     @BdRpcSerialize

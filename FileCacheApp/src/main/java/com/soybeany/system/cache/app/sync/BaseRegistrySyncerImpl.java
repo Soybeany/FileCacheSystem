@@ -1,10 +1,11 @@
-package com.soybeany.system.cache.app;
+package com.soybeany.system.cache.app.sync;
 
 import com.soybeany.mq.core.model.MqProducerMsg;
 import com.soybeany.mq.producer.api.IMqMsgSender;
 import com.soybeany.mq.producer.plugin.MqProducerPlugin;
 import com.soybeany.rpc.unit.BaseRpcUnitRegistrySyncerImpl;
 import com.soybeany.sync.client.api.IClientPlugin;
+import com.soybeany.system.cache.app.service.TaskService;
 import com.soybeany.system.cache.core.api.FileCacheContract;
 import com.soybeany.system.cache.core.api.ISecretKeyHolderProvider;
 import com.soybeany.system.cache.core.model.*;
