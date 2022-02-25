@@ -1,12 +1,10 @@
-package com.soybeany.system.cache.manager.impl;
+package com.soybeany.system.cache.manager.service;
 
 import com.soybeany.mq.core.api.IMqReceiptHandler;
 import com.soybeany.mq.core.model.MqReceiptInfo;
 import com.soybeany.system.cache.core.api.FileCacheContract;
-import com.soybeany.system.cache.manager.service.ITaskSyncListener;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,11 +14,10 @@ import java.util.List;
  * @date 2022/2/22
  */
 @Slf4j
-@Component
-public class TaskReceiptHandlerImpl implements IMqReceiptHandler {
+@RequiredArgsConstructor
+public abstract class BaseTaskReceiptHandler implements IMqReceiptHandler {
 
-    @Autowired
-    private List<ITaskSyncListener> listeners;
+    private final List<ITaskSyncListener> listeners;
 
     @Override
     public void onSuccess(String clientIp, Collection<MqReceiptInfo> list) {

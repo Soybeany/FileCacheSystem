@@ -19,6 +19,6 @@ public interface FileCacheContract {
     /**
      * 同步器使用的扫描路径
      */
-    String PKG_PATH_TO_SCAN = "com.soybeany.system.cache";
+    String API_PKG_TO_SCAN = "com.soybeany.system.cache.core.api";
 
 }

@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.demo.manager.service;
+package com.soybeany.system.cache.demo.manager.impl;
 
 import com.soybeany.system.cache.demo.manager.model.CacheServerInfo;
 import com.soybeany.system.cache.demo.manager.repository.CacheServerInfoRepository;

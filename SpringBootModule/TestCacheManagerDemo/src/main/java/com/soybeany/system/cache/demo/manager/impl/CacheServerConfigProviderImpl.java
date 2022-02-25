@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.demo.manager.service;
+package com.soybeany.system.cache.demo.manager.impl;
 
 import com.soybeany.system.cache.core.api.ICacheServerConfigProvider;
 import com.soybeany.system.cache.core.model.CacheServerConfig;

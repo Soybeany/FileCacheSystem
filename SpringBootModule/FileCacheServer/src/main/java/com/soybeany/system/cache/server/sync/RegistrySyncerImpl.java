@@ -56,7 +56,7 @@ public class RegistrySyncerImpl extends BaseRpcConsumerRegistrySyncerImpl implem
 
     @Override
     protected void onSetupApiPkgToScan(Set<String> set) {
-        set.add(FileCacheContract.PKG_PATH_TO_SCAN);
+        set.add(FileCacheContract.API_PKG_TO_SCAN);
     }
 
     @Override

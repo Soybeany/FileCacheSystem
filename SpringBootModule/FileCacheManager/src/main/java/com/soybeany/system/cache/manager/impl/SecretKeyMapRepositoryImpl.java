@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.manager.key;
+package com.soybeany.system.cache.manager.impl;
 
 import com.soybeany.system.cache.manager.model.SecretKeyInfo;
 import com.soybeany.system.cache.manager.service.ISecretKeyRepository;

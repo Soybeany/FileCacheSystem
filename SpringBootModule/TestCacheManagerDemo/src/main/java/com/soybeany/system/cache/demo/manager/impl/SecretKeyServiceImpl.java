@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.demo.manager.service;
+package com.soybeany.system.cache.demo.manager.impl;
 
 import com.soybeany.system.cache.demo.manager.model.SecretKeyEntity;
 import com.soybeany.system.cache.demo.manager.repository.SecretKeyEntityRepository;
@@ -6,7 +6,6 @@ import com.soybeany.system.cache.manager.model.SecretKeyInfo;
 import com.soybeany.system.cache.manager.service.ISecretKeyRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import java.util.List;
  * @author Soybeany
  * @date 2020/12/25
  */
-@Primary
 @Service
 class SecretKeyServiceImpl implements ISecretKeyRepository {
 

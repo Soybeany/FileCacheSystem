@@ -8,6 +8,8 @@ import com.soybeany.system.cache.demo.app.config.AppConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 /**
  * @author Soybeany
  * @date 2022/2/23
@@ -31,6 +33,11 @@ public class RegistrySyncerImpl extends BaseRegistrySyncerImpl {
     @Override
     protected String onSetupInvokeUrl(String ip) {
         return getUrl(false, ip, appConfig.getPort(), appConfig.getContext(), "/api/rpc", "");
+    }
+
+    @Override
+    protected void onSetupImplPkgToScan(Set<String> set) {
+        set.add("com.soybeany.system.cache.demo.app.service");
     }
 
     @Override

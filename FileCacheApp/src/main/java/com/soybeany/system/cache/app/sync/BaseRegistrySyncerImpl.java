@@ -50,12 +50,7 @@ public abstract class BaseRegistrySyncerImpl extends BaseRpcUnitRegistrySyncerIm
 
     @Override
     protected void onSetupApiPkgToScan(Set<String> set) {
-        set.add(FileCacheContract.PKG_PATH_TO_SCAN);
-    }
-
-    @Override
-    protected void onSetupImplPkgToScan(Set<String> set) {
-        set.add(FileCacheContract.PKG_PATH_TO_SCAN);
+        set.add(FileCacheContract.API_PKG_TO_SCAN);
     }
 
     @Override

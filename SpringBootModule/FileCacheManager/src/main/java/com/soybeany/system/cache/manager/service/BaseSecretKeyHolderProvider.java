@@ -1,12 +1,10 @@
-package com.soybeany.system.cache.manager.key;
+package com.soybeany.system.cache.manager.service;
 
 import com.soybeany.system.cache.core.api.ISecretKeyHolderProvider;
 import com.soybeany.system.cache.core.model.SecretKeyHolder;
 import com.soybeany.system.cache.manager.config.UserConfig;
 import com.soybeany.system.cache.manager.model.SecretKeyInfo;
-import com.soybeany.system.cache.manager.service.ISecretKeyRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
@@ -19,16 +17,14 @@ import java.util.Map;
  * @author Soybeany
  * @date 2020/12/7
  */
-@Component
-public class SecretKeyHolderProviderImpl implements ISecretKeyHolderProvider {
+@RequiredArgsConstructor
+public abstract class BaseSecretKeyHolderProvider implements ISecretKeyHolderProvider {
 
     private static final int OLD_KEY_COUNT = 1;
     private static final int TOTAL_KEY_COUNT = 3;
 
-    @Autowired
-    private UserConfig userConfig;
-    @Autowired
-    private ISecretKeyRepository mRepository;
+    private final UserConfig userConfig;
+    private final ISecretKeyRepository mRepository;
 
     private long mRenewFrequencyMillis;
 

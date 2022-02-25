@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.demo.manager.service;
+package com.soybeany.system.cache.demo.manager.impl;
 
 import com.soybeany.mq.core.api.IMqMsgStorageManager;
 import com.soybeany.mq.core.model.MqConsumerMsg;

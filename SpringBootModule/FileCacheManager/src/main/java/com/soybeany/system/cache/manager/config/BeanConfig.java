@@ -2,7 +2,7 @@ package com.soybeany.system.cache.manager.config;
 
 import com.soybeany.mq.core.api.IMqMsgStorageManager;
 import com.soybeany.rpc.provider.BaseRpcProviderRegistrySyncerImpl;
-import com.soybeany.system.cache.manager.key.SecretKeyMapRepositoryImpl;
+import com.soybeany.system.cache.manager.impl.SecretKeyMapRepositoryImpl;
 import com.soybeany.system.cache.manager.service.ISecretKeyRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
