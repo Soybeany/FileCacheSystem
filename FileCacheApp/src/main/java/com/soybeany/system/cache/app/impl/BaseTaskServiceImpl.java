@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.soybeany.system.cache.core.api.FileCacheContract.TOPIC_TASK_LIST;
 
@@ -39,11 +40,14 @@ public abstract class BaseTaskServiceImpl implements TaskService, InitializingBe
     }
 
     @Override
-    public void postTask(String fileToken) {
+    public void postTasks(List<String> fileTokens, TaskConfigurer configurer) {
         LocalDateTime now = LocalDateTime.now();
-        // todo 管理器的实体结构不支持起始时间、结束时间的配置，故时间随意设置
         ArrayList<CacheTask> tasks = new ArrayList<>();
-        tasks.add(new CacheTask(FileUid.toFileUid(group, fileToken)));
+        for (String fileToken : fileTokens) {
+            CacheTask task = new CacheTask(FileUid.toFileUid(group, fileToken));
+            configurer.onConfigure(task);
+            tasks.add(task);
+        }
         msgSender.send(TOPIC_TASK_LIST, new MqProducerMsg<>(now, now.plusMonths(1), tasks));
     }
 

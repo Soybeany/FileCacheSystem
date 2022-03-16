@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 
 /**
  * @author Soybeany
@@ -67,7 +68,8 @@ public class ApiController {
 
     @PostMapping("/task")
     public String postTask(String fileToken) {
-        taskService.postTask(fileToken);
+        taskService.postTasks(Collections.singletonList(fileToken), task -> {
+        });
         return "ok";
     }
 
