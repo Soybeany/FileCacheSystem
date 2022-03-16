@@ -1,56 +1,33 @@
-package com.soybeany.system.cache.app.sync;
+package com.soybeany.system.cache.app.impl;
 
 import com.soybeany.mq.core.model.MqProducerMsg;
 import com.soybeany.mq.producer.api.IMqMsgSender;
-import com.soybeany.mq.producer.plugin.MqProducerPlugin;
-import com.soybeany.rpc.unit.BaseRpcUnitRegistrySyncerImpl;
-import com.soybeany.sync.client.api.IClientPlugin;
+import com.soybeany.rpc.consumer.api.IRpcServiceProxy;
 import com.soybeany.system.cache.app.service.TaskService;
-import com.soybeany.system.cache.core.api.FileCacheContract;
 import com.soybeany.system.cache.core.api.ISecretKeyHolderProvider;
 import com.soybeany.system.cache.core.model.*;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 
 import javax.crypto.SecretKey;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 import static com.soybeany.system.cache.core.api.FileCacheContract.TOPIC_TASK_LIST;
 
 /**
  * @author Soybeany
- * @date 2021/10/28
+ * @date 2022/3/16
  */
-public abstract class BaseRegistrySyncerImpl extends BaseRpcUnitRegistrySyncerImpl implements IMqMsgSender, TaskService {
+public abstract class BaseTaskServiceImpl implements TaskService, InitializingBean {
 
-    @Lazy
     @Autowired
-    private IMqMsgSender sender;
+    private IRpcServiceProxy proxy;
+    @Autowired
+    private IMqMsgSender msgSender;
 
     private String group;
-    private MqProducerPlugin producerPlugin;
     private ISecretKeyHolderProvider provider;
-
-    @Override
-    protected void onSetupPlugins(List<IClientPlugin<?, ?>> plugins) {
-        super.onSetupPlugins(plugins);
-        plugins.add(producerPlugin = new MqProducerPlugin());
-    }
-
-    @Override
-    public <T extends Serializable> void send(String topic, MqProducerMsg<T> msg) {
-        producerPlugin.send(topic, msg);
-    }
-
-    @Override
-    public void onSetupApiPkgToScan(Set<String> set) {
-        set.add("com.soybeany.mq.core.api");
-        set.add(FileCacheContract.API_PKG_TO_SCAN);
-    }
 
     @Override
     public String getToken(String fileToken) throws Exception {
@@ -67,14 +44,15 @@ public abstract class BaseRegistrySyncerImpl extends BaseRpcUnitRegistrySyncerIm
         // todo 管理器的实体结构不支持起始时间、结束时间的配置，故时间随意设置
         ArrayList<CacheTask> tasks = new ArrayList<>();
         tasks.add(new CacheTask(FileUid.toFileUid(group, fileToken)));
-        sender.send(TOPIC_TASK_LIST, new MqProducerMsg<>(now, now.plusMonths(1), tasks));
+        msgSender.send(TOPIC_TASK_LIST, new MqProducerMsg<>(now, now.plusMonths(1), tasks));
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    public void afterPropertiesSet() {
         group = onSetupGroup();
-        provider = get(ISecretKeyHolderProvider.class);
+        provider = proxy.get(ISecretKeyHolderProvider.class);
     }
+
+    protected abstract String onSetupGroup();
 
 }

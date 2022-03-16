@@ -1,9 +1,9 @@
 package com.soybeany.system.cache.demo.app.sync;
 
 import com.soybeany.rpc.core.model.RpcServerInfo;
+import com.soybeany.rpc.unit.BaseRpcUnitRegistrySyncerImpl;
 import com.soybeany.sync.client.picker.DataPicker;
 import com.soybeany.sync.client.picker.DataPickerSimpleImpl;
-import com.soybeany.system.cache.app.sync.BaseRegistrySyncerImpl;
 import com.soybeany.system.cache.demo.app.config.AppConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import java.util.Set;
  * @date 2022/2/23
  */
 @Component
-public class RegistrySyncerImpl extends BaseRegistrySyncerImpl {
+public class RegistrySyncerImpl extends BaseRpcUnitRegistrySyncerImpl {
 
     @Autowired
     private AppConfig appConfig;
@@ -31,13 +31,17 @@ public class RegistrySyncerImpl extends BaseRegistrySyncerImpl {
     }
 
     @Override
-    public String onSetupInvokeUrl(String ip) {
-        return getUrl(false, ip, appConfig.getPort(), appConfig.getContext(), "/api/rpc", "");
+    public void onSetupApiPkgToScan(Set<String> paths) {
     }
 
     @Override
-    public void onSetupImplPkgToScan(Set<String> set) {
-        set.add("com.soybeany.system.cache.demo.app.service");
+    public void onSetupImplPkgToScan(Set<String> paths) {
+        paths.add("com.soybeany.system.cache.demo.app.impl");
+    }
+
+    @Override
+    public String onSetupInvokeUrl(String ip) {
+        return getUrl(false, ip, appConfig.getPort(), appConfig.getContext(), "/api/rpc", "");
     }
 
     @Override

@@ -35,8 +35,8 @@ public class RegistrySyncerImpl extends BaseRpcConsumerRegistrySyncerImpl implem
     private ITopicInfoRepository topicInfoRepository;
 
     @Override
-    protected void onSetupPlugins(List<IClientPlugin<?, ?>> plugins) {
-        super.onSetupPlugins(plugins);
+    protected void onSetupPlugins(String syncerId, List<IClientPlugin<?, ?>> plugins) {
+        super.onSetupPlugins(syncerId, plugins);
         plugins.add(new MqConsumerPlugin(
                 Optional.ofNullable(appConfig.getTaskSyncInterval()).orElse(30),
                 handlers,

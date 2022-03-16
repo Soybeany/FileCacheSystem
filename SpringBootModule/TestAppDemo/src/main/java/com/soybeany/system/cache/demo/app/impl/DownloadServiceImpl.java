@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.demo.app.service;
+package com.soybeany.system.cache.demo.app.impl;
 
 import com.soybeany.download.FileServerUtils;
 import com.soybeany.download.core.BdDownloadException;
