@@ -5,8 +5,6 @@ import com.soybeany.sync.client.picker.DataPicker;
 import com.soybeany.sync.client.picker.DataPickerSimpleImpl;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.Set;
 
 /**
@@ -27,23 +25,13 @@ public class RegistrySyncerImpl extends BaseRpcProviderRegistrySyncerImpl {
     }
 
     @Override
-    protected String onSetupInvokeUrl(String ip) {
+    public String onSetupInvokeUrl(String ip) {
         return getUrl(false, ip, 8182, "", "/sync/rpc", "");
     }
 
     @Override
-    protected void onSetupImplPkgToScan(Set<String> set) {
+    public void onSetupImplPkgToScan(Set<String> set) {
         set.add("com.soybeany.system.cache.demo.manager.impl");
-    }
-
-    @PostConstruct
-    private void onInit() {
-        start();
-    }
-
-    @PreDestroy
-    private void onDestroy() {
-        stop();
     }
 
 }

@@ -5,9 +5,6 @@ import com.soybeany.rpc.registry.api.IRpcStorageManager;
 import com.soybeany.rpc.registry.impl.RpcStorageManagerMemImpl;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 /**
  * @author Soybeany
  * @date 2021/10/28
@@ -22,16 +19,16 @@ public class RegistrySyncerImpl extends BaseRpcRegistrySyncerImpl {
         return rpcStorageManager = new RpcStorageManagerMemImpl();
     }
 
-    @PostConstruct
-    private void onInit() {
-        start();
+    @Override
+    protected void onStart() {
+        super.onStart();
         rpcStorageManager.startAutoClean(7);
     }
 
-    @PreDestroy
-    private void onDestroy() {
+    @Override
+    protected void onStop() {
         rpcStorageManager.shutdownAutoClean();
-        stop();
+        super.onStop();
     }
 
 }

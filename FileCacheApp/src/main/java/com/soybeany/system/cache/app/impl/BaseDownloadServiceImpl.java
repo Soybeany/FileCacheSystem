@@ -1,5 +1,6 @@
-package com.soybeany.system.cache.app.service;
+package com.soybeany.system.cache.app.impl;
 
+import com.soybeany.system.cache.app.service.DownloadService;
 import com.soybeany.system.cache.core.api.FileCacheContract;
 import com.soybeany.system.cache.core.model.CacheAppInfo;
 import com.soybeany.util.file.BdFileUtils;

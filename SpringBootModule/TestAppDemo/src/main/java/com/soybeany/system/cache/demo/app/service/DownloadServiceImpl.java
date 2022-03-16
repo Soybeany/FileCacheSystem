@@ -3,7 +3,7 @@ package com.soybeany.system.cache.demo.app.service;
 import com.soybeany.download.FileServerUtils;
 import com.soybeany.download.core.BdDownloadException;
 import com.soybeany.download.core.FileInfo;
-import com.soybeany.system.cache.app.service.BaseDownloadServiceImpl;
+import com.soybeany.system.cache.app.impl.BaseDownloadServiceImpl;
 import com.soybeany.system.cache.core.exception.FileDownloadException;
 import org.springframework.stereotype.Service;
 

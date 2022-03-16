@@ -9,7 +9,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
  * @author Soybeany
  * @date 2020/11/30
  */
-@SpringBootApplication(scanBasePackages = {"com.soybeany.system"})
+@SpringBootApplication
 public class CacheAppApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {

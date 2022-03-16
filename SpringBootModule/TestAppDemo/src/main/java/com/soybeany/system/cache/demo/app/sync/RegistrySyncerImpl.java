@@ -21,22 +21,22 @@ public class RegistrySyncerImpl extends BaseRegistrySyncerImpl {
     private AppConfig appConfig;
 
     @Override
-    protected String onSetupGroup() {
+    public String onSetupGroup() {
         return appConfig.getGroup();
     }
 
     @Override
-    protected DataPicker<RpcServerInfo> onGetNewServerPicker(String serviceId) {
+    public DataPicker<RpcServerInfo> onGetNewServerPicker(String serviceId) {
         return new DataPickerSimpleImpl<>();
     }
 
     @Override
-    protected String onSetupInvokeUrl(String ip) {
+    public String onSetupInvokeUrl(String ip) {
         return getUrl(false, ip, appConfig.getPort(), appConfig.getContext(), "/api/rpc", "");
     }
 
     @Override
-    protected void onSetupImplPkgToScan(Set<String> set) {
+    public void onSetupImplPkgToScan(Set<String> set) {
         set.add("com.soybeany.system.cache.demo.app.service");
     }
 

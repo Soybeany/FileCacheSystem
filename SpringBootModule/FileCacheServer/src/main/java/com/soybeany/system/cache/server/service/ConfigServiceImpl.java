@@ -1,12 +1,9 @@
 package com.soybeany.system.cache.server.service;
 
-import com.soybeany.rpc.consumer.api.IRpcServiceProxy;
+import com.soybeany.rpc.consumer.anno.BdRpcWired;
 import com.soybeany.system.cache.core.api.ICacheServerConfigProvider;
 import com.soybeany.system.cache.core.model.CacheServerConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @author Soybeany
@@ -15,19 +12,12 @@ import javax.annotation.PostConstruct;
 @Service
 public class ConfigServiceImpl implements ConfigService {
 
-    @Autowired
-    private IRpcServiceProxy serviceProxy;
-
+    @BdRpcWired
     private ICacheServerConfigProvider provider;
 
     @Override
     public CacheServerConfig get() {
         return provider.getConfig();
-    }
-
-    @PostConstruct
-    private void onInit() {
-        provider = serviceProxy.get(ICacheServerConfigProvider.class);
     }
 
 }

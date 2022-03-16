@@ -15,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -41,7 +39,6 @@ public class RegistrySyncerImpl extends BaseRpcConsumerRegistrySyncerImpl implem
         super.onSetupPlugins(plugins);
         plugins.add(new MqConsumerPlugin(
                 Optional.ofNullable(appConfig.getTaskSyncInterval()).orElse(30),
-                this,
                 handlers,
                 topicInfoRepository,
                 this,
@@ -50,12 +47,12 @@ public class RegistrySyncerImpl extends BaseRpcConsumerRegistrySyncerImpl implem
     }
 
     @Override
-    protected DataPicker<RpcServerInfo> onGetNewServerPicker(String serviceId) {
+    public DataPicker<RpcServerInfo> onGetNewServerPicker(String serviceId) {
         return new DataPickerSimpleImpl<>();
     }
 
     @Override
-    protected void onSetupApiPkgToScan(Set<String> set) {
+    public void onSetupApiPkgToScan(Set<String> set) {
         set.add(FileCacheContract.API_PKG_TO_SCAN);
     }
 
@@ -74,16 +71,6 @@ public class RegistrySyncerImpl extends BaseRpcConsumerRegistrySyncerImpl implem
         log.warn("消息处理异常(" + e.getClass().getSimpleName() + "-" + e.getMessage()
                 + ")，topic(" + topic + ")，stamp(" + oldStamp + "->" + newStamp + ")，" + msgList.size() + "条");
         return true;
-    }
-
-    @PostConstruct
-    private void onInit() {
-        start();
-    }
-
-    @PreDestroy
-    private void onDestroy() {
-        stop();
     }
 
 }

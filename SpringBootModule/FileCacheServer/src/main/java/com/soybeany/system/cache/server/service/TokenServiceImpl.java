@@ -1,13 +1,11 @@
 package com.soybeany.system.cache.server.service;
 
-import com.soybeany.rpc.consumer.api.IRpcServiceProxy;
+import com.soybeany.rpc.consumer.anno.BdRpcWired;
 import com.soybeany.system.cache.core.api.ISecretKeyHolderProvider;
 import com.soybeany.system.cache.core.model.Payload;
 import com.soybeany.system.cache.core.model.TokenPart;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 
 /**
@@ -17,9 +15,7 @@ import javax.crypto.SecretKey;
 @Service
 public class TokenServiceImpl implements TokenService {
 
-    @Autowired
-    private IRpcServiceProxy serviceProxy;
-
+    @BdRpcWired
     private ISecretKeyHolderProvider provider;
 
     @Override
@@ -28,8 +24,4 @@ public class TokenServiceImpl implements TokenService {
         return Payload.fromString(tokenPart.payload, key);
     }
 
-    @PostConstruct
-    private void onInit() {
-        provider = serviceProxy.get(ISecretKeyHolderProvider.class);
-    }
 }

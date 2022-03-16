@@ -12,8 +12,6 @@ import com.soybeany.system.cache.core.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.crypto.SecretKey;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -40,7 +38,7 @@ public abstract class BaseRegistrySyncerImpl extends BaseRpcUnitRegistrySyncerIm
     @Override
     protected void onSetupPlugins(List<IClientPlugin<?, ?>> plugins) {
         super.onSetupPlugins(plugins);
-        plugins.add(producerPlugin = new MqProducerPlugin(this));
+        plugins.add(producerPlugin = new MqProducerPlugin());
     }
 
     @Override
@@ -49,7 +47,8 @@ public abstract class BaseRegistrySyncerImpl extends BaseRpcUnitRegistrySyncerIm
     }
 
     @Override
-    protected void onSetupApiPkgToScan(Set<String> set) {
+    public void onSetupApiPkgToScan(Set<String> set) {
+        set.add("com.soybeany.mq.core.api");
         set.add(FileCacheContract.API_PKG_TO_SCAN);
     }
 
@@ -71,17 +70,11 @@ public abstract class BaseRegistrySyncerImpl extends BaseRpcUnitRegistrySyncerIm
         sender.send(TOPIC_TASK_LIST, new MqProducerMsg<>(now, now.plusMonths(1), tasks));
     }
 
-    @PostConstruct
-    private void onInit() {
-        start();
+    @Override
+    protected void onStart() {
+        super.onStart();
         group = onSetupGroup();
         provider = get(ISecretKeyHolderProvider.class);
     }
-
-    @PreDestroy
-    private void onDestroy() {
-        stop();
-    }
-
 
 }
