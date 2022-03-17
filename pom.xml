@@ -46,67 +46,56 @@
                 <groupId>com.github.Soybeany.bdlib-server</groupId>
                 <artifactId>bd-util</artifactId>
                 <version>${bdlib.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.Soybeany.bdlib-server</groupId>
                 <artifactId>bd-config</artifactId>
                 <version>${bdlib.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.Soybeany.bdlib-server</groupId>
                 <artifactId>bd-download</artifactId>
                 <version>${bdlib.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.Soybeany.bdlib-server</groupId>
                 <artifactId>bd-cachev2</artifactId>
                 <version>${bdlib.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.Soybeany.bd-sync</groupId>
                 <artifactId>rpc-core</artifactId>
                 <version>${bdSync.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.Soybeany.bd-sync</groupId>
                 <artifactId>rpc-consumer</artifactId>
                 <version>${bdSync.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.Soybeany.bd-sync</groupId>
                 <artifactId>rpc-unit</artifactId>
                 <version>${bdSync.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.Soybeany.bd-sync</groupId>
                 <artifactId>rpc-registry</artifactId>
                 <version>${bdSync.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.Soybeany.bd-sync</groupId>
                 <artifactId>mq-consumer</artifactId>
                 <version>${bdSync.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.Soybeany.bd-sync</groupId>
                 <artifactId>mq-producer</artifactId>
                 <version>${bdSync.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.Soybeany.bd-sync</groupId>
                 <artifactId>mq-broker</artifactId>
                 <version>${bdSync.version}</version>
-                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
