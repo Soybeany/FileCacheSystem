@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Component;
@@ -16,8 +17,9 @@ import org.springframework.stereotype.Component;
 @Getter
 @Component
 @EnableJpaAuditing
-@EnableJpaRepositories(basePackages = "com.soybeany.system.cache.server.repository")
-@EntityScan(basePackages = "com.soybeany.system.cache.server.model")
+@EnableJpaRepositories("com.soybeany.system.cache.server.repository")
+@EntityScan("com.soybeany.system.cache.server.model")
+@ComponentScan("com.soybeany.system.cache.server")
 @ConfigurationProperties(prefix = "config")
 public class AppConfig {
 

@@ -17,6 +17,7 @@
         <module>TestAppDemo</module>
         <module>TestCacheManagerDemo</module>
         <module>TestRegistryDemo</module>
+        <module>TestCacheServerDemo</module>
     </modules>
 
     <dependencies>

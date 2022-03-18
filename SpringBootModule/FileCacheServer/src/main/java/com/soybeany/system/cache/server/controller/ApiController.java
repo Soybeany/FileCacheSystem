@@ -30,7 +30,7 @@ import java.util.concurrent.Callable;
  */
 @Slf4j
 @RestController
-class ApiController {
+public class ApiController {
 
     @Autowired
     private TokenService tokenService;

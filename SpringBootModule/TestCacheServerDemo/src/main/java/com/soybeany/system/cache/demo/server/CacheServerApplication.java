@@ -1,7 +1,8 @@
-package com.soybeany.system.cache.server;
+package com.soybeany.system.cache.demo.server;
 
 import com.soybeany.mq.client.anno.EnableBdMq;
 import com.soybeany.rpc.consumer.anno.EnableBdRpcConsumer;
+import com.soybeany.system.cache.server.config.EnableFileCacheServer;
 import com.soybeany.system.cache.server.sync.RegistrySyncerImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,6 +13,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
  * @author Soybeany
  * @date 2020/11/30
  */
+@EnableFileCacheServer
 @EnableBdMq
 @EnableBdRpcConsumer(syncer = RegistrySyncerImpl.class)
 @SpringBootApplication
