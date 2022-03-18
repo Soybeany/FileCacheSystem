@@ -16,7 +16,7 @@ logging:
   file:
     path: d:/cache-test/log/manager-server
 
-user-config:
+cache-manager-config:
   # 每隔多久应该生成一个新的密钥
   renew-frequency-sec: 600
   # 任务同步的最大天数，即只同步最近多少天的任务

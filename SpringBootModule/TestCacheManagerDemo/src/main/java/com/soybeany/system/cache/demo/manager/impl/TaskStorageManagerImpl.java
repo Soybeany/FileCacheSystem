@@ -24,7 +24,7 @@ import static com.soybeany.system.cache.core.api.FileCacheContract.TOPIC_TASK_LI
  * @date 2022/2/18
  */
 @Service
-public class TaskStorageServiceImpl implements IMqMsgStorageManager {
+public class TaskStorageManagerImpl implements IMqMsgStorageManager {
 
     @Autowired
     private UserConfig userConfig;

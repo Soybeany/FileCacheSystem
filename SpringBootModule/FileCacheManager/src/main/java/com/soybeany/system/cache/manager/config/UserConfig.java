@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Setter
 @Getter
 @Component
-@ConfigurationProperties(prefix = "user-config")
+@ConfigurationProperties(prefix = "cache-manager-config")
 public class UserConfig {
 
     private int renewFrequencySec;
