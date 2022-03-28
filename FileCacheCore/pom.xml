@@ -17,7 +17,7 @@
             <artifactId>bd-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.Soybeany.bdlib-server</groupId>
+            <groupId>com.github.Soybeany</groupId>
             <artifactId>bd-cachev2</artifactId>
         </dependency>
         <dependency>

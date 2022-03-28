@@ -27,7 +27,8 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <packaging.type>jar</packaging.type>
-        <bdlib.version>2.6.24</bdlib.version>
+        <bdlib.version>2.6.25</bdlib.version>
+        <bdCache.version>2.6.25</bdCache.version>
         <bdSync.version>1.2.24</bdSync.version>
     </properties>
 
@@ -58,9 +59,9 @@
                 <version>${bdlib.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.Soybeany.bdlib-server</groupId>
+                <groupId>com.github.Soybeany</groupId>
                 <artifactId>bd-cachev2</artifactId>
-                <version>${bdlib.version}</version>
+                <version>${bdCache.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.Soybeany.bd-sync</groupId>
