@@ -29,7 +29,7 @@
         <packaging.type>jar</packaging.type>
         <bdlib.version>2.6.25</bdlib.version>
         <bdCache.version>2.6.25</bdCache.version>
-        <bdSync.version>1.2.24</bdSync.version>
+        <bdSync.version>1.2.25</bdSync.version>
     </properties>
 
     <dependencies>
