@@ -5,7 +5,7 @@ import com.soybeany.cache.v2.core.DataManager;
 import com.soybeany.cache.v2.log.ILogWriter;
 import com.soybeany.cache.v2.log.StdLogger;
 import com.soybeany.cache.v2.model.DataPack;
-import com.soybeany.cache.v2.strategy.LruMemCacheStrategy;
+import com.soybeany.cache.v2.storage.LruMemCacheStorage;
 import com.soybeany.system.cache.core.model.SecretKeyInfo;
 import com.soybeany.system.cache.core.token.SecretKeyHolder;
 
@@ -41,8 +41,8 @@ public class SecretKeyProvider {
     }
 
     public String getHolderString() throws Exception {
-        DataPack<WithCreateTime> pack = mDataManager.getDataPack("secretKey列表", null);
-        SecretKeyHolder.WithExpiry holder = new SecretKeyHolder.WithExpiry(pack.getData(), pack.expiryMillis);
+        DataPack<WithCreateTime> pack = mDataManager.getDataPack(null);
+        SecretKeyHolder.WithExpiry holder = new SecretKeyHolder.WithExpiry(pack.getData(), pack.pTtl);
         return SecretKeyHolder.WithExpiry.serialize(holder);
     }
 
@@ -50,7 +50,7 @@ public class SecretKeyProvider {
         return DataManager.Builder
                 .get("密钥管理器", new Datasource())
                 .logger(null != mLogWriter ? new StdLogger<>(mLogWriter) : null)
-                .withCache(new LruMemCacheStrategy<>())
+                .withCache(new LruMemCacheStorage.Builder<String, WithCreateTime>().build())
                 .build();
     }
 

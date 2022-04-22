@@ -69,7 +69,7 @@ class CleanServiceImpl implements CleanService {
 
     private int cleanInvalidFiles() {
         int cleanCount = 0;
-        for (FileInfo info : fileInfoRepository.selectAllExceedRecords(System.currentTimeMillis(), true)) {
+        for (LocalFileInfo info : fileInfoRepository.selectAllExceedRecords(System.currentTimeMillis(), true)) {
             FileUid fileUid = FileUid.fromString(info.fileUid);
             cleanCount = deleteFile(fileUid.server, new File(configService.getCacheDir(fileUid.server), fileUid.fileToken), cleanCount);
             info.downloaded = false;
@@ -115,9 +115,9 @@ class CleanServiceImpl implements CleanService {
     }
 
     private int cleanInvalidFileInfo() {
-        List<FileInfo> list = fileInfoRepository.selectAllExceedRecords(getExpiryTime(), false);
+        List<LocalFileInfo> list = fileInfoRepository.selectAllExceedRecords(getExpiryTime(), false);
         List<String> uidList = new LinkedList<>();
-        for (FileInfo info : list) {
+        for (LocalFileInfo info : list) {
             uidList.add(info.fileUid);
         }
         return deleteRecords("FileInfo", fileInfoRepository, list, uidList);

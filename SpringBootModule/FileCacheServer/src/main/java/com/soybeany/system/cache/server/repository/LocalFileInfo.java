@@ -17,7 +17,7 @@ import java.util.Date;
 @Entity
 @Table(name = "file_info",
         indexes = {@Index(columnList = "expiryTime")})
-public class FileInfo extends BaseEntity.WithTimeStamp {
+public class LocalFileInfo extends BaseEntity.WithTimeStamp {
 
     // ********************框架属性********************
 

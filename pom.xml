@@ -23,7 +23,7 @@
 
     <properties>
         <packaging.type>jar</packaging.type>
-        <bdlib.version>2.5.13</bdlib.version>
+        <bdlib.version>2.6.26</bdlib.version>
     </properties>
 
     <profiles>

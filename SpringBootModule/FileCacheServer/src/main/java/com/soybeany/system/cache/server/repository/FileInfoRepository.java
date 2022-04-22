@@ -9,12 +9,12 @@ import java.util.List;
  * @author Soybeany
  * @date 2020/12/4
  */
-public interface FileInfoRepository extends JpaRepository<FileInfo, Long> {
+public interface FileInfoRepository extends JpaRepository<LocalFileInfo, Long> {
 
     /**
      * 查找指定fileToken的记录
      */
-    FileInfo findByFileUid(String fileUid);
+    LocalFileInfo findByFileUid(String fileUid);
 
     /**
      * 判断指定fileToken的记录是否存在
@@ -29,6 +29,6 @@ public interface FileInfoRepository extends JpaRepository<FileInfo, Long> {
             "where expiry_time < :expiryTime " +
             "and downloaded = :downloaded",
             nativeQuery = true)
-    List<FileInfo> selectAllExceedRecords(long expiryTime, boolean downloaded);
+    List<LocalFileInfo> selectAllExceedRecords(long expiryTime, boolean downloaded);
 
 }

@@ -6,7 +6,7 @@ import com.soybeany.cache.v2.contract.IDatasource;
 import com.soybeany.cache.v2.core.DataManager;
 import com.soybeany.cache.v2.log.ILogWriter;
 import com.soybeany.cache.v2.log.StdLogger;
-import com.soybeany.cache.v2.strategy.LruMemCacheStrategy;
+import com.soybeany.cache.v2.storage.LruMemCacheStorage;
 import com.soybeany.system.cache.core.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.core.interfaces.HostProvider;
 import com.soybeany.system.cache.core.token.SecretKeyHolder;
@@ -30,12 +30,12 @@ public class SecretKeyRetriever {
                 .get("密钥管理器", new Datasource())
                 .logger(new StdLogger<>(writer))
                 // 有容量限制，也有时间限制
-                .withCache(new LruMemCacheStrategy<String, SecretKeyHolder.WithExpiry>().capacity(5))
+                .withCache(new LruMemCacheStorage.Builder<String, SecretKeyHolder.WithExpiry>().capacity(5).build())
                 .build();
     }
 
     public SecretKeyHolder getHolder() throws Exception {
-        return mDataManager.getData("SecretKeyHolder", null);
+        return mDataManager.getData(null);
     }
 
     private class Datasource implements IDatasource<String, SecretKeyHolder.WithExpiry>, FileCacheHttpContract {

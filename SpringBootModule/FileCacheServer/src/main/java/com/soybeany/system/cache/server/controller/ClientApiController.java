@@ -1,14 +1,13 @@
 package com.soybeany.system.cache.server.controller;
 
-import com.soybeany.download.FileDownloadUtils;
+import com.soybeany.download.FileServerUtils;
+import com.soybeany.download.core.FileInfo;
 import com.soybeany.system.cache.core.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.core.model.FileUid;
 import com.soybeany.system.cache.core.token.Payload;
 import com.soybeany.system.cache.core.token.TokenPart;
-import com.soybeany.system.cache.server.model.CacheInfoWithFile;
 import com.soybeany.system.cache.server.service.CacheInfoService;
 import com.soybeany.system.cache.server.service.TokenService;
-import com.soybeany.util.file.BdFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.File;
 import java.util.UUID;
 
 /**
@@ -37,17 +35,15 @@ class ClientApiController {
     @Autowired
     private CacheInfoService cacheInfoService;
 
-    private final FileDownloadUtils.ICallback<CacheInfoWithFile> callback = new Impl();
-
     @GetMapping("/ensure/{token}")
     String ensure(@PathVariable String token, HttpServletResponse response) {
-        return handleContentInfo(token, response, cacheInfo -> "ok", e -> "exception");
+        return handleContentInfo(token, response, (fileInfo, file) -> "ok", e -> "exception");
     }
 
     @GetMapping(FileCacheHttpContract.GET_FILE_PATH + "/{token}")
     void getFile(@PathVariable String token, HttpServletRequest request, HttpServletResponse response) {
-        handleContentInfo(token, response, cacheInfo -> {
-            FileDownloadUtils.randomAccessDownloadFile(cacheInfo, request, response, callback);
+        handleContentInfo(token, response, (fileInfo, file) -> {
+            FileServerUtils.randomAccessDownloadFile(fileInfo, request, response, file);
             return null;
         }, e -> null);
     }
@@ -56,8 +52,10 @@ class ClientApiController {
         try {
             TokenPart tokenPart = TokenPart.fromToken(token);
             Payload payload = tokenService.getPayload(tokenPart);
-            CacheInfoWithFile cacheInfo = cacheInfoService.getCacheInfo(new FileUid(tokenPart.server, payload.fileId));
-            return callback.onReceiveCacheInfo(cacheInfo);
+            FileUid fileUid = new FileUid(tokenPart.server, payload.fileId);
+            FileInfo fileInfo = cacheInfoService.getCacheInfo(fileUid);
+            File file = cacheInfoService.getDataFile(fileUid);
+            return callback.onReceiveCacheInfo(fileInfo, file);
         } catch (Exception e) {
             String uuid = UUID.randomUUID().toString();
             LOG.error(e.getMessage() + "(" + uuid + ")");
@@ -72,20 +70,11 @@ class ClientApiController {
     }
 
     private interface IListener<T> {
-        T onReceiveCacheInfo(CacheInfoWithFile cacheInfo) throws Exception;
+        T onReceiveCacheInfo(FileInfo fileInfo, File file) throws Exception;
     }
 
     private interface IExceptionHandler<T> {
         T onHandleException(Exception e);
     }
 
-    private static class Impl implements FileDownloadUtils.ICallback<CacheInfoWithFile> {
-        @Override
-        public void onWriteResponse(CacheInfoWithFile info, OutputStream os, long start, long end) throws IOException {
-            long read = BdFileUtils.randomRead(info.file, os, start, end);
-            if (read <= 0) {
-                throw new IOException("没有读取到数据");
-            }
-        }
-    }
 }
