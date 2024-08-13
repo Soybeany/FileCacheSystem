@@ -34,16 +34,10 @@ import java.util.regex.Pattern;
  * @author Soybeany
  * @date 2020/12/1
  */
-public interface DownloadService {
-
-    CacheInfoWithExpiry downloadFile(FileUid fileUid, File localFile) throws IOException;
-
-}
-
 @Service
-class DownloadServiceImpl implements DownloadService, FileCacheHttpContract {
+public class DownloadService implements FileCacheHttpContract {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DownloadServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DownloadService.class);
     private static final Pattern RANGE_PATTERN = Pattern.compile("bytes (\\d+)-(\\d*)/(\\d+)");
 
     @Autowired
@@ -60,8 +54,7 @@ class DownloadServiceImpl implements DownloadService, FileCacheHttpContract {
         return client;
     }
 
-    @Override
-    public CacheInfoWithExpiry downloadFile(FileUid fileUid, File localFile) throws IOException {
+    public CacheInfoWithExpiry downloadFile(FileUid fileUid, File localFile) {
         // 读取可断点续传的记录
         TempFileInfo tempFileInfo = tempFileRepository.findByFileUid(FileUid.toString(fileUid));
         File tempFile = getTempFile(tempFileInfo);
@@ -120,13 +113,8 @@ class DownloadServiceImpl implements DownloadService, FileCacheHttpContract {
             this.tempFile = tempFile;
         }
 
-        public CacheInfoWithExpiry retrieveFile() throws IOException {
-            Response response;
-            try {
-                response = getResponse(PollingHostProvider.fromArr(info.fileDownloadUrl), fileToken, onSetupRequestHeaders());
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
-            }
+        public CacheInfoWithExpiry retrieveFile() {
+            Response response = getResponse(PollingHostProvider.fromArr(info.fileDownloadUrl), fileToken, onSetupRequestHeaders());
             CacheInfoWithExpiry contentInfo = CacheInfoWithExpiry.fromResponse(response);
             try (ResponseBody body = response.body()) {
                 onHandleStream(response, getNonNullBody(body).byteStream(), contentInfo);

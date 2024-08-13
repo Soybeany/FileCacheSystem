@@ -15,23 +15,17 @@ import javax.crypto.SecretKey;
  * @author Soybeany
  * @date 2020/12/1
  */
-public interface TokenService {
-
-    /**
-     * 获取token中的数据信息
-     */
-    Payload getPayload(TokenPart tokenPart) throws Exception;
-}
-
 @Service
-class TokenServiceImpl implements TokenService {
+public class TokenService {
 
     @Autowired
     private AppConfig appConfig;
 
     private SecretKeyRetriever keyRetriever;
 
-    @Override
+    /**
+     * 获取token中的数据信息
+     */
     public Payload getPayload(TokenPart tokenPart) throws Exception {
         SecretKey key = keyRetriever.getHolder().getSecretKey(tokenPart.key);
         return Payload.fromString(tokenPart.payload, key);

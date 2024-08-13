@@ -46,8 +46,12 @@ public abstract class SecretKeyHolder implements Serializable {
          */
         public final int expiryMillis;
 
-        public static WithExpiry deserialize(String content) throws Exception {
-            return SerializeUtils.deserialize(HexUtils.hexToByteArray(content));
+        public static WithExpiry deserialize(String content) {
+            try {
+                return SerializeUtils.deserialize(HexUtils.hexToByteArray(content));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
         public static String serialize(WithExpiry obj) throws Exception {

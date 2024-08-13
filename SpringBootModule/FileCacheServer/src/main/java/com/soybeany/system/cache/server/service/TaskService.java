@@ -27,24 +27,10 @@ import java.util.concurrent.TimeUnit;
  * @author Soybeany
  * @date 2020/12/21
  */
-public interface TaskService {
-
-    /**
-     * 保存指定的任务
-     */
-    void saveTasks(List<CacheTask> tasks);
-
-    /**
-     * 查找并执行新的任务
-     */
-    void findAndExecuteNewTasks();
-
-}
-
 @Service
-class TaskServiceImpl implements TaskService {
+public class TaskService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TaskServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TaskService.class);
 
     private final Set<String> taskTags = new HashSet<>();
     private ExecutorService taskExecutor;
@@ -68,7 +54,9 @@ class TaskServiceImpl implements TaskService {
         taskExecutor.shutdown();
     }
 
-    @Override
+    /**
+     * 保存指定的任务
+     */
     public void saveTasks(List<CacheTask> tasks) {
         if (null == tasks || tasks.isEmpty()) {
             return;
@@ -80,7 +68,9 @@ class TaskServiceImpl implements TaskService {
         taskInfoRepository.saveAll(list);
     }
 
-    @Override
+    /**
+     * 查找并执行新的任务
+     */
     public void findAndExecuteNewTasks() {
         // 获取全部待执行的任务
         List<TaskInfo> tasks = taskInfoRepository.findByPriorityGreaterThanOrderByPriorityDesc(TaskInfo.PRIORITY_FINISH);

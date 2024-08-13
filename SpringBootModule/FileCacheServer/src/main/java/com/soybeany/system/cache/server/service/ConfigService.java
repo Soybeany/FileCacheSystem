@@ -15,43 +15,31 @@ import java.util.Optional;
  * @author Soybeany
  * @date 2020/12/1
  */
-public interface ConfigService {
-
-    /**
-     * 获取服务器配置信息
-     */
-    ServerInfo getServerInfo(String server);
-
-    /**
-     * 获取指定服务器的缓存目录
-     */
-    File getCacheDir(String server);
-
-    /**
-     * 获取临时文件目录
-     */
-    File getTempDir();
-}
-
 @Service
-class ConfigServiceImpl implements ConfigService {
+public class ConfigService {
 
     @Autowired
     private AppConfig appConfig;
 
     private final Map<String, ServerInfo> serverInfoMap = new HashMap<>();
 
-    @Override
+    /**
+     * 获取服务器配置信息
+     */
     public ServerInfo getServerInfo(String server) {
         return Optional.ofNullable(serverInfoMap.get(server)).orElseThrow(() -> new RuntimeException("没有该服务器的相关信息"));
     }
 
-    @Override
+    /**
+     * 获取指定服务器的缓存目录
+     */
     public File getCacheDir(String server) {
         return new File(appConfig.fileCacheDir + server);
     }
 
-    @Override
+    /**
+     * 获取临时文件目录
+     */
     public File getTempDir() {
         return new File(appConfig.fileCacheDir + "temp");
     }

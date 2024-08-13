@@ -13,6 +13,8 @@ import com.soybeany.system.cache.core.token.SecretKeyHolder;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import java.io.IOException;
+
 /**
  * @author Soybeany
  * @date 2020/12/11
@@ -34,17 +36,19 @@ public class SecretKeyRetriever {
                 .build();
     }
 
-    public SecretKeyHolder getHolder() throws Exception {
+    public SecretKeyHolder getHolder() {
         return mDataManager.getData(null);
     }
 
     private class Datasource implements IDatasource<String, SecretKeyHolder.WithExpiry>, FileCacheHttpContract {
         @Override
-        public SecretKeyHolder.WithExpiry onGetData(String key) throws Exception {
+        public SecretKeyHolder.WithExpiry onGetData(String key) {
             Response response = getResponse(mHostProvider, FileCacheHttpContract.GET_SECRET_KEY_LIST, null);
             String bodyStr;
             try (ResponseBody body = response.body()) {
                 bodyStr = getNonNullBody(body).string();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
             Dto<String> dto = GSON.fromJson(bodyStr, new TypeToken<Dto<String>>() {
             }.getType());

@@ -66,7 +66,7 @@ public class SecretKeyProvider {
         /**
          * 获取密钥列表
          */
-        List<SecretKeyInfo> getSecretKeyList() throws Exception;
+        List<SecretKeyInfo> getSecretKeyList();
 
         /**
          * 将指定的旧密钥替换为新的密钥
@@ -100,7 +100,7 @@ public class SecretKeyProvider {
 
     private class Datasource implements IDatasource<String, WithCreateTime> {
         @Override
-        public WithCreateTime onGetData(String s) throws Exception {
+        public WithCreateTime onGetData(String s) {
             List<SecretKeyInfo> list = getInfoListFromRepository();
             try {
                 int delta = mTotalKeyCount;
@@ -128,7 +128,7 @@ public class SecretKeyProvider {
             return getExpiryMillis(holder.lastUpdateTimestamp, mRepository.getCurrentTimestamp(), mRenewFrequencyMillis);
         }
 
-        private List<SecretKeyInfo> getInfoListFromRepository() throws Exception {
+        private List<SecretKeyInfo> getInfoListFromRepository() {
             List<SecretKeyInfo> list = mRepository.getSecretKeyList();
             if (null == list) {
                 return null;
@@ -144,21 +144,21 @@ public class SecretKeyProvider {
             return list;
         }
 
-        private WithCreateTime toSecretKeyHolder(List<SecretKeyInfo> list) throws Exception {
+        private WithCreateTime toSecretKeyHolder(List<SecretKeyInfo> list) {
             // 检查密钥是否存在
             if (null == list || list.size() != mTotalKeyCount) {
-                throw new Exception("没有足够数量的密钥");
+                throw new RuntimeException("没有足够数量的密钥");
             }
             // 检查密钥是否已过期
             SecretKeyInfo newest = list.get(list.size() - 1);
             if (isTimeToRenewInfo(newest)) {
-                throw new Exception("密钥已过期");
+                throw new RuntimeException("密钥已过期");
             }
             // 对象转换
             WithCreateTime holder = new WithCreateTime();
             for (SecretKeyInfo info : list) {
                 if (null == info) {
-                    throw new Exception("keyInfo不允许为null");
+                    throw new RuntimeException("keyInfo不允许为null");
                 }
                 holder.map.put(info.key, info.toSecretKey());
             }

@@ -50,7 +50,7 @@ public interface FileCacheHttpContract {
                 .build();
     }
 
-    default Response getResponse(HostProvider hostProvider, String path, Map<String, String> headers) throws IOException {
+    default Response getResponse(HostProvider hostProvider, String path, Map<String, String> headers) {
         if (!path.startsWith("/")) {
             path = "/" + path;
         }
@@ -63,17 +63,21 @@ public interface FileCacheHttpContract {
         return getResponse(builder.build());
     }
 
-    default Response getResponse(Request request) throws IOException {
-        Response response = getClient().newCall(request).execute();
-        if (!response.isSuccessful()) {
-            // 关流
-            BdFileUtils.closeStream(response);
-            // 抛出异常信息
-            String decodedMsg = response.header("errMsg");
-            String errMsg = (null != decodedMsg ? URLDecoder.decode(decodedMsg, "UTF-8") : null);
-            throw new IOException("请求外部系统异常，code:" + response.code() + "，errMsg:" + errMsg);
+    default Response getResponse(Request request) {
+        try {
+            Response response = getClient().newCall(request).execute();
+            if (!response.isSuccessful()) {
+                // 关流
+                BdFileUtils.closeStream(response);
+                // 抛出异常信息
+                String decodedMsg = response.header("errMsg");
+                String errMsg = (null != decodedMsg ? URLDecoder.decode(decodedMsg, "UTF-8") : null);
+                throw new IOException("请求外部系统异常，code:" + response.code() + "，errMsg:" + errMsg);
+            }
+            return response;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return response;
     }
 
     default void sendRequest(Request request) throws IOException {
@@ -81,9 +85,9 @@ public interface FileCacheHttpContract {
         BdFileUtils.closeStream(response);
     }
 
-    default ResponseBody getNonNullBody(ResponseBody body) throws IOException {
+    default ResponseBody getNonNullBody(ResponseBody body) {
         if (null == body) {
-            throw new IOException("响应主体为空");
+            throw new RuntimeException("响应主体为空");
         }
         return body;
     }

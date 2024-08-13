@@ -19,24 +19,10 @@ import java.util.List;
  * @author Soybeany
  * @date 2020/12/18
  */
-public interface CleanService {
-
-    /**
-     * 清除文件
-     */
-    int cleanFiles();
-
-    /**
-     * 清除表记录
-     */
-    int cleanRecords();
-
-}
-
 @Service
-class CleanServiceImpl implements CleanService {
+public class CleanService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CleanServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CleanService.class);
 
     @Autowired
     private AppConfig appConfig;
@@ -49,7 +35,9 @@ class CleanServiceImpl implements CleanService {
     @Autowired
     private TaskInfoRepository taskInfoRepository;
 
-    @Override
+    /**
+     * 清除文件
+     */
     public int cleanFiles() {
         int count = 0;
         count += cleanInvalidFiles();
@@ -58,7 +46,9 @@ class CleanServiceImpl implements CleanService {
         return count;
     }
 
-    @Override
+    /**
+     * 清除表记录
+     */
     public int cleanRecords() {
         int count = 0;
         count += cleanInvalidFileInfo();

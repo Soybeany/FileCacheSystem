@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
@@ -28,31 +27,15 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Soybeany
  * @date 2020/12/4
  */
-public interface CacheInfoService {
-
-    /**
-     * 保障文件，并返回文件信息
-     */
-    LocalFileInfo ensureFileAndGetFileInfo(FileUid fileUid) throws IOException;
-
-    /**
-     * 获取缓存信息
-     */
-    FileInfo getCacheInfo(FileUid fileUid) throws IOException;
-
-    File getDataFile(FileUid fileUid);
-
-}
-
 @Service
-class CacheInfoServiceImpl implements CacheInfoService {
+public class CacheInfoService {
 
     /**
      * 默认的允许最大不活跃时间
      */
     private static final long DEFAULT_MAX_INACTIVE_SEC = 5 * 24 * 60 * 60;
 
-    private static final Logger LOG = LoggerFactory.getLogger(CacheInfoServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CacheInfoService.class);
 
     @Autowired
     private AppConfig appConfig;
@@ -65,8 +48,10 @@ class CacheInfoServiceImpl implements CacheInfoService {
 
     private final Map<String, Lock> lockMap = new WeakHashMap<>();
 
-    @Override
-    public FileInfo getCacheInfo(FileUid fileUid) throws IOException {
+    /**
+     * 获取缓存信息
+     */
+    public FileInfo getCacheInfo(FileUid fileUid) {
         Lock lock = tryLock(fileUid);
         try {
             LocalFileInfo localFileInfo = ensureFileAndGetFileInfo(fileUid);
@@ -82,8 +67,10 @@ class CacheInfoServiceImpl implements CacheInfoService {
         }
     }
 
-    @Override
-    public LocalFileInfo ensureFileAndGetFileInfo(FileUid fileUid) throws IOException {
+    /**
+     * 保障文件，并返回文件信息
+     */
+    public LocalFileInfo ensureFileAndGetFileInfo(FileUid fileUid) {
         Lock lock = tryLock(fileUid);
         try {
             File localFile = getDataFile(fileUid);
@@ -118,7 +105,6 @@ class CacheInfoServiceImpl implements CacheInfoService {
         }
     }
 
-    @Override
     public File getDataFile(FileUid fileUid) {
         return new File(configService.getCacheDir(fileUid.server), fileUid.fileToken);
     }

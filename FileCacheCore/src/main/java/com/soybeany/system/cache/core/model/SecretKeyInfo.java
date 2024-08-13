@@ -37,8 +37,12 @@ public class SecretKeyInfo {
         return HexUtils.bytesToHex(SerializeUtils.serialize(secretKey));
     }
 
-    public SecretKey toSecretKey() throws Exception {
-        return SerializeUtils.deserialize(HexUtils.hexToByteArray(secretKeyJson));
+    public SecretKey toSecretKey() {
+        try {
+            return SerializeUtils.deserialize(HexUtils.hexToByteArray(secretKeyJson));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String getKey() {
