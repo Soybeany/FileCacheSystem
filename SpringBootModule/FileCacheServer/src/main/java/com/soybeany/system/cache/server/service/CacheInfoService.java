@@ -1,27 +1,19 @@
 package com.soybeany.system.cache.server.service;
 
+import com.soybeany.cache.v2.contract.IDatasource;
+import com.soybeany.cache.v2.core.DataManager;
 import com.soybeany.download.core.FileInfo;
 import com.soybeany.system.cache.core.model.FileUid;
-import com.soybeany.system.cache.core.util.CacheCoreTimeUtils;
 import com.soybeany.system.cache.server.config.AppConfig;
-import com.soybeany.system.cache.server.model.CacheInfo;
-import com.soybeany.system.cache.server.model.CacheInfoWithExpiry;
-import com.soybeany.system.cache.server.repository.FileInfoRepository;
-import com.soybeany.system.cache.server.repository.LocalFileInfo;
-import com.soybeany.system.cache.server.util.SaveUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.soybeany.system.cache.server.model.DataInfo;
+import com.soybeany.system.cache.server.storage.FileCacheAccessor;
+import com.soybeany.system.cache.server.storage.FileCacheStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.File;
-import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Optional;
-import java.util.WeakHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Soybeany
@@ -30,114 +22,51 @@ import java.util.concurrent.locks.ReentrantLock;
 @Service
 public class CacheInfoService {
 
-    /**
-     * 默认的允许最大不活跃时间
-     */
-    private static final long DEFAULT_MAX_INACTIVE_SEC = 5 * 24 * 60 * 60;
-
-    private static final Logger LOG = LoggerFactory.getLogger(CacheInfoService.class);
-
     @Autowired
     private AppConfig appConfig;
     @Autowired
-    private ConfigService configService;
-    @Autowired
     private DownloadService downloadService;
-    @Autowired
-    private FileInfoRepository fileInfoRepository;
 
-    private final Map<String, Lock> lockMap = new WeakHashMap<>();
+    private FileCacheStorage cacheStorage;
+    private DataManager<FileUid, FileCacheAccessor> dataManager;
 
-    /**
-     * 获取缓存信息
-     */
-    public FileInfo getCacheInfo(FileUid fileUid) {
-        Lock lock = tryLock(fileUid);
-        try {
-            LocalFileInfo localFileInfo = ensureFileAndGetFileInfo(fileUid);
-            // 修改访问记录
-            localFileInfo.visitCount++;
-            updateExpiryTime(localFileInfo);
-            SaveUtils.syncSave(fileInfoRepository, localFileInfo);
-            // 生成内容信息
-            return new FileInfo(localFileInfo.contentDisposition,
-                    Optional.ofNullable(localFileInfo.contentLength).orElse(-1L), localFileInfo.eTag);
-        } finally {
-            lock.unlock();
+    public <T> T receiveCacheInfo(FileUid fileUid, IListener<T> listener) throws Exception {
+        FileCacheAccessor accessor = dataManager.getData(fileUid);
+        DataInfo dataInfo = accessor.dataInfo;
+        FileInfo fileInfo = new FileInfo(dataInfo.contentDisposition, dataInfo.contentLength, dataInfo.eTag);
+        return listener.onReceiveCacheInfo(fileInfo.contentType(dataInfo.contentType), accessor.file());
+    }
+
+    @PostConstruct
+    private void onInit() {
+        cacheStorage = new FileCacheStorage(appConfig.fileCacheDir);
+        dataManager = DataManager.Builder
+                .get("文件缓存", new Datasource(), id -> FileUid.toString(id))
+                .withCache(cacheStorage)
+                .build();
+        cacheStorage.start();
+    }
+
+    @PreDestroy
+    private void onDestroy() {
+        cacheStorage.close();
+    }
+
+    public interface IListener<T> {
+        T onReceiveCacheInfo(FileInfo fileInfo, File file) throws Exception;
+    }
+
+    private class Datasource implements IDatasource<FileUid, FileCacheAccessor> {
+        @Override
+        public FileCacheAccessor onGetData(FileUid fileUid) {
+            DownloadService.DownloadInfo info = downloadService.startDownload(fileUid);
+            return FileCacheAccessor.fromStream(info.info, () -> info.is);
         }
-    }
 
-    /**
-     * 保障文件，并返回文件信息
-     */
-    public LocalFileInfo ensureFileAndGetFileInfo(FileUid fileUid) {
-        Lock lock = tryLock(fileUid);
-        try {
-            File localFile = getDataFile(fileUid);
-            boolean fileExist = localFile.exists();
-            // 检查文件信息是否存在
-            String fUid = FileUid.toString(fileUid);
-            LocalFileInfo localFileInfo = fileInfoRepository.findByFileUid(fUid);
-            // 不存在则创建新信息
-            boolean hasFileInfo = true, fileComplete = false;
-            if (null == localFileInfo) {
-                hasFileInfo = false;
-                localFileInfo = new LocalFileInfo();
-                localFileInfo.fileUid = fUid;
-            }
-            // 存在则进一步校验
-            else if (fileExist) {
-                fileComplete = CacheInfo.isFileComplete(localFileInfo.contentLength, localFile);
-            }
-            // 按需从数据源获取文件
-            if (!fileExist || !hasFileInfo || !fileComplete) {
-                LOG.info("“" + fileUid.fileToken + "”将重新获取文件，原因:" + "fileExist-" + fileExist + ",hasFileInfo-" + hasFileInfo + ",fileComplete-" + false);
-                CacheInfoWithExpiry info = downloadService.downloadFile(fileUid, localFile);
-                // 更新信息
-                setupFileInfoWithContentInfo(localFileInfo, info);
-            }
-            // 设置为已下载
-            localFileInfo.downloaded = true;
-            updateExpiryTime(localFileInfo);
-            return SaveUtils.syncSave(fileInfoRepository, localFileInfo);
-        } finally {
-            lock.unlock();
+        @Override
+        public int onSetupExpiry(FileCacheAccessor fileCacheAccessor) {
+            return fileCacheAccessor.dataInfo.pTtl;
         }
-    }
-
-    public File getDataFile(FileUid fileUid) {
-        return new File(configService.getCacheDir(fileUid.server), fileUid.fileToken);
-    }
-
-    private void updateExpiryTime(LocalFileInfo localFileInfo) {
-        localFileInfo.expiryTime = CacheCoreTimeUtils.toDate(LocalDateTime.now().plusSeconds(localFileInfo.maxInactiveSec));
-    }
-
-    private void setupFileInfoWithContentInfo(LocalFileInfo localFileInfo, CacheInfoWithExpiry contentInfoWithExpiry) {
-        localFileInfo.maxInactiveSec = getExpirySec(contentInfoWithExpiry.getExpirySec());
-        localFileInfo.eTag = contentInfoWithExpiry.getEtag();
-        localFileInfo.contentType = contentInfoWithExpiry.getContentType();
-        localFileInfo.contentLength = contentInfoWithExpiry.getContentLength();
-        localFileInfo.contentDisposition = contentInfoWithExpiry.getContentDisposition();
-    }
-
-    private long getExpirySec(Long expirySec) {
-        return null != expirySec ? expirySec : DEFAULT_MAX_INACTIVE_SEC;
-    }
-
-    private Lock tryLock(FileUid fileUid) {
-        Lock lock;
-        synchronized (lockMap) {
-            lock = lockMap.computeIfAbsent(FileUid.toString(fileUid), u -> new ReentrantLock());
-        }
-        try {
-            if (!lock.tryLock(appConfig.contentInfoLockTimeoutSec, TimeUnit.SECONDS)) {
-                throw new RuntimeException("锁获取等待超时");
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException("线程被中断");
-        }
-        return lock;
     }
 
 }

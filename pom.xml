@@ -94,6 +94,12 @@
                 <groupId>com.github.Soybeany.bdlib-server</groupId>
                 <artifactId>bd-download</artifactId>
                 <version>${bdlib.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
