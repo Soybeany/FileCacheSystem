@@ -173,7 +173,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         if (metaInfo.norm) {
             File dataFile = getDataFile(context, metaInfo);
             // 文件不存在，或文件尺寸对不上
-            if (!dataFile.exists() || !metaInfo.dataInfo.isFileComplete(dataFile)) {
+            if (!dataFile.exists()) {
                 throw new NoCacheException();
             }
             core = DataCore.fromData(FileCacheAccessor.fromFile(metaInfo.dataInfo, dataFile));
@@ -185,27 +185,34 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
 
     @Override
     protected CacheEntity<FileCacheAccessor> onSaveCacheEntity(DataContext<FileUid> context, String key, CacheEntity<FileCacheAccessor> entity) {
-        key = preTreatKey(key);
-        // 记录配置
         MetaInfo metaInfo = new MetaInfo();
+        long currentTimeMillis = System.currentTimeMillis();
+        metaInfo.curDataFileName = key + "_" + (currentTimeMillis / 1000);
+        // 正常时更新数据
+        if (entity.dataCore.norm) {
+            // 更新数据文件与配置文件
+            FileCacheAccessor data = entity.dataCore.data;
+            File dataFile = getDataFile(context, metaInfo);
+            data.callback(is -> BdFileUtils.readWriteStream(is, dataFile));
+            // 改写缓存核心
+            if (data.dataInfo.isFileComplete(dataFile)) {
+                metaInfo.dataInfo = data.dataInfo;
+                DataCore<FileCacheAccessor> newCore = DataCore.fromData(FileCacheAccessor.fromFile(metaInfo.dataInfo, dataFile));
+                entity = new CacheEntity<>(newCore, entity.pExpireAt);
+            } else {
+                deleteFile(dataFile);
+                DataCore<FileCacheAccessor> newCore = DataCore.fromException(new RuntimeException("文件大小不正确，可能下载不完整"));
+                entity = new CacheEntity<>(newCore, currentTimeMillis + pTtlErr);
+            }
+        }
+        // 记录配置
+        key = preTreatKey(key);
         metaInfo.norm = entity.dataCore.norm;
-        metaInfo.curDataFileName = key + "_" + (System.currentTimeMillis() / 1000);
         Optional.ofNullable(entity.dataCore.exception).ifPresent(exception -> {
             metaInfo.exceptionJson = GSON.toJson(exception);
             metaInfo.exceptionClazz = exception.getClass().getName();
         });
         metaInfo.pExpireAt = entity.pExpireAt;
-        // 正常时更新数据
-        if (metaInfo.norm) {
-            // 更新数据文件与配置文件
-            FileCacheAccessor data = entity.dataCore.data;
-            metaInfo.dataInfo = data.dataInfo;
-            File dataFile = getDataFile(context, metaInfo);
-            data.callback(is -> BdFileUtils.readWriteStream(is, dataFile));
-            // 改写缓存核心
-            DataCore<FileCacheAccessor> newCore = DataCore.fromData(FileCacheAccessor.fromFile(metaInfo.dataInfo, dataFile));
-            entity = new CacheEntity<>(newCore, entity.pExpireAt);
-        }
         // 拷贝未完成删除的历史文件
         File metaFile = getMetaFile(context, key);
         getMetaInfo(metaFile).ifPresent(previous -> {

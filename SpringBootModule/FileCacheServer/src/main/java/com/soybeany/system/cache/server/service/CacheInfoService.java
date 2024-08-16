@@ -2,9 +2,11 @@ package com.soybeany.system.cache.server.service;
 
 import com.soybeany.cache.v2.contract.IDatasource;
 import com.soybeany.cache.v2.core.DataManager;
+import com.soybeany.cache.v2.log.StdLogger;
 import com.soybeany.download.core.FileInfo;
 import com.soybeany.system.cache.core.model.FileUid;
 import com.soybeany.system.cache.server.config.AppConfig;
+import com.soybeany.system.cache.server.model.CacheLogWriter;
 import com.soybeany.system.cache.server.model.DataInfo;
 import com.soybeany.system.cache.server.storage.FileCacheAccessor;
 import com.soybeany.system.cache.server.storage.FileCacheStorage;
@@ -41,8 +43,9 @@ public class CacheInfoService {
     private void onInit() {
         cacheStorage = new FileCacheStorage(appConfig.fileCacheDir);
         dataManager = DataManager.Builder
-                .get("文件缓存", new Datasource(), id -> FileUid.toString(id))
+                .get("文件缓存", new Datasource(), id -> id.fileToken)
                 .withCache(cacheStorage)
+                .logger(new StdLogger<>(new CacheLogWriter()))
                 .build();
         cacheStorage.start();
     }
@@ -68,5 +71,4 @@ public class CacheInfoService {
             return fileCacheAccessor.dataInfo.pTtl;
         }
     }
-
 }

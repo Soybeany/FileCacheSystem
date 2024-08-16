@@ -1,7 +1,6 @@
 package com.soybeany.system.cache.server.service;
 
 import com.soybeany.system.cache.core.model.CacheTask;
-import com.soybeany.system.cache.core.model.FileUid;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.repository.TaskInfo;
 import com.soybeany.system.cache.server.repository.TaskInfoRepository;
@@ -105,7 +104,7 @@ public class TaskService {
                 LOG.info("“" + fileUid + "”未到可执行时间，暂不执行");
                 return;
             }
-            cacheInfoService.ensureFileAndGetFileInfo(FileUid.fromString(fileUid));
+//            cacheInfoService.ensureFileAndGetFileInfo(FileUid.fromString(fileUid));
             LOG.info("“" + fileUid + "”执行成功");
         } catch (Exception e) {
             LOG.warn("“" + fileUid + "”执行异常:" + e.getMessage());
