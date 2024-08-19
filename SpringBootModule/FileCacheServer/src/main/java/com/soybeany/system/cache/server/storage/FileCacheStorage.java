@@ -9,13 +9,12 @@ import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.cache.v2.storage.StdStorage;
 import com.soybeany.system.cache.core.model.FileUid;
 import com.soybeany.system.cache.server.model.DataInfo;
+import com.soybeany.system.cache.server.util.InfoFileUtils;
 import com.soybeany.util.file.BdFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -63,20 +62,27 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         EXECUTOR_SERVICE.shutdown();
     }
 
-    private void deleteExpiredFiles() {
-        List<File> metaFiles = new ArrayList<>();
+    public void deleteExpiredFiles() {
         File[] serverDirs = Optional.ofNullable(cacheDir.listFiles()).orElseThrow(() -> new RuntimeException("本地缓存主目录不能为文件"));
-        for (File serverDir : serverDirs) {
-            File[] metaFileArr = Optional.ofNullable(new File(serverDir, DIR_META).listFiles()).orElseGet(() -> new File[0]);
-            metaFiles.addAll(Arrays.asList(metaFileArr));
-        }
-        if (metaFiles.isEmpty()) {
-            return;
-        }
         long curTimestamp = System.currentTimeMillis();
-        for (File metaFile : metaFiles) {
-            MetaInfo info = getMetaInfo(metaFile).orElseThrow(() -> new RuntimeException("找不到metaInfo文件（" + metaFile.getName() + "）"));
-            deleteDataAndMetaFiles(metaFile, info, curTimestamp > info.pExpireAt);
+        // 遍历server目录
+        for (File serverDir : serverDirs) {
+            // 按meta文件清理数据文件
+            Set<String> validDataFileNames = new HashSet<>();
+            for (File metaFile : Optional.ofNullable(new File(serverDir, DIR_META).listFiles()).orElseGet(() -> new File[0])) {
+                MetaInfo info = getMetaInfo(metaFile).orElseThrow(() -> new RuntimeException("找不到metaInfo文件（" + metaFile.getName() + "）"));
+                boolean isCurDataExpired = curTimestamp > info.pExpireAt;
+                deleteDataAndMetaFiles(metaFile, info, isCurDataExpired);
+                if (!isCurDataExpired) {
+                    validDataFileNames.add(info.curDataFileName + SUFFIX_DATA);
+                }
+            }
+            // 清理残余数据文件
+            for (File dataFile : Optional.ofNullable(new File(serverDir, DIR_DATA).listFiles()).orElseGet(() -> new File[0])) {
+                if (!validDataFileNames.contains(dataFile.getName())) {
+                    deleteFile(dataFile);
+                }
+            }
         }
     }
 
@@ -102,8 +108,10 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
             allDeleted = allDeleted && deleted;
         }
         if (containCur && allDeleted) {
+            LOG.info(metaFile.getName() + "的全部数据文件已清理成功");
             deleteFile(metaFile);
         } else {
+            LOG.warn(metaFile.getName() + "的部分数据文件未清理成功");
             writeMetaInfo(metaFile, info);
         }
     }
@@ -136,21 +144,11 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
 
     private static void writeMetaInfo(File metaFile, MetaInfo info) {
         info.version++;
-        try (ByteArrayInputStream stream = new ByteArrayInputStream(GSON.toJson(info).getBytes(StandardCharsets.UTF_8))) {
-            BdFileUtils.readWriteStream(stream, metaFile);
-        } catch (IOException e) {
-            throw new RuntimeException("写入metaInfo文件异常:" + e.getMessage());
-        }
+        InfoFileUtils.write(metaFile, info);
     }
 
     private static Optional<MetaInfo> getMetaInfo(File metaFile) {
-        try (InputStream is = Files.newInputStream(metaFile.toPath());
-             ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
-            BdFileUtils.readWriteStream(is, stream);
-            return Optional.of(GSON.fromJson(stream.toString("utf-8"), MetaInfo.class));
-        } catch (Exception e) {
-            return Optional.empty();
-        }
+        return InfoFileUtils.read(metaFile, MetaInfo.class);
     }
 
     @Override
@@ -167,7 +165,8 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     protected CacheEntity<FileCacheAccessor> onLoadCacheEntity(DataContext<FileUid> context, String key) throws NoCacheException {
         key = preTreatKey(key);
         // 读取配置
-        MetaInfo metaInfo = getMetaInfo(getMetaFile(context, key)).orElseThrow(NoCacheException::new);
+        File metaFile = getMetaFile(context, key);
+        MetaInfo metaInfo = getMetaInfo(metaFile).orElseThrow(NoCacheException::new);
         DataCore<FileCacheAccessor> core;
         // 依据配置创建不同core
         if (metaInfo.norm) {
@@ -179,6 +178,12 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
             core = DataCore.fromData(FileCacheAccessor.fromFile(metaInfo.dataInfo, dataFile));
         } else {
             core = DataCore.fromException(getException(metaInfo));
+        }
+        // 在临近失效时间时，更新缓存失效时间，同时避免频繁更新
+        long currentTimeMillis = System.currentTimeMillis();
+        if (metaInfo.pExpireAt - currentTimeMillis < metaInfo.dataInfo.pTtl / 2) {
+            metaInfo.pExpireAt = currentTimeMillis + metaInfo.dataInfo.pTtl;
+            writeMetaInfo(metaFile, metaInfo);
         }
         return new CacheEntity<>(core, metaInfo.pExpireAt);
     }
