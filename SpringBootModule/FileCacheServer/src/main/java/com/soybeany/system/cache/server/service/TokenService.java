@@ -1,8 +1,8 @@
 package com.soybeany.system.cache.server.service;
 
-import com.soybeany.system.cache.core.consumer.SecretKeyRetriever;
-import com.soybeany.system.cache.core.token.Payload;
-import com.soybeany.system.cache.core.token.TokenPart;
+import com.soybeany.system.cache.core.security.model.SecretKeyRetriever;
+import com.soybeany.system.cache.core.security.token.Payload;
+import com.soybeany.system.cache.core.security.token.TokenPart;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.model.CacheLogWriter;
 import org.springframework.beans.factory.annotation.Autowired;

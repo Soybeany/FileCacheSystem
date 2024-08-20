@@ -1,10 +1,14 @@
-package com.soybeany.system.cache.core.model;
+package com.soybeany.system.cache.core.task;
 
 /**
  * @author Soybeany
  * @date 2020/12/22
  */
 public class CacheTask {
+
+    public static final int NO_TASK_NO_CACHE = 0;
+    public static final int HAS_TASK_NO_CACHE = 1;
+    public static final int HAS_CACHE = 2;
 
     /**
      * 文件标签，表示一个唯一的任务
@@ -39,6 +43,10 @@ public class CacheTask {
         checkValue(canExeTo);
         checkRange(this.canExeFrom, canExeTo);
         this.canExeTo = canExeTo;
+    }
+
+    public boolean canExe(int curHour) {
+        return curHour >= getCanExeFrom() && curHour <= getCanExeTo();
     }
 
     private void checkValue(Integer value) {

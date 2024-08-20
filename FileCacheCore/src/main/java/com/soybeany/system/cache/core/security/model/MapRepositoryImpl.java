@@ -1,6 +1,4 @@
-package com.soybeany.system.cache.core.provider;
-
-import com.soybeany.system.cache.core.model.SecretKeyInfo;
+package com.soybeany.system.cache.core.security.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;

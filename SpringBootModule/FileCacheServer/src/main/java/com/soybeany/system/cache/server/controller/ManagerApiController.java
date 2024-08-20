@@ -1,7 +1,7 @@
 package com.soybeany.system.cache.server.controller;
 
-import com.soybeany.system.cache.core.interfaces.FileCacheHttpContract.Dto;
-import com.soybeany.system.cache.core.model.CacheTask;
+import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract.Dto;
+import com.soybeany.system.cache.core.task.CacheTask;
 import com.soybeany.system.cache.server.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static com.soybeany.system.cache.core.interfaces.FileCacheHttpContract.POST_TASK_LIST;
+import static com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract.POST_TASK_LIST;
 
 /**
  * @author Soybeany

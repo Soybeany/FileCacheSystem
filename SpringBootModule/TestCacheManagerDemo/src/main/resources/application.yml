@@ -26,4 +26,4 @@ user-config:
   # 任务同步的间隔时间，兼作心跳检测
   task-sync-interval-sec: @task-sync-interval-sec@
   # 任务同步的最大天数，即只同步最近多少天的任务
-  task-sync-max-day: @task-sync-max-day@
+  task-clean-interval-sec: @task-clean-interval-sec@

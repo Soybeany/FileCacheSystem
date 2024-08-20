@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.core.provider;
+package com.soybeany.system.cache.core.security.model;
 
 import com.soybeany.cache.v2.contract.IDatasource;
 import com.soybeany.cache.v2.core.DataManager;
@@ -6,8 +6,7 @@ import com.soybeany.cache.v2.log.ILogWriter;
 import com.soybeany.cache.v2.log.StdLogger;
 import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.cache.v2.storage.LruMemCacheStorage;
-import com.soybeany.system.cache.core.model.SecretKeyInfo;
-import com.soybeany.system.cache.core.token.SecretKeyHolder;
+import com.soybeany.system.cache.core.security.token.SecretKeyHolder;
 
 import java.util.Comparator;
 import java.util.List;

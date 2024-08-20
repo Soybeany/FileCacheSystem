@@ -20,7 +20,7 @@
         <renew-frequency-sec>600</renew-frequency-sec>
         <!-- 任务 -->
         <task-sync-interval-sec>10</task-sync-interval-sec>
-        <task-sync-max-day>1</task-sync-max-day>
+        <task-clean-interval-sec>3600</task-clean-interval-sec>
     </properties>
 
     <dependencies>

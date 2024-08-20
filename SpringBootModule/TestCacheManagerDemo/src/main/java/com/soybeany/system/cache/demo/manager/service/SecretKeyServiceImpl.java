@@ -1,7 +1,7 @@
 package com.soybeany.system.cache.demo.manager.service;
 
-import com.soybeany.system.cache.core.model.SecretKeyInfo;
-import com.soybeany.system.cache.core.provider.SecretKeyProvider;
+import com.soybeany.system.cache.core.security.model.SecretKeyInfo;
+import com.soybeany.system.cache.core.security.model.SecretKeyProvider;
 import com.soybeany.system.cache.demo.manager.repository.SecretKeyEntity;
 import com.soybeany.system.cache.demo.manager.repository.SecretKeyEntityRepository;
 import org.springframework.beans.BeanUtils;

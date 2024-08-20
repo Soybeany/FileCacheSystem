@@ -64,7 +64,7 @@ public abstract class FileCacheAccessor {
     /**
      * 使用回调
      */
-    public abstract void callback(ICallback callback);
+    public abstract void callback(ICallback callback) throws IOException;
 
     // ***********************内部类****************************
 
@@ -86,11 +86,9 @@ public abstract class FileCacheAccessor {
         }
 
         @Override
-        public void callback(ICallback callback) {
+        public void callback(ICallback callback) throws IOException {
             try (InputStream is = Files.newInputStream(file.toPath())) {
                 callback.onInvoke(is);
-            } catch (IOException e) {
-                throw new RuntimeException("本地数据读取异常:" + e.getMessage());
             }
         }
     }
@@ -105,11 +103,9 @@ public abstract class FileCacheAccessor {
         }
 
         @Override
-        public void callback(ICallback callback) {
+        public void callback(ICallback callback) throws IOException {
             try (InputStream is = isProvider.get()) {
                 callback.onInvoke(is);
-            } catch (IOException e) {
-                throw new RuntimeException("本地数据读取异常:" + e.getMessage());
             }
         }
     }

@@ -1,6 +1,6 @@
 package com.soybeany.system.cache.server.controller;
 
-import com.soybeany.system.cache.core.model.OptFilter;
+import com.soybeany.system.cache.core.security.model.OptFilter;
 import com.soybeany.system.cache.server.config.AppConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

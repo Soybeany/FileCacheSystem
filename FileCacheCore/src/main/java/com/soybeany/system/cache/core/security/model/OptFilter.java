@@ -1,6 +1,6 @@
-package com.soybeany.system.cache.core.model;
+package com.soybeany.system.cache.core.security.model;
 
-import com.soybeany.system.cache.core.interfaces.FileCacheHttpContract;
+import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;

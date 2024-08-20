@@ -26,7 +26,7 @@
       "description": "Description for user-config.task-sync-interval-sec."
     },
     {
-      "name": "user-config.task-sync-max-day",
+      "name": "user-config.task-clean-interval-sec",
       "type": "java.lang.String",
       "description": "Description for user-config.task-sync-max-day."
     }

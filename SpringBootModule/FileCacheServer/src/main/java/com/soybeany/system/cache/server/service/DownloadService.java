@@ -1,8 +1,8 @@
 package com.soybeany.system.cache.server.service;
 
-import com.soybeany.system.cache.core.interfaces.FileCacheHttpContract;
-import com.soybeany.system.cache.core.model.FileUid;
-import com.soybeany.system.cache.core.model.PollingHostProvider;
+import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
+import com.soybeany.system.cache.core.security.model.PollingHostProvider;
+import com.soybeany.system.cache.core.task.FileUid;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.config.ServerInfo;
 import com.soybeany.system.cache.server.model.DataInfo;
@@ -28,10 +28,10 @@ public class DownloadService implements FileCacheHttpContract {
 
     @Autowired
     private AppConfig appConfig;
-    @Autowired
-    private ConfigService configService;
 
+    private final Map<String, ServerInfo> serverInfoMap = new HashMap<>();
     private OkHttpClient client;
+
 
     @Override
     public OkHttpClient getClient() {
@@ -39,7 +39,7 @@ public class DownloadService implements FileCacheHttpContract {
     }
 
     public DownloadInfo startDownload(FileUid fileUid) {
-        ServerInfo serverInfo = configService.getServerInfo(fileUid.server);
+        ServerInfo serverInfo = getServerInfo(fileUid.server);
         String fileToken = fileUid.fileToken + (serverInfo.urlSuffix != null ? serverInfo.urlSuffix : "");
         Map<String, String> headers = new HashMap<>();
         headers.put(FileCacheHttpContract.AUTHORIZATION, serverInfo.authorization);
@@ -49,7 +49,17 @@ public class DownloadService implements FileCacheHttpContract {
 
     @PostConstruct
     private void onInit() {
+        for (ServerInfo serverInfo : appConfig.appServers) {
+            serverInfoMap.put(serverInfo.name, serverInfo);
+        }
         client = FileCacheHttpContract.getNewClient(appConfig.downloadTimeoutSec);
+    }
+
+    /**
+     * 获取服务器配置信息
+     */
+    private ServerInfo getServerInfo(String server) {
+        return Optional.ofNullable(serverInfoMap.get(server)).orElseThrow(() -> new RuntimeException("没有该服务器的相关信息"));
     }
 
     private DataInfo fromResponse(Response response) {

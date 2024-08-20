@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.core.model;
+package com.soybeany.system.cache.core.task;
 
 /**
  * 文件标签，确定唯一性

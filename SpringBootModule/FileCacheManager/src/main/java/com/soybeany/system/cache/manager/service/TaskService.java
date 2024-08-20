@@ -1,6 +1,6 @@
 package com.soybeany.system.cache.manager.service;
 
-import com.soybeany.system.cache.core.model.CacheTask;
+import com.soybeany.system.cache.core.task.CacheTask;
 
 import java.util.List;
 
@@ -12,6 +12,8 @@ public interface TaskService {
 
     void saveTasks(List<CacheTask> tasks);
 
-    void syncTasks();
+    void onSyncTasks();
+
+    void onCleanTasks();
 
 }

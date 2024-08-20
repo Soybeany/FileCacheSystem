@@ -1,8 +1,8 @@
 package com.soybeany.system.cache.manager.controller;
 
-import com.soybeany.system.cache.core.interfaces.FileCacheHttpContract.Dto;
-import com.soybeany.system.cache.core.model.CacheTask;
-import com.soybeany.system.cache.core.provider.SecretKeyProvider;
+import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract.Dto;
+import com.soybeany.system.cache.core.security.model.SecretKeyProvider;
+import com.soybeany.system.cache.core.task.CacheTask;
 import com.soybeany.system.cache.manager.config.UserConfig;
 import com.soybeany.system.cache.manager.model.CacheLogWriter;
 import com.soybeany.system.cache.manager.service.TaskService;
@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.PostConstruct;
 import java.util.List;
 
-import static com.soybeany.system.cache.core.interfaces.FileCacheHttpContract.GET_SECRET_KEY_LIST;
-import static com.soybeany.system.cache.core.interfaces.FileCacheHttpContract.POST_TASK_LIST;
+import static com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract.GET_SECRET_KEY_LIST;
+import static com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract.POST_TASK_LIST;
 
 /**
  * @author Soybeany

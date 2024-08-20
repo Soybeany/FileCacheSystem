@@ -1,10 +1,10 @@
 package com.soybeany.system.cache.server.service;
 
-import com.soybeany.system.cache.core.model.CacheTask;
+import com.soybeany.system.cache.core.task.CacheTask;
+import com.soybeany.system.cache.core.task.FileUid;
+import com.soybeany.system.cache.core.util.TimerUtils;
 import com.soybeany.system.cache.server.config.AppConfig;
-import com.soybeany.system.cache.server.repository.TaskInfo;
-import com.soybeany.system.cache.server.repository.TaskInfoRepository;
-import com.soybeany.system.cache.server.util.SaveUtils;
+import com.soybeany.system.cache.server.util.InfoFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,15 +12,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.io.File;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * @author Soybeany
@@ -30,26 +25,27 @@ import java.util.concurrent.TimeUnit;
 public class TaskService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskService.class);
+    private static final String DIR_TASK = "/task";
 
-    private final Set<String> taskTags = new HashSet<>();
+    private ExecutorService timer;
     private ExecutorService taskExecutor;
     @Autowired
     private AppConfig appConfig;
     @Autowired
     private CacheInfoService cacheInfoService;
-    @Autowired
-    private TaskInfoRepository taskInfoRepository;
 
     @SuppressWarnings("AlibabaThreadShouldSetName")
     @PostConstruct
     void onInit() {
         taskExecutor = new ThreadPoolExecutor(0, appConfig.taskConcurrentMaxCount,
                 60L, TimeUnit.SECONDS,
-                new SynchronousQueue<>(true));
+                new LinkedBlockingQueue<>());
+        timer = TimerUtils.getTimer(appConfig.taskExeIntervalSec, this::executeTasks);
     }
 
     @PreDestroy
     void onDestroy() {
+        timer.shutdown();
         taskExecutor.shutdown();
     }
 
@@ -60,80 +56,88 @@ public class TaskService {
         if (null == tasks || tasks.isEmpty()) {
             return;
         }
-        List<TaskInfo> list = new LinkedList<>();
         for (CacheTask task : tasks) {
-            list.add(toTaskInfo(task));
+            FileUid fileUid = FileUid.fromString(task.fileUid);
+            InfoFileUtils.write(getTaskFile(fileUid), task);
         }
-        taskInfoRepository.saveAll(list);
+    }
+
+    public Map<String, Integer> queryTaskStates(List<String> uidList) {
+        Map<String, Integer> result = new HashMap<>();
+        for (String uid : uidList) {
+            FileUid fileUid = FileUid.fromString(uid);
+            // 查看缓存是否存在
+            boolean isCacheExist = cacheInfoService.isCacheExist(fileUid);
+            if (isCacheExist) {
+                result.put(uid, CacheTask.HAS_CACHE);
+                continue;
+            }
+            // 查看任务是否存在
+            result.put(uid, getTaskFile(fileUid).exists() ? CacheTask.HAS_TASK_NO_CACHE : CacheTask.NO_TASK_NO_CACHE);
+        }
+        return result;
     }
 
     /**
-     * 查找并执行新的任务
+     * 执行任务
      */
-    public void findAndExecuteNewTasks() {
-        // 获取全部待执行的任务
-        List<TaskInfo> tasks = taskInfoRepository.findByPriorityGreaterThanOrderByPriorityDesc(TaskInfo.PRIORITY_FINISH);
-        // 将新的任务添加到执行队列
-        int newAdded = 0;
-        for (TaskInfo taskInfo : tasks) {
-            if (taskTags.add(taskInfo.fileUid)) {
-                taskExecutor.submit(() -> executeTask(taskInfo.fileUid));
-                newAdded++;
+    public void executeTasks() {
+        File[] serverDirs = Optional.ofNullable(new File(appConfig.fileCacheDir).listFiles()).orElse(new File[0]);
+        Info info = new Info();
+        List<Future<?>> futures = new ArrayList<>();
+        for (File serverDir : serverDirs) {
+            for (File taskFile : Optional.ofNullable(new File(serverDir, DIR_TASK).listFiles()).orElse(new File[0])) {
+                Optional<CacheTask> taskOpt = InfoFileUtils.read(taskFile, CacheTask.class);
+                if (taskOpt.isPresent()) {
+                    onTaskExist(futures, info, taskOpt.get());
+                } else {
+                    info.failureCount++;
+                    LOG.warn("任务(" + taskFile.getName() + ")解析异常");
+                }
+                boolean ignore = taskFile.delete();
             }
         }
+        // 等待全部任务执行完毕
+        futures.forEach(future -> {
+            try {
+                future.get();
+            } catch (Exception ignore) {
+            }
+        });
         // 日志输出
-        LOG.info("主动缓存任务，待执行:" + taskTags.size() + "个，新增:" + newAdded + "个");
+        info.print();
     }
 
-    private TaskInfo toTaskInfo(CacheTask task) {
-        TaskInfo info = taskInfoRepository.findByFileUid(task.fileUid);
-        if (null == info) {
-            info = new TaskInfo();
-        }
-        info.fileUid = task.fileUid;
-        info.priority = appConfig.taskRetryCount;
-        info.canExeFrom = task.getCanExeFrom();
-        info.canExeTo = task.getCanExeTo();
-        return info;
-    }
-
-    private void executeTask(String fileUid) {
-        boolean success = true;
-        try {
-            if (!isTaskShouldExecute(fileUid)) {
-                LOG.info("“" + fileUid + "”未到可执行时间，暂不执行");
-                return;
-            }
-//            cacheInfoService.ensureFileAndGetFileInfo(FileUid.fromString(fileUid));
-            LOG.info("“" + fileUid + "”执行成功");
-        } catch (Exception e) {
-            LOG.warn("“" + fileUid + "”执行异常:" + e.getMessage());
-            success = false;
-        } finally {
-            synchronized (taskTags) {
-                taskTags.remove(fileUid);
-            }
-        }
-        editTaskInfo(success, fileUid);
-    }
-
-    private boolean isTaskShouldExecute(String fileUid) {
-        TaskInfo taskInfo = taskInfoRepository.findByFileUid(fileUid);
-        int curHour = LocalDateTime.now().getHour();
-        return curHour >= taskInfo.canExeFrom && curHour <= taskInfo.canExeTo;
-    }
-
-    private void editTaskInfo(boolean success, String fileUid) {
-        TaskInfo taskInfo = taskInfoRepository.findByFileUid(fileUid);
-        if (null == taskInfo) {
+    private void onTaskExist(List<Future<?>> futures, Info info, CacheTask task) {
+        if (!task.canExe(info.curHour)) {
+            info.notStartCount++;
             return;
         }
-        if (success) {
-            taskInfo.priority = TaskInfo.PRIORITY_FINISH;
-        } else {
-            taskInfo.priority--;
+        Future<?> future = taskExecutor.submit(() -> {
+            try {
+                cacheInfoService.receiveCacheInfo(FileUid.fromString(task.fileUid), (fileInfo, file) -> null);
+                info.successCount++;
+            } catch (Exception e) {
+                info.failureCount++;
+                LOG.warn("任务(" + task.fileUid + ")执行失败：" + e.getMessage());
+            }
+        });
+        futures.add(future);
+    }
+
+    private File getTaskFile(FileUid fileUid) {
+        return new File(appConfig.fileCacheDir + "/" + fileUid.server + DIR_TASK, fileUid.fileToken);
+    }
+
+    private static class Info {
+        final int curHour = LocalDateTime.now().getHour();
+        int successCount, failureCount, notStartCount;
+
+        void print() {
+            if (successCount != 0 || notStartCount != 0 || failureCount != 0) {
+                LOG.info("主动缓存任务，成功:" + successCount + "个，未开始:" + notStartCount + "个，失败:" + failureCount + "个");
+            }
         }
-        SaveUtils.syncSave(taskInfoRepository, taskInfo);
     }
 
 }

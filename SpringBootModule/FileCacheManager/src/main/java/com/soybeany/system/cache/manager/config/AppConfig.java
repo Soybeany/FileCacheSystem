@@ -1,8 +1,8 @@
 package com.soybeany.system.cache.manager.config;
 
-import com.soybeany.system.cache.core.model.CacheTask;
-import com.soybeany.system.cache.core.provider.MapRepositoryImpl;
-import com.soybeany.system.cache.core.provider.SecretKeyProvider;
+import com.soybeany.system.cache.core.security.model.MapRepositoryImpl;
+import com.soybeany.system.cache.core.security.model.SecretKeyProvider;
+import com.soybeany.system.cache.core.task.CacheTask;
 import com.soybeany.system.cache.manager.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +40,13 @@ class AppConfig {
         }
 
         @Override
-        public void syncTasks() {
+        public void onSyncTasks() {
             LOG.warn("没有实际同步任务，请自定义TaskService的实现类");
+        }
+
+        @Override
+        public void onCleanTasks() {
+            LOG.warn("没有实际清理任务，请自定义TaskService的实现类");
         }
     }
 }

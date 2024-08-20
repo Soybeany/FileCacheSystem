@@ -2,9 +2,11 @@ package com.soybeany.system.cache.server.service;
 
 import com.soybeany.cache.v2.contract.IDatasource;
 import com.soybeany.cache.v2.core.DataManager;
+import com.soybeany.cache.v2.exception.NoDataSourceException;
 import com.soybeany.cache.v2.log.StdLogger;
+import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.download.core.FileInfo;
-import com.soybeany.system.cache.core.model.FileUid;
+import com.soybeany.system.cache.core.task.FileUid;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.model.CacheLogWriter;
 import com.soybeany.system.cache.server.model.DataInfo;
@@ -37,6 +39,16 @@ public class CacheInfoService {
         DataInfo dataInfo = accessor.dataInfo;
         FileInfo fileInfo = new FileInfo(dataInfo.contentDisposition, dataInfo.contentLength, dataInfo.eTag);
         return listener.onReceiveCacheInfo(fileInfo.contentType(dataInfo.contentType), accessor.file());
+    }
+
+    public boolean isCacheExist(FileUid fileUid) {
+        DataPack<FileCacheAccessor> dataPack = dataManager.getDataPack(fileUid, null);
+        try {
+            dataPack.getData();
+            return true;
+        } catch (NoDataSourceException e) {
+            return false;
+        }
     }
 
     @PostConstruct

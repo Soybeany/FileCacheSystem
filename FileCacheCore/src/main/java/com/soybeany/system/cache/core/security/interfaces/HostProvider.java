@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.core.interfaces;
+package com.soybeany.system.cache.core.security.interfaces;
 
 /**
  * @author Soybeany

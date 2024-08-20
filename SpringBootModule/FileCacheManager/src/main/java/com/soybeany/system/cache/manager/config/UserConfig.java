@@ -15,7 +15,7 @@ public class UserConfig {
     public int futureKeyCount;
     public int renewFrequencySec;
     public int taskSyncIntervalSec;
-    public int taskSyncMaxDay;
+    public int taskCleanIntervalSec;
 
     public void setOldKeyCount(int oldKeyCount) {
         this.oldKeyCount = oldKeyCount;
@@ -33,7 +33,7 @@ public class UserConfig {
         this.taskSyncIntervalSec = taskSyncIntervalSec;
     }
 
-    public void setTaskSyncMaxDay(int taskSyncMaxDay) {
-        this.taskSyncMaxDay = taskSyncMaxDay;
+    public void setTaskCleanIntervalSec(int taskCleanIntervalSec) {
+        this.taskCleanIntervalSec = taskCleanIntervalSec;
     }
 }

@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.core.consumer;
+package com.soybeany.system.cache.core.security.model;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -7,9 +7,9 @@ import com.soybeany.cache.v2.core.DataManager;
 import com.soybeany.cache.v2.log.ILogWriter;
 import com.soybeany.cache.v2.log.StdLogger;
 import com.soybeany.cache.v2.storage.LruMemCacheStorage;
-import com.soybeany.system.cache.core.interfaces.FileCacheHttpContract;
-import com.soybeany.system.cache.core.interfaces.HostProvider;
-import com.soybeany.system.cache.core.token.SecretKeyHolder;
+import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
+import com.soybeany.system.cache.core.security.interfaces.HostProvider;
+import com.soybeany.system.cache.core.security.token.SecretKeyHolder;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 

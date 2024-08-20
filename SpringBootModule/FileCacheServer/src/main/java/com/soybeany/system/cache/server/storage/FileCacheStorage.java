@@ -7,7 +7,7 @@ import com.soybeany.cache.v2.model.DataContext;
 import com.soybeany.cache.v2.model.DataCore;
 import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.cache.v2.storage.StdStorage;
-import com.soybeany.system.cache.core.model.FileUid;
+import com.soybeany.system.cache.core.task.FileUid;
 import com.soybeany.system.cache.server.model.DataInfo;
 import com.soybeany.system.cache.server.util.InfoFileUtils;
 import com.soybeany.util.file.BdFileUtils;
@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -198,15 +199,19 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
             // 更新数据文件与配置文件
             FileCacheAccessor data = entity.dataCore.data;
             File dataFile = getDataFile(context, metaInfo);
-            data.callback(is -> BdFileUtils.readWriteStream(is, dataFile));
-            // 改写缓存核心
-            if (data.dataInfo.isFileComplete(dataFile)) {
-                metaInfo.dataInfo = data.dataInfo;
-                DataCore<FileCacheAccessor> newCore = DataCore.fromData(FileCacheAccessor.fromFile(metaInfo.dataInfo, dataFile));
-                entity = new CacheEntity<>(newCore, entity.pExpireAt);
-            } else {
+            try {
+                data.callback(is -> BdFileUtils.readWriteStream(is, dataFile));
+                // 改写缓存核心
+                if (data.dataInfo.isFileComplete(dataFile)) {
+                    metaInfo.dataInfo = data.dataInfo;
+                    DataCore<FileCacheAccessor> newCore = DataCore.fromData(FileCacheAccessor.fromFile(metaInfo.dataInfo, dataFile));
+                    entity = new CacheEntity<>(newCore, entity.pExpireAt);
+                } else {
+                    throw new IOException("文件大小不正确，可能下载不完整");
+                }
+            } catch (IOException e) {
                 deleteFile(dataFile);
-                DataCore<FileCacheAccessor> newCore = DataCore.fromException(new RuntimeException("文件大小不正确，可能下载不完整"));
+                DataCore<FileCacheAccessor> newCore = DataCore.fromException(new RuntimeException("本地缓存生成异常:" + e.getMessage()));
                 entity = new CacheEntity<>(newCore, currentTimeMillis + pTtlErr);
             }
         }

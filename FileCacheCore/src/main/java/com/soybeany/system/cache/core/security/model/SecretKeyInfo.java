@@ -1,6 +1,6 @@
-package com.soybeany.system.cache.core.model;
+package com.soybeany.system.cache.core.security.model;
 
-import com.soybeany.system.cache.core.token.Payload;
+import com.soybeany.system.cache.core.security.token.Payload;
 import com.soybeany.util.HexUtils;
 import com.soybeany.util.SerializeUtils;
 

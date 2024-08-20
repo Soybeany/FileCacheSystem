@@ -20,18 +20,9 @@
         <!-- 常规 -->
         <authorization>ItIsATestDemo</authorization>
         <file-cache-dir>d:/cache-test/cache/</file-cache-dir>
-        <record-expiry-sec>60</record-expiry-sec>
-        <temp-file-expiry-sec>60</temp-file-expiry-sec>
-        <content-info-lock-timeout-sec>30</content-info-lock-timeout-sec>
+        <download-timeout-sec>10</download-timeout-sec>
+        <task-exe-interval-sec>60</task-exe-interval-sec>
         <task-concurrent-max-count>10</task-concurrent-max-count>
-        <task-retry-count>3</task-retry-count>
-        <!-- 定时器 -->
-        <fileCleaner.refer-time>2020-12-20 00:00:00</fileCleaner.refer-time>
-        <fileCleaner.interval-sec>20</fileCleaner.interval-sec>
-        <recordCleaner.refer-time>2020-12-20 00:00:04</recordCleaner.refer-time>
-        <recordCleaner.interval-sec>30</recordCleaner.interval-sec>
-        <taskExecuteTimer.refer-time>2020-12-20 00:00:08</taskExecuteTimer.refer-time>
-        <taskExecuteTimer.interval-sec>30</taskExecuteTimer.interval-sec>
         <!-- 管理服务器 -->
         <manager-hosts>http://localhost:8182</manager-hosts>
         <!-- 业务服务器 -->

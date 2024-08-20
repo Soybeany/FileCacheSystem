@@ -1,10 +1,10 @@
 package com.soybeany.system.cache.server.controller;
 
 import com.soybeany.download.FileServerUtils;
-import com.soybeany.system.cache.core.interfaces.FileCacheHttpContract;
-import com.soybeany.system.cache.core.model.FileUid;
-import com.soybeany.system.cache.core.token.Payload;
-import com.soybeany.system.cache.core.token.TokenPart;
+import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
+import com.soybeany.system.cache.core.security.token.Payload;
+import com.soybeany.system.cache.core.security.token.TokenPart;
+import com.soybeany.system.cache.core.task.FileUid;
 import com.soybeany.system.cache.server.service.CacheInfoService;
 import com.soybeany.system.cache.server.service.TokenService;
 import org.slf4j.Logger;

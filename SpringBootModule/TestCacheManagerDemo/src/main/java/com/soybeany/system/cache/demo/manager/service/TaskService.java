@@ -1,8 +1,8 @@
 package com.soybeany.system.cache.demo.manager.service;
 
 import com.google.gson.Gson;
-import com.soybeany.system.cache.core.interfaces.FileCacheHttpContract;
-import com.soybeany.system.cache.core.model.CacheTask;
+import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
+import com.soybeany.system.cache.core.task.CacheTask;
 import com.soybeany.system.cache.core.util.CacheCoreTimeUtils;
 import com.soybeany.system.cache.demo.manager.repository.CacheServerInfo;
 import com.soybeany.system.cache.demo.manager.repository.CacheServerInfoRepository;
@@ -59,12 +59,17 @@ class TaskServiceImpl extends BaseService implements TaskService, FileCacheHttpC
     }
 
     @Override
-    public void syncTasks() {
+    public void onSyncTasks() {
         execute("任务同步", this::postTasks, (info, count) -> {
             String msg = "“" + info.desc + "”";
             msg += (count > 0 ? "同步“" + count + "”条数据成功" : "没有待同步的数据");
             LOG.info(msg);
         });
+    }
+
+    @Override
+    public void onCleanTasks() {
+        // 暂不清理
     }
 
     private Integer postTasks(CacheServerInfo info) throws IOException {
@@ -94,7 +99,7 @@ class TaskServiceImpl extends BaseService implements TaskService, FileCacheHttpC
     private List<TaskInfo> getTasks(Date timestamp) {
         LocalDateTime now = LocalDateTime.now();
         if (null == timestamp) {
-            timestamp = CacheCoreTimeUtils.toDate(now.plusDays(-userConfig.taskSyncMaxDay));
+            timestamp = CacheCoreTimeUtils.toDate(now.plusDays(-userConfig.taskCleanIntervalSec));
         }
         if (!needExecute(timestamp, userConfig.taskSyncIntervalSec)) {
             return null;
