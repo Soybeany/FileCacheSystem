@@ -1,5 +1,5 @@
 server:
-  port: @server.port@
+  port: 8181
 
 spring:
   profiles:
@@ -7,4 +7,4 @@ spring:
 
 logging:
   file:
-    path: @log.path@
+    path: d:/cache-test/log/cache-server

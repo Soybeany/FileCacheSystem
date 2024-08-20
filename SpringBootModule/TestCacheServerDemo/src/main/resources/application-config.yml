@@ -1,26 +1,22 @@
 # 该配置文件各链路统一，若加应用服务器，只需要修改此文件即可
 config:
   # 访问控制接口所需要的授权
-  authorization: @authorization@
+  authorization: ItIsATestDemo
   # 本地缓存文件存储的目录
-  file-cache-dir: @file-cache-dir@
+  file-cache-dir: d:/cache-test/cache/
   # 下载请求的超时
-  download-timeout-sec: @download-timeout-sec@
+  download-timeout-sec: 10
   # 任务执行的间隔
-  task-exe-interval-sec: @task-exe-interval-sec@
+  task-exe-interval-sec: 60
   # 允许并发的最大任务数(主动模式)
-  task-concurrent-max-count: @task-concurrent-max-count@
+  task-concurrent-max-count: 10
 
   # 管理服务器配置，多个host使用“,”或“;”进行分隔
-  manager-hosts: @manager-hosts@
+  manager-hosts: http://localhost:8182
 
   # 应用服务器配置
   app-servers:
     # EFB主应用
-    - name: efb
-      file-download-url: @efb.file-download-url@
-      authorization: @efb.authorization@
-    # EFB气象
-    - name: weather
-      file-download-url: @weather.file-download-url@
-      authorization: @weather.authorization@
+    - name: app
+      file-download-url: http://localhost:8083/test1/getContentByFileId
+      authorization: 123456

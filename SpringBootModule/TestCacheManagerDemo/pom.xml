@@ -12,17 +12,6 @@
     <artifactId>TestCacheManagerDemo</artifactId>
     <packaging>${packaging.type}</packaging>
 
-    <properties>
-        <!-- 常规 -->
-        <server.port>8182</server.port>
-        <log.path>d:/cache-test/log/manager-server</log.path>
-        <!-- 密钥 -->
-        <renew-frequency-sec>600</renew-frequency-sec>
-        <!-- 任务 -->
-        <task-sync-interval-sec>10</task-sync-interval-sec>
-        <task-clean-interval-sec>3600</task-clean-interval-sec>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.soybeany.system.cache</groupId>

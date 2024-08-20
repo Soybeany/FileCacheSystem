@@ -12,26 +12,6 @@
     <artifactId>TestCacheServerDemo</artifactId>
     <packaging>${packaging.type}</packaging>
 
-    <properties>
-        <!-- application -->
-        <server.port>8181</server.port>
-        <db.path>d:/cache-test/cache_server.db</db.path>
-        <log.path>d:/cache-test/log/cache-server</log.path>
-        <!-- 常规 -->
-        <authorization>ItIsATestDemo</authorization>
-        <file-cache-dir>d:/cache-test/cache/</file-cache-dir>
-        <download-timeout-sec>10</download-timeout-sec>
-        <task-exe-interval-sec>60</task-exe-interval-sec>
-        <task-concurrent-max-count>10</task-concurrent-max-count>
-        <!-- 管理服务器 -->
-        <manager-hosts>http://localhost:8182</manager-hosts>
-        <!-- 业务服务器 -->
-        <efb.file-download-url>http://localhost:8083/test1/getContentByFileId</efb.file-download-url>
-        <efb.authorization>123456</efb.authorization>
-        <weather.file-download-url>http://localhost:8084/weather</weather.file-download-url>
-        <weather.authorization>876543</weather.authorization>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.soybeany.system.cache</groupId>

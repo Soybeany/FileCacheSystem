@@ -62,18 +62,18 @@ public class TaskService {
         }
     }
 
-    public Map<String, Integer> queryTaskStates(List<String> uidList) {
+    public Map<String, Integer> queryTaskStates(List<String> fileUidStrList) {
         Map<String, Integer> result = new HashMap<>();
-        for (String uid : uidList) {
-            FileUid fileUid = FileUid.fromString(uid);
+        for (String fileUidStr : fileUidStrList) {
+            FileUid fileUid = FileUid.fromString(fileUidStr);
             // 查看缓存是否存在
             boolean isCacheExist = cacheInfoService.isCacheExist(fileUid);
             if (isCacheExist) {
-                result.put(uid, CacheTask.HAS_CACHE);
+                result.put(fileUidStr, CacheTask.HAS_CACHE);
                 continue;
             }
             // 查看任务是否存在
-            result.put(uid, getTaskFile(fileUid).exists() ? CacheTask.HAS_TASK_NO_CACHE : CacheTask.NO_TASK_NO_CACHE);
+            result.put(fileUidStr, getTaskFile(fileUid).exists() ? CacheTask.HAS_TASK_NO_CACHE : CacheTask.NO_TASK_NO_CACHE);
         }
         return result;
     }

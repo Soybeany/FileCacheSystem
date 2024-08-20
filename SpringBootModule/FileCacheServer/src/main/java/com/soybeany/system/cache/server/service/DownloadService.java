@@ -3,6 +3,7 @@ package com.soybeany.system.cache.server.service;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.core.security.model.PollingHostProvider;
 import com.soybeany.system.cache.core.task.FileUid;
+import com.soybeany.system.cache.core.util.FileMd5Utils;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.config.ServerInfo;
 import com.soybeany.system.cache.server.model.DataInfo;
@@ -69,6 +70,7 @@ public class DownloadService implements FileCacheHttpContract {
         info.contentType = response.header("Content-Type");
         info.contentLength = Optional.ofNullable(response.header("Content-Length")).map(Long::parseLong).orElse(null);
         info.contentDisposition = response.header("Content-Disposition");
+        info.md5 = response.header(FileMd5Utils.HEADER_MD5);
         return info;
     }
 

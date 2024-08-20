@@ -1,0 +1,6 @@
+server:
+  port: @server.port@
+
+logging:
+  file:
+    path: @log.path@

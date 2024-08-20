@@ -12,4 +12,18 @@
     <artifactId>TestAppDemo</artifactId>
     <packaging>${packaging.type}</packaging>
 
+    <properties>
+        <!-- 常规 -->
+        <server.port>8182</server.port>
+        <log.path>d:/cache-test/log/app-server</log.path>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.soybeany.system.cache</groupId>
+            <artifactId>FileCacheCore</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
 </project>

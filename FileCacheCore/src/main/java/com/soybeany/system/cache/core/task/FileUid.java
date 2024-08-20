@@ -13,8 +13,8 @@ public class FileUid {
     public final String server;
     public final String fileToken;
 
-    public static FileUid fromString(String string) {
-        String[] parts = string.split(SEPARATOR);
+    public static FileUid fromString(String fileUidStr) {
+        String[] parts = fileUidStr.split(SEPARATOR);
         return new FileUid(parts[0], parts[1]);
     }
 
