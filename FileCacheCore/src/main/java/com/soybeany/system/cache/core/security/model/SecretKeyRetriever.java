@@ -9,7 +9,6 @@ import com.soybeany.cache.v2.log.StdLogger;
 import com.soybeany.cache.v2.storage.LruMemCacheStorage;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.core.security.interfaces.HostProvider;
-import com.soybeany.system.cache.core.security.token.SecretKeyHolder;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 

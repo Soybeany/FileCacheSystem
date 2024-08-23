@@ -1,8 +1,8 @@
 package com.soybeany.system.cache.demo.manager.service;
 
 import com.google.gson.Gson;
+import com.soybeany.system.cache.core.dto.CacheTask;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
-import com.soybeany.system.cache.core.task.CacheTask;
 import com.soybeany.system.cache.core.util.CacheCoreTimeUtils;
 import com.soybeany.system.cache.demo.manager.repository.CacheServerInfo;
 import com.soybeany.system.cache.demo.manager.repository.CacheServerInfoRepository;

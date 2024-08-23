@@ -7,7 +7,7 @@ import com.soybeany.cache.v2.model.DataContext;
 import com.soybeany.cache.v2.model.DataCore;
 import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.cache.v2.storage.StdStorage;
-import com.soybeany.system.cache.core.task.FileUid;
+import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.server.model.DataInfo;
 import com.soybeany.system.cache.server.util.InfoFileUtils;
 import com.soybeany.util.file.BdFileUtils;

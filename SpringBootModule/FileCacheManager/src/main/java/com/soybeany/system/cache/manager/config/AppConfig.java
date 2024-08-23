@@ -1,8 +1,8 @@
 package com.soybeany.system.cache.manager.config;
 
+import com.soybeany.system.cache.core.dto.CacheTask;
 import com.soybeany.system.cache.core.security.model.MapRepositoryImpl;
 import com.soybeany.system.cache.core.security.model.SecretKeyProvider;
-import com.soybeany.system.cache.core.task.CacheTask;
 import com.soybeany.system.cache.manager.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

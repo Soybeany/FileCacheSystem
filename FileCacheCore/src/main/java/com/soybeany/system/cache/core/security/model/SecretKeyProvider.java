@@ -6,7 +6,6 @@ import com.soybeany.cache.v2.log.ILogWriter;
 import com.soybeany.cache.v2.log.StdLogger;
 import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.cache.v2.storage.LruMemCacheStorage;
-import com.soybeany.system.cache.core.security.token.SecretKeyHolder;
 
 import java.util.Comparator;
 import java.util.List;
@@ -39,10 +38,13 @@ public class SecretKeyProvider {
         mDataManager = getNewDataManager();
     }
 
-    public String getHolderString() throws Exception {
+    public SecretKeyHolder.WithExpiry getHolder() {
         DataPack<WithCreateTime> pack = mDataManager.getDataPack(null);
-        SecretKeyHolder.WithExpiry holder = new SecretKeyHolder.WithExpiry(pack.getData(), pack.pTtl);
-        return SecretKeyHolder.WithExpiry.serialize(holder);
+        return new SecretKeyHolder.WithExpiry(pack.getData(), pack.pTtl);
+    }
+
+    public String getHolderString() throws Exception {
+        return SecretKeyHolder.WithExpiry.serialize(getHolder());
     }
 
     private DataManager<String, WithCreateTime> getNewDataManager() {

@@ -1,6 +1,6 @@
 package com.soybeany.system.cache.manager.service;
 
-import com.soybeany.system.cache.core.task.CacheTask;
+import com.soybeany.system.cache.core.dto.CacheTask;
 
 import java.util.List;
 

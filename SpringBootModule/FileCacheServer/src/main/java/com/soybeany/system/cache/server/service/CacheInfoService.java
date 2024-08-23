@@ -6,7 +6,7 @@ import com.soybeany.cache.v2.exception.NoDataSourceException;
 import com.soybeany.cache.v2.log.StdLogger;
 import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.download.core.FileInfo;
-import com.soybeany.system.cache.core.task.FileUid;
+import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.model.CacheLogWriter;
 import com.soybeany.system.cache.server.model.DataInfo;
@@ -55,7 +55,7 @@ public class CacheInfoService {
     private void onInit() {
         cacheStorage = new FileCacheStorage(appConfig.fileCacheDir);
         dataManager = DataManager.Builder
-                .get("文件缓存", new Datasource(), id -> id.fileToken)
+                .get("文件缓存", new Datasource(), id -> id.fileId)
                 .withCache(cacheStorage)
                 .logger(new StdLogger<>(new CacheLogWriter()))
                 .build();

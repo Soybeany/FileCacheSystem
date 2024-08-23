@@ -25,5 +25,5 @@ user-config:
   renew-frequency-sec: 600
   # 任务同步的间隔时间，兼作心跳检测
   task-sync-interval-sec: 10
-  # 任务同步的最大天数，即只同步最近多少天的任务
+  # 任务清理的间隔时间
   task-clean-interval-sec: 3600

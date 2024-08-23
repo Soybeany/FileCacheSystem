@@ -1,6 +1,6 @@
 package com.soybeany.system.cache.core.security.model;
 
-import com.soybeany.system.cache.core.security.token.Payload;
+import com.soybeany.system.cache.core.util.TokenUtils;
 import com.soybeany.util.HexUtils;
 import com.soybeany.util.SerializeUtils;
 
@@ -28,7 +28,7 @@ public class SecretKeyInfo {
     public static SecretKeyInfo getDefaultNew(long createTimestamp) throws Exception {
         SecretKeyInfo keyInfo = new SecretKeyInfo();
         keyInfo.key = UUID.randomUUID().toString().replaceAll("-", "").substring(16);
-        keyInfo.secretKeyJson = fromSecretKey(Payload.generateNewKey());
+        keyInfo.secretKeyJson = fromSecretKey(TokenUtils.generateNewKey());
         keyInfo.createTimestamp = createTimestamp;
         return keyInfo;
     }

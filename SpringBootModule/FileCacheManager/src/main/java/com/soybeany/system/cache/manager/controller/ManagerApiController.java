@@ -1,10 +1,8 @@
 package com.soybeany.system.cache.manager.controller;
 
+import com.soybeany.system.cache.core.dto.CacheTask;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract.Dto;
-import com.soybeany.system.cache.core.security.model.SecretKeyProvider;
-import com.soybeany.system.cache.core.task.CacheTask;
-import com.soybeany.system.cache.manager.config.UserConfig;
-import com.soybeany.system.cache.manager.model.CacheLogWriter;
+import com.soybeany.system.cache.manager.service.FileUidService;
 import com.soybeany.system.cache.manager.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract.GET_SECRET_KEY_LIST;
@@ -26,20 +23,16 @@ import static com.soybeany.system.cache.core.security.interfaces.FileCacheHttpCo
 class ManagerApiController {
 
     @Autowired
-    private UserConfig userConfig;
+    private FileUidService fileUidService;
     @Autowired
     private TaskService taskService;
-    @Autowired
-    private SecretKeyProvider.Repository secretKeyRepository;
-
-    private SecretKeyProvider secretKeyProvider;
 
     // ********************标准API********************
 
     @GetMapping(GET_SECRET_KEY_LIST)
     public Dto<String> getList() {
         try {
-            return Dto.norm(secretKeyProvider.getHolderString());
+            return Dto.norm(fileUidService.getSecretKeyProvider().getHolderString());
         } catch (Exception e) {
             return Dto.error("获取失败:" + e.getMessage());
         }
@@ -53,16 +46,6 @@ class ManagerApiController {
         } catch (Exception e) {
             return Dto.error(e.getMessage());
         }
-    }
-
-    @PostConstruct
-    public void init() {
-        secretKeyProvider = new SecretKeyProvider(
-                userConfig.oldKeyCount,
-                userConfig.futureKeyCount,
-                userConfig.renewFrequencySec,
-                secretKeyRepository, new CacheLogWriter()
-        );
     }
 
 }

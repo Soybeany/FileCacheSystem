@@ -1,8 +1,8 @@
 package com.soybeany.system.cache.server.service;
 
+import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.core.security.model.PollingHostProvider;
-import com.soybeany.system.cache.core.task.FileUid;
 import com.soybeany.system.cache.core.util.FileMd5Utils;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.config.ServerInfo;
@@ -41,7 +41,7 @@ public class DownloadService implements FileCacheHttpContract {
 
     public DownloadInfo startDownload(FileUid fileUid) {
         ServerInfo serverInfo = getServerInfo(fileUid.server);
-        String fileToken = fileUid.fileToken + (serverInfo.urlSuffix != null ? serverInfo.urlSuffix : "");
+        String fileToken = fileUid.fileId + (serverInfo.urlSuffix != null ? serverInfo.urlSuffix : "");
         Map<String, String> headers = new HashMap<>();
         headers.put(FileCacheHttpContract.AUTHORIZATION, serverInfo.authorization);
         Response response = getResponse(PollingHostProvider.fromArr(serverInfo.fileDownloadUrl), fileToken, headers);

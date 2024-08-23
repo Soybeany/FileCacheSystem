@@ -1,7 +1,7 @@
 package com.soybeany.system.cache.server.service;
 
-import com.soybeany.system.cache.core.task.CacheTask;
-import com.soybeany.system.cache.core.task.FileUid;
+import com.soybeany.system.cache.core.dto.CacheTask;
+import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.util.TimerUtils;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.util.InfoFileUtils;
@@ -126,7 +126,7 @@ public class TaskService {
     }
 
     private File getTaskFile(FileUid fileUid) {
-        return new File(appConfig.fileCacheDir + "/" + fileUid.server + DIR_TASK, fileUid.fileToken);
+        return new File(appConfig.fileCacheDir + "/" + fileUid.server + DIR_TASK, fileUid.fileId);
     }
 
     private static class Info {

@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.core.task;
+package com.soybeany.system.cache.core.dto;
 
 /**
  * @author Soybeany

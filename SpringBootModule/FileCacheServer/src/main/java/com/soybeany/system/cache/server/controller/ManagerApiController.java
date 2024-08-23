@@ -1,7 +1,7 @@
 package com.soybeany.system.cache.server.controller;
 
+import com.soybeany.system.cache.core.dto.CacheTask;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract.Dto;
-import com.soybeany.system.cache.core.task.CacheTask;
 import com.soybeany.system.cache.server.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

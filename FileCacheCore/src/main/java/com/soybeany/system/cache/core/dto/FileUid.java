@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.core.task;
+package com.soybeany.system.cache.core.dto;
 
 /**
  * 文件标签，确定唯一性
@@ -11,7 +11,7 @@ public class FileUid {
     private static final String SEPARATOR = "-";
 
     public final String server;
-    public final String fileToken;
+    public final String fileId;
 
     public static FileUid fromString(String fileUidStr) {
         String[] parts = fileUidStr.split(SEPARATOR);
@@ -23,11 +23,11 @@ public class FileUid {
     }
 
     public static String toString(FileUid fileUid) {
-        return toFileUid(fileUid.server, fileUid.fileToken);
+        return toFileUid(fileUid.server, fileUid.fileId);
     }
 
-    public FileUid(String server, String fileToken) {
+    public FileUid(String server, String fileId) {
         this.server = server;
-        this.fileToken = fileToken;
+        this.fileId = fileId;
     }
 }
