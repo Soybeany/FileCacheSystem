@@ -43,7 +43,9 @@ public class DownloadService implements FileCacheHttpContract {
         ServerInfo serverInfo = getServerInfo(fileUid.server);
         String fileToken = fileUid.fileId + (serverInfo.urlSuffix != null ? serverInfo.urlSuffix : "");
         Map<String, String> headers = new HashMap<>();
-        headers.put(FileCacheHttpContract.AUTHORIZATION, serverInfo.authorization);
+        if (null != serverInfo.authorization) {
+            headers.put(FileCacheHttpContract.AUTHORIZATION, serverInfo.authorization);
+        }
         Response response = getResponse(PollingHostProvider.fromArr(serverInfo.fileDownloadUrl), fileToken, headers);
         return new DownloadInfo(fromResponse(response), getNonNullBody(response.body()).byteStream());
     }
