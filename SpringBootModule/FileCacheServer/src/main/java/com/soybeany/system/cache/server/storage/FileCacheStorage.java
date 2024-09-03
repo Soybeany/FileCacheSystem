@@ -177,14 +177,14 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
                 throw new NoCacheException();
             }
             core = DataCore.fromData(FileCacheAccessor.fromFile(metaInfo.dataInfo, dataFile));
+            // 在临近失效时间时，更新缓存失效时间，同时避免频繁更新
+            long currentTimeMillis = System.currentTimeMillis();
+            if (metaInfo.pExpireAt - currentTimeMillis < metaInfo.dataInfo.pTtl / 2) {
+                metaInfo.pExpireAt = currentTimeMillis + metaInfo.dataInfo.pTtl;
+                writeMetaInfo(metaFile, metaInfo);
+            }
         } else {
             core = DataCore.fromException(getException(metaInfo));
-        }
-        // 在临近失效时间时，更新缓存失效时间，同时避免频繁更新
-        long currentTimeMillis = System.currentTimeMillis();
-        if (metaInfo.pExpireAt - currentTimeMillis < metaInfo.dataInfo.pTtl / 2) {
-            metaInfo.pExpireAt = currentTimeMillis + metaInfo.dataInfo.pTtl;
-            writeMetaInfo(metaFile, metaInfo);
         }
         return new CacheEntity<>(core, metaInfo.pExpireAt);
     }
