@@ -6,6 +6,7 @@ import com.soybeany.cache.v2.log.ILogWriter;
 import com.soybeany.cache.v2.log.StdLogger;
 import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.cache.v2.storage.LruMemCacheStorage;
+import com.soybeany.system.cache.core.token.SecretKeyHolder;
 
 import java.util.Comparator;
 import java.util.List;

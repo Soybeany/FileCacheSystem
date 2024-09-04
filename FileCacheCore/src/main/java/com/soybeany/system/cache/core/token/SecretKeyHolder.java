@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.core.security.model;
+package com.soybeany.system.cache.core.token;
 
 import com.soybeany.util.HexUtils;
 import com.soybeany.util.SerializeUtils;

@@ -1,8 +1,8 @@
 package com.soybeany.system.cache.manager.service;
 
 import com.soybeany.system.cache.core.dto.FileUid;
-import com.soybeany.system.cache.core.security.model.SecretKeyHolder;
 import com.soybeany.system.cache.core.security.model.SecretKeyProvider;
+import com.soybeany.system.cache.core.token.SecretKeyHolder;
 import com.soybeany.system.cache.core.util.TokenUtils;
 import com.soybeany.system.cache.manager.config.UserConfig;
 import com.soybeany.system.cache.manager.model.CacheLogWriter;
