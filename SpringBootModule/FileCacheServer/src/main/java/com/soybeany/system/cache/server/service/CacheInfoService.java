@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.File;
+import java.util.Optional;
 
 /**
  * @author Soybeany
@@ -37,7 +38,8 @@ public class CacheInfoService {
     public <T> T receiveCacheInfo(FileUid fileUid, IListener<T> listener) throws Exception {
         FileCacheAccessor accessor = dataManager.getData(fileUid);
         DataInfo dataInfo = accessor.dataInfo;
-        FileInfo fileInfo = new FileInfo(dataInfo.contentDisposition, dataInfo.contentLength, dataInfo.eTag);
+        long contentLength = Optional.ofNullable(dataInfo.contentLength).orElseGet(() -> accessor.file().length());
+        FileInfo fileInfo = new FileInfo(dataInfo.contentDisposition, contentLength, dataInfo.eTag);
         return listener.onReceiveCacheInfo(fileInfo.contentType(dataInfo.contentType), accessor.file());
     }
 
