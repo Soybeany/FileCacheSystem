@@ -64,6 +64,9 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     }
 
     public void deleteExpiredFiles() {
+        if (!cacheDir.exists()) {
+            return;
+        }
         File[] serverDirs = Optional.ofNullable(cacheDir.listFiles()).orElseThrow(() -> new RuntimeException("本地缓存主目录不能为文件"));
         long curTimestamp = System.currentTimeMillis();
         // 遍历server目录
@@ -191,6 +194,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
 
     @Override
     protected CacheEntity<FileCacheAccessor> onSaveCacheEntity(DataContext<FileUid> context, String key, CacheEntity<FileCacheAccessor> entity) {
+        key = preTreatKey(key);
         MetaInfo metaInfo = new MetaInfo();
         long currentTimeMillis = System.currentTimeMillis();
         metaInfo.curDataFileName = key + "_" + (currentTimeMillis / 1000);
@@ -216,7 +220,6 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
             }
         }
         // 记录配置
-        key = preTreatKey(key);
         metaInfo.norm = entity.dataCore.norm;
         Optional.ofNullable(entity.dataCore.exception).ifPresent(exception -> {
             metaInfo.exceptionJson = GSON.toJson(exception);
