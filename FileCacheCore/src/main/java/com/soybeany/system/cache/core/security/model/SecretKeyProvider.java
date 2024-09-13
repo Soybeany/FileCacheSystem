@@ -165,7 +165,7 @@ public class SecretKeyProvider {
                 holder.map.put(info.key, info.toSecretKey());
             }
             holder.newestKey = list.get(mOldKeyCount).key;
-            holder.lastUpdateTimestamp = list.get(list.size() - 1).createTimestamp;
+            holder.lastUpdateTimestamp = list.get(0).createTimestamp;
             return holder;
         }
     }
