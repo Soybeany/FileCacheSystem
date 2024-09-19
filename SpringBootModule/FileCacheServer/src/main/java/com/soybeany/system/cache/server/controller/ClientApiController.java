@@ -3,6 +3,7 @@ package com.soybeany.system.cache.server.controller;
 import com.soybeany.download.FileServerUtils;
 import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
+import com.soybeany.system.cache.core.util.LogUtils;
 import com.soybeany.system.cache.server.service.CacheInfoService;
 import com.soybeany.system.cache.server.service.FileUidService;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ class ClientApiController {
             return cacheInfoService.receiveCacheInfo(fileUid, callback);
         } catch (Exception e) {
             String uuid = UUID.randomUUID().toString();
-            LOG.error(e.getMessage() + "(" + uuid + ")");
+            LOG.error(uuid + " - " + LogUtils.exceptionToString(e));
             if (response.isCommitted()) {
                 return null;
             }

@@ -7,6 +7,7 @@ import com.soybeany.cache.v2.log.StdLogger;
 import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.cache.v2.storage.LruMemCacheStorage;
 import com.soybeany.system.cache.core.token.SecretKeyHolder;
+import com.soybeany.system.cache.core.util.LogUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -40,8 +41,8 @@ public class SecretKeyProvider {
     }
 
     public SecretKeyHolder.WithExpiry getHolder() {
-        DataPack<WithCreateTime> pack = mDataManager.getDataPack(null);
-        return new SecretKeyHolder.WithExpiry(pack.getData(), pack.pTtl);
+        DataPack<WithCreateTime> pack = mDataManager.getDataPack("keys");
+        return new SecretKeyHolder.WithExpiry(pack.getData(), mRenewFrequencyMillis);
     }
 
     public String getHolderString() throws Exception {
@@ -119,7 +120,9 @@ public class SecretKeyProvider {
                     }
                 }
             } catch (Exception e) {
-                mLogWriter.onWriteWarn(e.getMessage());
+                if (null != mLogWriter) {
+                    mLogWriter.onWriteWarn(LogUtils.exceptionToString(e));
+                }
                 list = getInfoListFromRepository();
             }
             return toSecretKeyHolder(list);
@@ -165,7 +168,7 @@ public class SecretKeyProvider {
                 holder.map.put(info.key, info.toSecretKey());
             }
             holder.newestKey = list.get(mOldKeyCount).key;
-            holder.lastUpdateTimestamp = list.get(0).createTimestamp;
+            holder.lastUpdateTimestamp = list.get(list.size() - 1).createTimestamp;
             return holder;
         }
     }

@@ -32,12 +32,13 @@ public class SecretKeyRetriever {
                 .get("密钥管理器", new Datasource())
                 .logger(new StdLogger<>(writer))
                 // 有容量限制，也有时间限制
-                .withCache(new LruMemCacheStorage.Builder<String, SecretKeyHolder.WithExpiry>().capacity(5).build())
+                .withCache(new LruMemCacheStorage.Builder<String, SecretKeyHolder.WithExpiry>().build())
+                .enableRenewExpiredCache(true)
                 .build();
     }
 
     public SecretKeyHolder getHolder() {
-        return mDataManager.getData(null);
+        return mDataManager.getData("keys");
     }
 
     private class Datasource implements IDatasource<String, SecretKeyHolder.WithExpiry>, FileCacheHttpContract {

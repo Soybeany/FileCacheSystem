@@ -25,6 +25,7 @@ public class FileUidService {
         return secretKeyProvider;
     }
 
+    @SuppressWarnings("unused")
     public String toToken(FileUid fileUid) {
         SecretKeyHolder.WithExpiry holder = secretKeyProvider.getHolder();
         return TokenUtils.toToken(holder.map::get, holder.newestKey, fileUid);
