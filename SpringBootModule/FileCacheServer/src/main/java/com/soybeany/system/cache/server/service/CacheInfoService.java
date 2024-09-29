@@ -55,7 +55,7 @@ public class CacheInfoService {
 
     @PostConstruct
     private void onInit() {
-        cacheStorage = new FileCacheStorage(appConfig.fileCacheDir);
+        cacheStorage = new FileCacheStorage(appConfig.fileCacheDir, appConfig.maxUsedPercent);
         dataManager = DataManager.Builder
                 .get("文件缓存", new Datasource(), id -> id.fileId)
                 .withCache(cacheStorage)

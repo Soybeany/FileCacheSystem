@@ -4,6 +4,8 @@ config:
   authorization: ItIsATestDemo
   # 本地缓存文件存储的目录
   file-cache-dir: d:/cache-test/cache/
+  # 允许缓存目录使用磁盘空间的最大比例
+  max-used-percent: 0.9
   # 下载请求的超时
   download-timeout-sec: 10
   # 任务执行的间隔

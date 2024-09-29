@@ -19,6 +19,7 @@ public class AppConfig {
 
     public String authorization;
     public String fileCacheDir;
+    public Float maxUsedPercent;
 
     public int downloadTimeoutSec;
 

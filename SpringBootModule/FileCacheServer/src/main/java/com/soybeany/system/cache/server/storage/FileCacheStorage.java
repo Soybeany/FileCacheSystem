@@ -42,10 +42,16 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
      * 全部缓存的根目录
      */
     private final File cacheDir;
+    private final long minFreeSpaceRequired;
 
-    public FileCacheStorage(String cacheDir) {
+    public FileCacheStorage(String cacheDir, float maxUsedPercent) {
         super(Integer.MAX_VALUE, 60 * 1000);
         this.cacheDir = new File(cacheDir);
+        BdFileUtils.mkDirs(this.cacheDir);
+        if (maxUsedPercent < 0.1 || maxUsedPercent > 1) {
+            throw new RuntimeException("maxUsedPercent取值需在0.1~1之间");
+        }
+        minFreeSpaceRequired = (long) (this.cacheDir.getTotalSpace() * (1 - maxUsedPercent));
     }
 
     public void start() {
@@ -56,17 +62,14 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
             } catch (Exception e) {
                 LOG.warn("清理过期文件缓存异常:" + e.getMessage());
             }
-        }, 1, 1, TimeUnit.HOURS);
+        }, 0, 1, TimeUnit.HOURS);
     }
 
     public void close() {
         EXECUTOR_SERVICE.shutdown();
     }
 
-    public void deleteExpiredFiles() {
-        if (!cacheDir.exists()) {
-            return;
-        }
+    public synchronized void deleteExpiredFiles() {
         File[] serverDirs = Optional.ofNullable(cacheDir.listFiles()).orElseThrow(() -> new RuntimeException("本地缓存主目录不能为文件"));
         long curTimestamp = System.currentTimeMillis();
         // 遍历server目录
@@ -194,6 +197,9 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
 
     @Override
     protected CacheEntity<FileCacheAccessor> onSaveCacheEntity(DataContext<FileUid> context, String key, CacheEntity<FileCacheAccessor> entity) {
+        // 先尽可能保障空间足够
+        confirmDiskSpace(context);
+        // 再执行后续流程
         key = preTreatKey(key);
         MetaInfo metaInfo = new MetaInfo();
         long currentTimeMillis = System.currentTimeMillis();
@@ -239,7 +245,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     }
 
     @Override
-    protected void onRemoveCacheEntity(DataContext<FileUid> context, String key) {
+    protected synchronized void onRemoveCacheEntity(DataContext<FileUid> context, String key) {
         key = preTreatKey(key);
         File metaFile = getMetaFile(context, key);
         getMetaInfo(metaFile).ifPresent(info -> deleteDataAndMetaFiles(metaFile, info, true));
@@ -275,6 +281,36 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     }
 
     // ***********************内部方法****************************
+
+    private void confirmDiskSpace(DataContext<FileUid> context) {
+        // 空间占用没达到阈值，则不处理
+        long freeSpaceOld = cacheDir.getFreeSpace();
+        long spaceNeeded = minFreeSpaceRequired - freeSpaceOld;
+        if (spaceNeeded < 0) {
+            return;
+        }
+        // 得到所需删除的文件列表
+        long[] remainSpaceToSqueeze = {spaceNeeded};
+        File[] filesToDelete = new File(cacheDir, "/" + context.param.param.server + DIR_DATA).listFiles(file -> {
+            if (remainSpaceToSqueeze[0] < 0) {
+                return false;
+            }
+            remainSpaceToSqueeze[0] -= file.length();
+            return true;
+        });
+        if (null == filesToDelete) {
+            throw new RuntimeException("文件夹依旧返回null");
+        }
+        for (File file : filesToDelete) {
+            String key = file.getName().substring(0, file.getName().lastIndexOf("_"));
+            onRemoveCacheEntity(context, key);
+        }
+        long freeSpaceNew = cacheDir.getFreeSpace();
+        LOG.warn("触发了满磁盘自动清理(" + freeSpaceOld + " -> " + freeSpaceNew + ")，" + "清理了" + filesToDelete.length + "个文件");
+        if (freeSpaceNew < minFreeSpaceRequired) {
+            throw new RuntimeException("自动清理失败，达不到最低空间剩余要求(" + minFreeSpaceRequired + ")");
+        }
+    }
 
     private RuntimeException getException(MetaInfo metaInfo) {
         Exception e;

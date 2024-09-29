@@ -16,6 +16,11 @@
       "description": "本地缓存文件存储的目录."
     },
     {
+      "name": "config.max-used-percent",
+      "type": "java.lang.Float",
+      "description": "允许缓存目录使用磁盘空间的最大比例（0 ~ 1）."
+    },
+    {
       "name": "config.download-timeout-sec",
       "type": "java.lang.Integer",
       "description": "下载请求的超时.",
