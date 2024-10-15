@@ -5,7 +5,6 @@ import com.soybeany.cache.v2.core.DataManager;
 import com.soybeany.cache.v2.exception.NoDataSourceException;
 import com.soybeany.cache.v2.log.StdLogger;
 import com.soybeany.cache.v2.model.DataPack;
-import com.soybeany.download.core.FileInfo;
 import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.model.CacheLogWriter;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.File;
-import java.util.Optional;
 
 /**
  * @author Soybeany
@@ -37,10 +35,7 @@ public class CacheInfoService {
 
     public <T> T receiveCacheInfo(FileUid fileUid, IListener<T> listener) throws Exception {
         FileCacheAccessor accessor = dataManager.getData(fileUid);
-        DataInfo dataInfo = accessor.dataInfo;
-        long contentLength = Optional.ofNullable(dataInfo.contentLength).orElseGet(() -> accessor.file().length());
-        FileInfo fileInfo = new FileInfo(dataInfo.contentDisposition, contentLength, dataInfo.eTag);
-        return listener.onReceiveCacheInfo(fileInfo.contentType(dataInfo.contentType), accessor.file());
+        return listener.onReceiveCacheInfo(accessor.dataInfo, accessor.file());
     }
 
     public boolean isCacheExist(FileUid fileUid) {
@@ -70,7 +65,7 @@ public class CacheInfoService {
     }
 
     public interface IListener<T> {
-        T onReceiveCacheInfo(FileInfo fileInfo, File file) throws Exception;
+        T onReceiveCacheInfo(DataInfo dataInfo, File file) throws Exception;
     }
 
     private class Datasource implements IDatasource<FileUid, FileCacheAccessor> {

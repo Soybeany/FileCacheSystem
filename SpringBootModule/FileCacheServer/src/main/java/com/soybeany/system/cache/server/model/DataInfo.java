@@ -16,6 +16,7 @@ public class DataInfo {
     public String contentDisposition;
     public Integer pTtl;
     public String md5;
+    public String exInfo;
 
     public boolean isFileComplete(File file) {
         boolean isComplete = true;

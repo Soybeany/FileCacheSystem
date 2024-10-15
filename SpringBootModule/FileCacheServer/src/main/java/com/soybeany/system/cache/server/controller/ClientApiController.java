@@ -1,8 +1,10 @@
 package com.soybeany.system.cache.server.controller;
 
 import com.soybeany.download.FileServerUtils;
+import com.soybeany.download.core.FileInfo;
 import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
+import com.soybeany.system.cache.core.util.ExInfoUtils;
 import com.soybeany.system.cache.core.util.LogUtils;
 import com.soybeany.system.cache.server.service.CacheInfoService;
 import com.soybeany.system.cache.server.service.FileUidService;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -33,13 +36,20 @@ class ClientApiController {
 
     @GetMapping("/ensure/{token}")
     String ensure(@PathVariable String token, HttpServletResponse response) {
-        return handleContentInfo(token, response, (fileInfo, file) -> "ok", e -> "exception");
+        return handleContentInfo(token, response, (dataInfo, file) -> "ok", e -> "exception");
     }
 
     @GetMapping(FileCacheHttpContract.GET_FILE_PATH + "/{token}")
     void getFile(@PathVariable String token, HttpServletRequest request, HttpServletResponse response) {
-        handleContentInfo(token, response, (fileInfo, file) -> {
-            FileServerUtils.randomAccessDownloadFile(fileInfo, request, response, file);
+        handleContentInfo(token, response, (dataInfo, file) -> {
+            // 自定义header设置
+            if (null != dataInfo.exInfo) {
+                response.setHeader(ExInfoUtils.HEADER_EX_INFO, ExInfoUtils.encodeExInfo(dataInfo.exInfo));
+            }
+            // 数据下载
+            long contentLength = Optional.ofNullable(dataInfo.contentLength).orElseGet(file::length);
+            FileInfo fileInfo = new FileInfo(dataInfo.contentDisposition, contentLength, dataInfo.eTag);
+            FileServerUtils.randomAccessDownloadFile(fileInfo.contentType(dataInfo.contentType), request, response, file);
             return null;
         }, e -> null);
     }

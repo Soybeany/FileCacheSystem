@@ -62,6 +62,7 @@ public class TaskService {
         }
     }
 
+    @SuppressWarnings("unused")
     public Map<String, Integer> queryTaskStates(List<String> fileUidStrList) {
         Map<String, Integer> result = new HashMap<>();
         for (String fileUidStr : fileUidStrList) {
@@ -115,7 +116,7 @@ public class TaskService {
         }
         Future<?> future = taskExecutor.submit(() -> {
             try {
-                cacheInfoService.receiveCacheInfo(FileUid.fromString(task.fileUid), (fileInfo, file) -> null);
+                cacheInfoService.receiveCacheInfo(FileUid.fromString(task.fileUid), (dataInfo, file) -> null);
                 info.successCount++;
             } catch (Exception e) {
                 info.failureCount++;
