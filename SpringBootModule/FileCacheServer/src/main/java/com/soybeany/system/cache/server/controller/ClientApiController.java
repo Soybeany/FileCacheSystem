@@ -6,8 +6,8 @@ import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.core.util.ExInfoUtils;
 import com.soybeany.system.cache.core.util.LogUtils;
+import com.soybeany.system.cache.server.config.IDynamicConfigProvider;
 import com.soybeany.system.cache.server.service.CacheInfoService;
-import com.soybeany.system.cache.server.service.FileUidService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ class ClientApiController {
     private static final Logger LOG = LoggerFactory.getLogger(ClientApiController.class);
 
     @Autowired
-    private FileUidService fileUidService;
+    private IDynamicConfigProvider configProvider;
     @Autowired
     private CacheInfoService cacheInfoService;
 
@@ -56,7 +56,7 @@ class ClientApiController {
 
     private <T> T handleContentInfo(String token, HttpServletResponse response, CacheInfoService.IListener<T> callback, IExceptionHandler<T> handler) {
         try {
-            FileUid fileUid = fileUidService.toFileUid(token);
+            FileUid fileUid = configProvider.toFileUid(token);
             return cacheInfoService.receiveCacheInfo(fileUid, callback);
         } catch (Exception e) {
             String uuid = UUID.randomUUID().toString();

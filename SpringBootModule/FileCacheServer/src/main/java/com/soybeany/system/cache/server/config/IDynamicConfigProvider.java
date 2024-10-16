@@ -9,6 +9,8 @@ public interface IDynamicConfigProvider {
 
     String getAuthorization();
 
+    FileUid toFileUid(String token);
+
     int getDownloadTimeoutSeconds();
 
 }
