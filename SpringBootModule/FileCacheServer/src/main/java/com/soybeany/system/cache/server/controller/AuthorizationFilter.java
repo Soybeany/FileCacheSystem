@@ -1,7 +1,7 @@
 package com.soybeany.system.cache.server.controller;
 
 import com.soybeany.system.cache.core.security.model.OptFilter;
-import com.soybeany.system.cache.server.config.AppConfig;
+import com.soybeany.system.cache.server.config.IDynamicConfigProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,11 +16,11 @@ import java.io.IOException;
 class AuthorizationFilter extends OptFilter implements Filter {
 
     @Autowired
-    private AppConfig appConfig;
+    private IDynamicConfigProvider configProvider;
 
     @Override
     protected String onGetAuthorization() {
-        return appConfig.authorization;
+        return configProvider.getAuthorization();
     }
 
     @Override

@@ -28,7 +28,7 @@ public class FileUidService {
 
     @PostConstruct
     void init() {
-        keyRetriever = new SecretKeyRetriever(appConfig.hostProvider, new CacheLogWriter());
+        keyRetriever = new SecretKeyRetriever(appConfig.getManagerHosts(), new CacheLogWriter());
     }
 
 }

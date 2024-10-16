@@ -2,7 +2,7 @@ package com.soybeany.system.cache.server.config;
 
 import com.soybeany.system.cache.core.security.interfaces.HostProvider;
 import com.soybeany.system.cache.core.security.model.PollingHostProvider;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,48 +12,26 @@ import java.util.List;
  * @date 2020/11/30
  */
 @Component
-@ConfigurationProperties(prefix = "config")
 public class AppConfig {
 
+    @Value("${config.app-servers}")
     public List<ServerInfo> appServers;
-
+    @Value("${config.authorization}")
     public String authorization;
+    @Value("${config.file-cache-dir}")
     public String fileCacheDir;
+    @Value("${config.max-used-percent}")
     public Float maxUsedPercent;
-
+    @Value("${config.download-timeout-sec}")
     public int downloadTimeoutSec;
-
+    @Value("${config.task-exe-interval-sec}")
     public int taskExeIntervalSec;
+    @Value("${config.task-concurrent-max-count}")
     public int taskConcurrentMaxCount;
+    @Value("${config.manager-hosts}")
+    private String managerHosts;
 
-    public HostProvider hostProvider;
-
-    public void setAppServers(List<ServerInfo> appServers) {
-        this.appServers = appServers;
+    public HostProvider getManagerHosts() {
+        return PollingHostProvider.fromString(managerHosts);
     }
-
-    public void setAuthorization(String authorization) {
-        this.authorization = authorization;
-    }
-
-    public void setFileCacheDir(String fileCacheDir) {
-        this.fileCacheDir = fileCacheDir;
-    }
-
-    public void setDownloadTimeoutSec(int downloadTimeoutSec) {
-        this.downloadTimeoutSec = downloadTimeoutSec;
-    }
-
-    public void setTaskExeIntervalSec(int taskExeIntervalSec) {
-        this.taskExeIntervalSec = taskExeIntervalSec;
-    }
-
-    public void setTaskConcurrentMaxCount(int taskConcurrentMaxCount) {
-        this.taskConcurrentMaxCount = taskConcurrentMaxCount;
-    }
-
-    public void setManagerHosts(String managerHosts) {
-        this.hostProvider = PollingHostProvider.fromString(managerHosts);
-    }
-
 }
