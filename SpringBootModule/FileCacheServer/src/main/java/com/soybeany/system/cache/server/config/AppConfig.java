@@ -17,23 +17,15 @@ public class AppConfig {
 
     public List<ServerInfo> appServers;
 
-    public String authorization;
     public String fileCacheDir;
     public Float maxUsedPercent;
 
     public int downloadTimeoutSec;
 
-    public int taskExeIntervalSec;
-    public int taskConcurrentMaxCount;
-
     public HostProvider managerHosts;
 
     public void setAppServers(List<ServerInfo> appServers) {
         this.appServers = appServers;
-    }
-
-    public void setAuthorization(String authorization) {
-        this.authorization = authorization;
     }
 
     public void setFileCacheDir(String fileCacheDir) {
@@ -46,14 +38,6 @@ public class AppConfig {
 
     public void setDownloadTimeoutSec(int downloadTimeoutSec) {
         this.downloadTimeoutSec = downloadTimeoutSec;
-    }
-
-    public void setTaskExeIntervalSec(int taskExeIntervalSec) {
-        this.taskExeIntervalSec = taskExeIntervalSec;
-    }
-
-    public void setTaskConcurrentMaxCount(int taskConcurrentMaxCount) {
-        this.taskConcurrentMaxCount = taskConcurrentMaxCount;
     }
 
     public void setManagerHosts(String managerHosts) {

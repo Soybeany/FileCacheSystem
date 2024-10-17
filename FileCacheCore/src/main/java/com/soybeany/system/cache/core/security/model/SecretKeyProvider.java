@@ -45,7 +45,7 @@ public class SecretKeyProvider {
         return new SecretKeyHolder.WithExpiry(pack.getData(), mRenewFrequencyMillis);
     }
 
-    public String getHolderString() throws Exception {
+    public String getHolderString() {
         return SecretKeyHolder.WithExpiry.serialize(getHolder());
     }
 

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 
 @Service
-public class FileUidService {
+public class FileUidService implements IDataProvider {
 
     @Autowired
     private UserConfig userConfig;
@@ -21,8 +21,9 @@ public class FileUidService {
 
     private SecretKeyProvider secretKeyProvider;
 
-    public SecretKeyProvider getSecretKeyProvider() {
-        return secretKeyProvider;
+    @Override
+    public String onGetSecretKeyString() {
+        return secretKeyProvider.getHolderString();
     }
 
     @SuppressWarnings("unused")
@@ -40,4 +41,5 @@ public class FileUidService {
                 secretKeyRepository, new CacheLogWriter()
         );
     }
+
 }

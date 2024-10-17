@@ -26,10 +26,6 @@ public interface FileCacheHttpContract {
 
     String GET_SECRET_KEY_LIST = OPT_PREFIX + "/getSecretKeyList";
 
-    // *****客户服务器，面向服务器，需授权*****
-
-    String POST_TASK_LIST = OPT_PREFIX + "/postTaskList";
-
     // *****客户服务器，面向客户端*****
 
     String GET_FILE_PATH = CLIENT_PREFIX + "/file";

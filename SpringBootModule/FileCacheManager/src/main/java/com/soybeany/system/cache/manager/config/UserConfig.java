@@ -14,8 +14,6 @@ public class UserConfig {
     public int oldKeyCount;
     public int futureKeyCount;
     public int renewFrequencySec;
-    public int taskSyncIntervalSec;
-    public int taskCleanIntervalSec;
 
     public void setOldKeyCount(int oldKeyCount) {
         this.oldKeyCount = oldKeyCount;
@@ -27,13 +25,5 @@ public class UserConfig {
 
     public void setRenewFrequencySec(int renewFrequencySec) {
         this.renewFrequencySec = renewFrequencySec;
-    }
-
-    public void setTaskSyncIntervalSec(int taskSyncIntervalSec) {
-        this.taskSyncIntervalSec = taskSyncIntervalSec;
-    }
-
-    public void setTaskCleanIntervalSec(int taskCleanIntervalSec) {
-        this.taskCleanIntervalSec = taskCleanIntervalSec;
     }
 }

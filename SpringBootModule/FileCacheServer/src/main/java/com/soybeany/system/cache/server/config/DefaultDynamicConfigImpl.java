@@ -36,11 +36,6 @@ public class DefaultDynamicConfigImpl implements IDynamicConfigProvider, FileCac
     }
 
     @Override
-    public String getAuthorization() {
-        return appConfig.authorization;
-    }
-
-    @Override
     public FileUid toFileUid(String token) {
         return TokenUtils.fromToken(key -> keyRetriever.getHolder().getSecretKey(key), token);
     }

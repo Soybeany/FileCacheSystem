@@ -23,7 +23,3 @@ user-config:
   future-key-count: 1
   # 每隔多久应该生成一个新的密钥
   renew-frequency-sec: 600
-  # 任务同步的间隔时间，兼作心跳检测
-  task-sync-interval-sec: 10
-  # 任务清理的间隔时间
-  task-clean-interval-sec: 3600

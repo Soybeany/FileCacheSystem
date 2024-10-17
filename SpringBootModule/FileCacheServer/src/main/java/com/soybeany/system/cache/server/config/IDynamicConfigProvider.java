@@ -7,8 +7,6 @@ public interface IDynamicConfigProvider {
 
     ServerInfo getAppServer(FileUid fileUid);
 
-    String getAuthorization();
-
     FileUid toFileUid(String token);
 
     int getDownloadTimeoutSeconds();

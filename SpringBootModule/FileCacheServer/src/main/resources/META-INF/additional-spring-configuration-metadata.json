@@ -6,11 +6,6 @@
       "description": "应用服务器配置."
     },
     {
-      "name": "config.authorization",
-      "type": "java.lang.String",
-      "description": "访问控制接口所需要的授权."
-    },
-    {
       "name": "config.file-cache-dir",
       "type": "java.lang.String",
       "description": "本地缓存文件存储的目录."
@@ -24,18 +19,6 @@
       "name": "config.download-timeout-sec",
       "type": "java.lang.Integer",
       "description": "下载请求的超时.",
-      "defaultValue": 10
-    },
-    {
-      "name": "config.task-exe-interval-sec",
-      "type": "java.lang.Integer",
-      "description": "任务执行的间隔.",
-      "defaultValue": 60
-    },
-    {
-      "name": "config.task-concurrent-max-count",
-      "type": "java.lang.Integer",
-      "description": "允许并发的最大任务数(主动模式).",
       "defaultValue": 10
     },
     {

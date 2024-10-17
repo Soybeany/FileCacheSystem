@@ -1,17 +1,11 @@
 # 该配置文件各链路统一，若加应用服务器，只需要修改此文件即可
 config:
-  # 访问控制接口所需要的授权
-  authorization: ItIsATestDemo
   # 本地缓存文件存储的目录
   file-cache-dir: d:/cache-test/cache/
   # 允许缓存目录使用磁盘空间的最大比例
   max-used-percent: 0.9
   # 下载请求的超时
   download-timeout-sec: 10
-  # 任务执行的间隔
-  task-exe-interval-sec: 60
-  # 允许并发的最大任务数(主动模式)
-  task-concurrent-max-count: 10
 
   # 管理服务器配置，多个host使用“,”或“;”进行分隔
   manager-hosts: http://localhost:8182

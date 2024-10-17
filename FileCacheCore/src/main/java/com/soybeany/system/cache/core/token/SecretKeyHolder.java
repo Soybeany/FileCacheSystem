@@ -4,6 +4,7 @@ import com.soybeany.util.HexUtils;
 import com.soybeany.util.SerializeUtils;
 
 import javax.crypto.SecretKey;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,8 +55,12 @@ public abstract class SecretKeyHolder implements Serializable {
             }
         }
 
-        public static String serialize(WithExpiry obj) throws Exception {
-            return HexUtils.bytesToHex(SerializeUtils.serialize(obj));
+        public static String serialize(WithExpiry obj) {
+            try {
+                return HexUtils.bytesToHex(SerializeUtils.serialize(obj));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         public WithExpiry(SecretKeyHolder holder, long expiryMillis) {
