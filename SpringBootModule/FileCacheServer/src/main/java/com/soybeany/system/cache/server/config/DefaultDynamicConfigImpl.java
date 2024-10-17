@@ -16,7 +16,7 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 
 @Service
-class DefaultDynamicConfigImpl implements IDynamicConfigProvider, FileCacheHttpContract {
+public class DefaultDynamicConfigImpl implements IDynamicConfigProvider, FileCacheHttpContract {
 
     private static final Gson GSON = new Gson();
 
@@ -53,12 +53,12 @@ class DefaultDynamicConfigImpl implements IDynamicConfigProvider, FileCacheHttpC
     // ***********************内部方法****************************
 
     @PostConstruct
-    void init() {
+    private void onInit() {
         keyRetriever = new SecretKeyRetriever(this::getSecretKeysData, new CacheLogWriter());
     }
 
     protected String getSecretKeysData() {
-        Response response = getResponse(appConfig.getManagerHosts(), FileCacheHttpContract.GET_SECRET_KEY_LIST, null);
+        Response response = getResponse(appConfig.managerHosts, FileCacheHttpContract.GET_SECRET_KEY_LIST, null);
         String bodyStr;
         try (ResponseBody body = response.body()) {
             bodyStr = getNonNullBody(body).string();
