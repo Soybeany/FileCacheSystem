@@ -66,7 +66,7 @@ public class DownloadAppendService implements FileCacheHttpContract {
         headers.put(IF_RANGE, info.getETag());
         long length = info.getTempFile().length();
         headers.put(RANGE, BYTES + "=" + length + "-");
-        log.info(info.getTempFile().getName() + "准备断点续传(from" + length + ")");
+        log.info(info.getTempFile().getName() + "准备断点续传(from " + length + ")");
     }
 
     public Optional<FileCacheAccessor> getFileCacheAccessor(FileUid fileUid, Response response, DataInfo dataInfo) {
@@ -84,7 +84,7 @@ public class DownloadAppendService implements FileCacheHttpContract {
         TempFileInfo tempFileInfo = getTempFileInfo(fileUid).orElseThrow(() -> new ReDownloadException("临时文件不存在"));
         try {
             // 检查能否进行断点续传
-            checkAppendable(response, tempFileInfo);
+            checkAppendable(response, tempFileInfo, dataInfo);
         } catch (Exception e) {
             log.warn("断点续传检查不通过:" + e.getMessage());
             // 若有异常，则当次抛异常，且删除临时文件（下次则不会再进入此逻辑）
@@ -123,6 +123,7 @@ public class DownloadAppendService implements FileCacheHttpContract {
     }
 
     private Optional<FileCacheAccessor> write(Response response, DataInfo dataInfo, TempFileInfo info, boolean append) {
+        BdFileUtils.mkParentDirs(info.getTempFile());
         try (FileOutputStream os = new FileOutputStream(info.getTempFile(), append)) {
             BdFileUtils.readWriteStream(getNonNullBody(response.body()).byteStream(), os);
         } catch (IOException e) {
@@ -154,7 +155,7 @@ public class DownloadAppendService implements FileCacheHttpContract {
         return raw.replaceAll("[/\\\\]", "-");
     }
 
-    private void checkAppendable(Response response, TempFileInfo info) {
+    private void checkAppendable(Response response, TempFileInfo info, DataInfo dataInfo) {
         File tempFile = info.getTempFile();
         // eTag检查
         if (!Objects.equals(info.getETag(), response.header(E_TAG))) {
@@ -176,6 +177,8 @@ public class DownloadAppendService implements FileCacheHttpContract {
         if (rangeStart != tempFile.length()) {
             throw new ReDownloadException("范围值不对应");
         }
+        // 修正内容长度
+        dataInfo.contentLength = Long.parseLong(matcher.group(2));
     }
 
     // ***********************内部类****************************
@@ -191,9 +194,11 @@ public class DownloadAppendService implements FileCacheHttpContract {
 
         @Override
         public void writeTo(File target) {
+            BdFileUtils.mkParentDirs(target);
             boolean success = file.renameTo(target);
             if (!success) {
                 deleteTempFile(file);
+                throw new ReDownloadException("临时文件转正异常");
             }
         }
     }

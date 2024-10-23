@@ -1,6 +1,8 @@
 server:
-  port: @server.port@
+  port: 8083
+  servlet:
+    context-path: /app
 
 logging:
   file:
-    path: @log.path@
+    path: d:/cache-test/log/app-server

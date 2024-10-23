@@ -18,6 +18,6 @@ config:
     - # noinspection SpringBootApplicationYaml
       name: app
       # noinspection SpringBootApplicationYaml
-      file-download-url: http://localhost:8083/test1/getContentByFileId
+      file-download-url: http://localhost:8083/app/getContentByFileId
       # noinspection SpringBootApplicationYaml
       authorization: 123456

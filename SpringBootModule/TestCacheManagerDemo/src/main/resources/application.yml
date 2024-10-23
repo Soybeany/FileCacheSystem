@@ -1,16 +1,7 @@
 server:
   port: 8182
-
-spring:
-  datasource:
-    # 本地db文件的路径
-    url: jdbc:sqlite:d:/cache-test/cache_manager.db
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    open-in-view: false
+  servlet:
+    context-path: /manager
 
 logging:
   file:
