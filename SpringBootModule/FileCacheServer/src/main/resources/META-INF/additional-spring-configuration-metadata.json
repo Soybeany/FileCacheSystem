@@ -22,6 +22,16 @@
       "defaultValue": 10
     },
     {
+      "name": "config.temp-file-threshold-m",
+      "type": "java.lang.Integer",
+      "description": "启用临时文件的门槛."
+    },
+    {
+      "name": "config.temp-file-retain-sec",
+      "type": "java.lang.Integer",
+      "description": "临时文件保留的时间."
+    },
+    {
       "name": "config.manager-hosts",
       "type": "java.lang.String",
       "description": "管理服务器配置，多个host使用“,”或“;”进行分隔."

@@ -13,9 +13,10 @@ public class FileUid {
     public final String server;
     public final String fileId;
 
+    @SuppressWarnings("unused")
     public static FileUid fromString(String fileUidStr) {
         String[] parts = fileUidStr.split(SEPARATOR);
-        return new FileUid(parts[0], parts[1]);
+        return new FileUid(parts[0], fileUidStr.substring(parts[0].length() + SEPARATOR.length()));
     }
 
     public static String toFileUid(String server, String fileToken) {

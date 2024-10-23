@@ -3,12 +3,9 @@ package com.soybeany.system.cache.server.storage;
 import com.soybeany.system.cache.server.model.DataInfo;
 import com.soybeany.util.file.BdFileUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.function.Supplier;
 
@@ -39,38 +36,11 @@ public abstract class FileCacheAccessor {
     // ***********************成员方法****************************
 
     /**
-     * 将文件内容加载为文本返回(UTF-8编码)
-     */
-    public String string() {
-        return string(StandardCharsets.UTF_8);
-    }
-
-    /**
-     * 将文件内容加载为文本返回
-     */
-    public String string(Charset charset) {
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            callback(is -> BdFileUtils.readWriteStream(is, out));
-            return out.toString(charset.name());
-        } catch (IOException e) {
-            throw new RuntimeException("文本数据组装异常:" + e.getMessage());
-        }
-    }
-
-    public File file() {
-        throw new RuntimeException("当前实现不支持获取file");
-    }
-
-    /**
      * 使用回调
      */
-    public abstract void callback(ICallback callback) throws IOException;
+    public abstract void writeTo(File target) throws IOException;
 
     // ***********************内部类****************************
-
-    public interface ICallback {
-        void onInvoke(InputStream is) throws IOException;
-    }
 
     public static class Local extends FileCacheAccessor {
         private final File file;
@@ -80,15 +50,14 @@ public abstract class FileCacheAccessor {
             this.file = file;
         }
 
-        @Override
         public File file() {
             return file;
         }
 
         @Override
-        public void callback(ICallback callback) throws IOException {
+        public void writeTo(File target) throws IOException {
             try (InputStream is = Files.newInputStream(file.toPath())) {
-                callback.onInvoke(is);
+                BdFileUtils.readWriteStream(is, target);
             }
         }
     }
@@ -103,9 +72,9 @@ public abstract class FileCacheAccessor {
         }
 
         @Override
-        public void callback(ICallback callback) throws IOException {
+        public void writeTo(File target) throws IOException {
             try (InputStream is = isProvider.get()) {
-                callback.onInvoke(is);
+                BdFileUtils.readWriteStream(is, target);
             }
         }
     }

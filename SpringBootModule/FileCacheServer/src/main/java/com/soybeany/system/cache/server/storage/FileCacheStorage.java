@@ -207,13 +207,13 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         // 正常时更新数据
         if (entity.dataCore.norm) {
             // 更新数据文件与配置文件
-            FileCacheAccessor data = entity.dataCore.data;
+            FileCacheAccessor accessor = entity.dataCore.data;
             File dataFile = getDataFile(context, metaInfo);
             try {
-                data.callback(is -> BdFileUtils.readWriteStream(is, dataFile));
+                accessor.writeTo(dataFile);
                 // 改写缓存核心
-                if (data.dataInfo.isFileComplete(dataFile)) {
-                    metaInfo.dataInfo = data.dataInfo;
+                if (accessor.dataInfo.isFileComplete(dataFile)) {
+                    metaInfo.dataInfo = accessor.dataInfo;
                     DataCore<FileCacheAccessor> newCore = DataCore.fromData(FileCacheAccessor.fromFile(metaInfo.dataInfo, dataFile));
                     entity = new CacheEntity<>(newCore, entity.pExpireAt);
                 } else {

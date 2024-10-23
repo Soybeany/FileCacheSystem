@@ -1,7 +1,7 @@
 package com.soybeany.system.cache.server.controller;
 
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
-import com.soybeany.system.cache.server.service.ManageService;
+import com.soybeany.system.cache.server.service.ICacheProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,16 +18,16 @@ import javax.servlet.http.HttpServletResponse;
 class ClientApiController {
 
     @Autowired
-    private ManageService manageService;
+    private ICacheProvider cacheProvider;
 
     @GetMapping("/ensure/{token}")
     String ensure(@PathVariable String token, HttpServletRequest request, HttpServletResponse response) {
-        return manageService.onEnsure(token, request, response);
+        return cacheProvider.onEnsure(token, request, response);
     }
 
     @GetMapping(FileCacheHttpContract.GET_FILE_PATH + "/{token}")
     void getFile(@PathVariable String token, HttpServletRequest request, HttpServletResponse response) {
-        manageService.onDownload(token, request, response);
+        cacheProvider.onDownload(token, request, response);
     }
 
 }

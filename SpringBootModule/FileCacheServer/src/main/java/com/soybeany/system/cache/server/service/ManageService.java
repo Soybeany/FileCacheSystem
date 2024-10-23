@@ -69,10 +69,11 @@ public class ManageService implements ICacheProvider {
     }
 
     public <T> T retrieveCache(FileUid fileUid, ICallback<T> callback) throws Exception {
-        FileCacheAccessor accessor = dataManager.getData(fileUid);
+        FileCacheAccessor.Local accessor = (FileCacheAccessor.Local) dataManager.getData(fileUid);
         return callback.onHandle(accessor.dataInfo, accessor.file());
     }
 
+    @SuppressWarnings("unused")
     public boolean isCacheExist(FileUid fileUid) {
         DataPack<FileCacheAccessor> dataPack = dataManager.getDataPack(fileUid, null);
         try {
@@ -81,6 +82,10 @@ public class ManageService implements ICacheProvider {
         } catch (NoDataSourceException e) {
             return false;
         }
+    }
+
+    protected String toErrMsg(Exception e) {
+        return LogUtils.exceptionToString(e);
     }
 
     @PostConstruct
@@ -105,7 +110,7 @@ public class ManageService implements ICacheProvider {
             return retrieveCache(fileUid, callback);
         } catch (Exception e) {
             String uuid = UUID.randomUUID().toString();
-            LOG.error(uuid + " - " + LogUtils.exceptionToString(e));
+            LOG.error(uuid + " - " + toErrMsg(e));
             if (response.isCommitted()) {
                 return null;
             }
@@ -128,13 +133,20 @@ public class ManageService implements ICacheProvider {
     private class Datasource implements IDatasource<FileUid, FileCacheAccessor> {
         @Override
         public FileCacheAccessor onGetData(FileUid fileUid) {
-            DownloadService.DownloadInfo info = downloadService.startDownload(fileUid);
-            return FileCacheAccessor.fromStream(info.info, () -> info.is);
+            return downloadService.startDownload(fileUid);
         }
 
         @Override
         public int onSetupExpiry(FileCacheAccessor fileCacheAccessor) {
             return fileCacheAccessor.dataInfo.pTtl;
+        }
+
+        @Override
+        public int onSetupExpiry(Exception e) {
+            if (e instanceof ReDownloadException) {
+                return 100;
+            }
+            return IDatasource.super.onSetupExpiry(e);
         }
     }
 }

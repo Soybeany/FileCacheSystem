@@ -20,6 +20,8 @@ public class AppConfig {
     public String fileCacheDir;
     public Float maxUsedPercent;
 
+    public long tempFileThreshold;
+    public long tempFileRetainMills;
     public int downloadTimeoutSec;
 
     public HostProvider managerHosts;
@@ -34,6 +36,14 @@ public class AppConfig {
 
     public void setMaxUsedPercent(Float maxUsedPercent) {
         this.maxUsedPercent = maxUsedPercent;
+    }
+
+    public void setTempFileThresholdM(int tempFileThresholdM) {
+        this.tempFileThreshold = tempFileThresholdM * 1024 * 1024L;
+    }
+
+    public void setTempFileRetainSec(int tempFileRetainSec) {
+        this.tempFileRetainMills = tempFileRetainSec * 1000L;
     }
 
     public void setDownloadTimeoutSec(int downloadTimeoutSec) {

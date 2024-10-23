@@ -6,6 +6,8 @@ config:
   max-used-percent: 0.9
   # 下载请求的超时
   download-timeout-sec: 10
+  temp-file-retain-sec: 3600
+  temp-file-threshold-m: 40
 
   # 管理服务器配置，多个host使用“,”或“;”进行分隔
   manager-hosts: http://localhost:8182
@@ -13,6 +15,9 @@ config:
   # 应用服务器配置
   app-servers:
     # EFB主应用
-    - name: app
+    - # noinspection SpringBootApplicationYaml
+      name: app
+      # noinspection SpringBootApplicationYaml
       file-download-url: http://localhost:8083/test1/getContentByFileId
+      # noinspection SpringBootApplicationYaml
       authorization: 123456

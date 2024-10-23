@@ -76,11 +76,6 @@ public interface FileCacheHttpContract {
         }
     }
 
-    default void sendRequest(Request request) throws IOException {
-        Response response = getResponse(request);
-        BdFileUtils.closeStream(response);
-    }
-
     default ResponseBody getNonNullBody(ResponseBody body) {
         if (null == body) {
             throw new RuntimeException("响应主体为空");
@@ -108,6 +103,7 @@ public interface FileCacheHttpContract {
 
         public final String msg;
 
+        @SuppressWarnings("unused")
         public static Dto<String> success() {
             return norm("success");
         }
@@ -116,6 +112,7 @@ public interface FileCacheHttpContract {
             return new Dto<>(true, data, null);
         }
 
+        @SuppressWarnings("unused")
         public static <T> Dto<T> error(String msg) {
             return new Dto<>(false, null, msg);
         }

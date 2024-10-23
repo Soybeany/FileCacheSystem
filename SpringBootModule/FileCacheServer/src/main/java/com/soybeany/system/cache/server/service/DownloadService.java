@@ -8,17 +8,25 @@ import com.soybeany.system.cache.core.util.FileMd5Utils;
 import com.soybeany.system.cache.server.config.IDynamicConfigProvider;
 import com.soybeany.system.cache.server.config.ServerInfo;
 import com.soybeany.system.cache.server.model.DataInfo;
+import com.soybeany.system.cache.server.storage.FileCacheAccessor;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 /**
+ * * 检查有没临时文件
+ * - 有，走断点续传
+ * - 无，普通请求
+ * * 响应里的content-type是否大于某一个值
+ * - 是，创建临时文件，走断点续传
+ * - 没/否，直接下载
+ * 只要响应初期正常，则认为是正常（不缓存异常，只在当次报错），也就是canAccess；否则，缓存异常
+ *
  * @author Soybeany
  * @date 2020/12/1
  */
@@ -29,21 +37,26 @@ public class DownloadService implements FileCacheHttpContract {
 
     @Autowired
     private IDynamicConfigProvider configProvider;
+    @Autowired
+    private DownloadAppendService downloadAppendService;
 
     @Override
     public OkHttpClient getClient() {
         return FileCacheHttpContract.getNewClient(configProvider.getDownloadTimeoutSeconds());
     }
 
-    public DownloadInfo startDownload(FileUid fileUid) {
+    public FileCacheAccessor startDownload(FileUid fileUid) {
         ServerInfo serverInfo = configProvider.getAppServer(fileUid);
-        String fileToken = fileUid.fileId + (serverInfo.urlSuffix != null ? serverInfo.urlSuffix : "");
         Map<String, String> headers = new HashMap<>();
         if (null != serverInfo.authorization) {
             headers.put(FileCacheHttpContract.AUTHORIZATION, serverInfo.authorization);
         }
+        downloadAppendService.beforeRequest(fileUid, headers);
+        String fileToken = fileUid.fileId + (serverInfo.urlSuffix != null ? serverInfo.urlSuffix : "");
         Response response = getResponse(PollingHostProvider.fromArr(serverInfo.fileDownloadUrl), fileToken, headers);
-        return new DownloadInfo(fromResponse(response), getNonNullBody(response.body()).byteStream());
+        DataInfo dataInfo = fromResponse(response);
+        return downloadAppendService.getFileCacheAccessor(fileUid, response, dataInfo)
+                .orElseGet(() -> FileCacheAccessor.fromStream(dataInfo, () -> getNonNullBody(response.body()).byteStream()));
     }
 
     private DataInfo fromResponse(Response response) {
@@ -56,16 +69,6 @@ public class DownloadService implements FileCacheHttpContract {
         info.md5 = response.header(FileMd5Utils.HEADER_MD5);
         info.exInfo = ExInfoUtils.decodeExInfo(response.header(ExInfoUtils.HEADER_EX_INFO));
         return info;
-    }
-
-    public static class DownloadInfo {
-        public final DataInfo info;
-        public final InputStream is;
-
-        public DownloadInfo(DataInfo info, InputStream is) {
-            this.info = info;
-            this.is = is;
-        }
     }
 
 }
