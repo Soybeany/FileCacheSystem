@@ -33,7 +33,7 @@ class SecretKeyServiceImpl implements SecretKeyProvider.Repository {
     }
 
     @Override
-    public void replaceToNewSecretKey(SecretKeyInfo old) throws Exception {
+    public void replaceToNewSecretKey(SecretKeyInfo old) {
         if (null != old) {
             removeEntity(old.key);
         }
@@ -41,7 +41,7 @@ class SecretKeyServiceImpl implements SecretKeyProvider.Repository {
     }
 
     @Override
-    public void generateNewSecretKeys(int count) throws Exception {
+    public void generateNewSecretKeys(int count) {
         for (int i = 0; i < count; i++) {
             createAndSaveNewEntity();
         }
@@ -72,7 +72,7 @@ class SecretKeyServiceImpl implements SecretKeyProvider.Repository {
         repository.findByKey(key).ifPresent(entity -> repository.delete(entity));
     }
 
-    private void createAndSaveNewEntity() throws Exception {
+    private void createAndSaveNewEntity() {
         SecretKeyInfo info = SecretKeyInfo.getDefaultNew(getCurrentTimestamp());
         SecretKeyEntity entity = new SecretKeyEntity();
         BeanUtils.copyProperties(info, entity);

@@ -1,5 +1,6 @@
 package com.soybeany.system.cache.core.security.interfaces;
 
+import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.util.file.BdFileUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -68,17 +69,17 @@ public interface FileCacheHttpContract {
                 // 抛出异常信息
                 String decodedMsg = response.header("errMsg");
                 String errMsg = (null != decodedMsg ? URLDecoder.decode(decodedMsg, "UTF-8") : null);
-                throw new IOException("请求外部系统异常，code:" + response.code() + "，errMsg:" + errMsg);
+                throw new FcException("请求外部系统异常，code:" + response.code() + "，errMsg:" + errMsg);
             }
             return response;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FcException(e);
         }
     }
 
     default ResponseBody getNonNullBody(ResponseBody body) {
         if (null == body) {
-            throw new RuntimeException("响应主体为空");
+            throw new FcException("响应主体为空");
         }
         return body;
     }

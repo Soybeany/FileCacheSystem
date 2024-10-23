@@ -16,14 +16,14 @@ public class PollingHostProvider implements HostProvider {
      */
     public static PollingHostProvider fromString(String hosts) {
         if (null == hosts) {
-            throw new RuntimeException("hosts不允许为null");
+            throw new FcException("hosts不允许为null");
         }
         return fromArr(hosts.split("[,;]"));
     }
 
     public static PollingHostProvider fromArr(String... hosts) {
         if (null == hosts) {
-            throw new RuntimeException("hosts不允许为null");
+            throw new FcException("hosts不允许为null");
         }
         String[] urls = new String[hosts.length];
         for (int i = 0; i < hosts.length; i++) {

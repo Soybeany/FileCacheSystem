@@ -8,12 +8,14 @@ import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.download.FileServerUtils;
 import com.soybeany.download.core.FileInfo;
 import com.soybeany.system.cache.core.dto.FileUid;
+import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.system.cache.core.util.ExInfoUtils;
 import com.soybeany.system.cache.core.util.LogUtils;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.config.IDynamicConfigProvider;
 import com.soybeany.system.cache.server.model.CacheLogWriter;
 import com.soybeany.system.cache.server.model.DataInfo;
+import com.soybeany.system.cache.server.model.ReDownloadException;
 import com.soybeany.system.cache.server.storage.FileCacheAccessor;
 import com.soybeany.system.cache.server.storage.FileCacheStorage;
 import org.slf4j.Logger;
@@ -26,8 +28,8 @@ import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.net.URLEncoder;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * @author Soybeany
@@ -58,7 +60,11 @@ public class ManageService implements ICacheProvider {
             // 数据下载
             long contentLength = Optional.ofNullable(dataInfo.contentLength).orElseGet(file::length);
             FileInfo fileInfo = new FileInfo(dataInfo.contentDisposition, contentLength, dataInfo.eTag);
-            FileServerUtils.randomAccessDownloadFile(fileInfo.contentType(dataInfo.contentType), request, response, file);
+            try {
+                FileServerUtils.randomAccessDownloadFile(fileInfo.contentType(dataInfo.contentType), request, response, file);
+            } catch (Exception e) {
+                throw new FcException(e);
+            }
             return null;
         }, e -> null);
     }
@@ -68,7 +74,7 @@ public class ManageService implements ICacheProvider {
         return handleContentInfo(token, response, (dataInfo, file) -> "ok", e -> "exception");
     }
 
-    public <T> T retrieveCache(FileUid fileUid, ICallback<T> callback) throws Exception {
+    public <T> T retrieveCache(FileUid fileUid, ICallback<T> callback) {
         FileCacheAccessor.Local accessor = (FileCacheAccessor.Local) dataManager.getData(fileUid);
         return callback.onHandle(accessor.dataInfo, accessor.file());
     }
@@ -85,7 +91,11 @@ public class ManageService implements ICacheProvider {
     }
 
     protected String toErrMsg(Exception e) {
-        return LogUtils.exceptionToString(e);
+        try {
+            return URLEncoder.encode(e.getMessage(), "UTF-8");
+        } catch (Exception e2) {
+            return "please read logs";
+        }
     }
 
     @PostConstruct
@@ -109,12 +119,11 @@ public class ManageService implements ICacheProvider {
             FileUid fileUid = configProvider.toFileUid(token);
             return retrieveCache(fileUid, callback);
         } catch (Exception e) {
-            String uuid = UUID.randomUUID().toString();
-            LOG.error(uuid + " - " + toErrMsg(e));
+            LOG.error(LogUtils.exceptionToString(e));
             if (response.isCommitted()) {
                 return null;
             }
-            response.setHeader("errMsg", uuid);
+            response.setHeader("errMsg", toErrMsg(e));
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return handler.onHandleException(e);
         }
@@ -123,7 +132,7 @@ public class ManageService implements ICacheProvider {
     // ***********************内部类****************************
 
     public interface ICallback<T> {
-        T onHandle(DataInfo dataInfo, File file) throws Exception;
+        T onHandle(DataInfo dataInfo, File file);
     }
 
     private interface IExceptionHandler<T> {

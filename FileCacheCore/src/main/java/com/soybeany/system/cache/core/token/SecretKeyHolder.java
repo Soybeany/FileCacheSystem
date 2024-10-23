@@ -1,5 +1,6 @@
 package com.soybeany.system.cache.core.token;
 
+import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.util.HexUtils;
 import com.soybeany.util.SerializeUtils;
 
@@ -35,7 +36,7 @@ public abstract class SecretKeyHolder implements Serializable {
 
     public SecretKey getSecretKey(String key) {
         if (!map.containsKey(key)) {
-            throw new RuntimeException("没有找到指定的secretKey");
+            throw new FcException("没有找到指定的secretKey");
         }
         return map.get(key);
     }
@@ -51,7 +52,7 @@ public abstract class SecretKeyHolder implements Serializable {
             try {
                 return SerializeUtils.deserialize(HexUtils.hexToByteArray(content));
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new FcException(e);
             }
         }
 
@@ -59,7 +60,7 @@ public abstract class SecretKeyHolder implements Serializable {
             try {
                 return HexUtils.bytesToHex(SerializeUtils.serialize(obj));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new FcException(e);
             }
         }
 

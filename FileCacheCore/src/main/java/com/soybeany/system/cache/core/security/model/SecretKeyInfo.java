@@ -25,7 +25,7 @@ public class SecretKeyInfo {
      */
     public long createTimestamp;
 
-    public static SecretKeyInfo getDefaultNew(long createTimestamp) throws Exception {
+    public static SecretKeyInfo getDefaultNew(long createTimestamp) {
         SecretKeyInfo keyInfo = new SecretKeyInfo();
         keyInfo.key = UUID.randomUUID().toString().replaceAll("-", "").substring(16);
         keyInfo.secretKeyJson = fromSecretKey(TokenUtils.generateNewKey());
@@ -33,15 +33,19 @@ public class SecretKeyInfo {
         return keyInfo;
     }
 
-    public static String fromSecretKey(SecretKey secretKey) throws Exception {
-        return HexUtils.bytesToHex(SerializeUtils.serialize(secretKey));
+    public static String fromSecretKey(SecretKey secretKey) {
+        try {
+            return HexUtils.bytesToHex(SerializeUtils.serialize(secretKey));
+        } catch (Exception e) {
+            throw new FcException(e);
+        }
     }
 
     public SecretKey toSecretKey() {
         try {
             return SerializeUtils.deserialize(HexUtils.hexToByteArray(secretKeyJson));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new FcException(e);
         }
     }
 
@@ -53,18 +57,22 @@ public class SecretKeyInfo {
         this.key = key;
     }
 
+    @SuppressWarnings("unused")
     public String getSecretKeyJson() {
         return secretKeyJson;
     }
 
+    @SuppressWarnings("unused")
     public void setSecretKeyJson(String secretKeyJson) {
         this.secretKeyJson = secretKeyJson;
     }
 
+    @SuppressWarnings("unused")
     public long getCreateTimestamp() {
         return createTimestamp;
     }
 
+    @SuppressWarnings("unused")
     public void setCreateTimestamp(long createTimestamp) {
         this.createTimestamp = createTimestamp;
     }

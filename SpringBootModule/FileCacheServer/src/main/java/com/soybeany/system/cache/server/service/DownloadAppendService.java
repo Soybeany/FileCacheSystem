@@ -5,6 +5,7 @@ import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.model.DataInfo;
+import com.soybeany.system.cache.server.model.ReDownloadException;
 import com.soybeany.system.cache.server.storage.FileCacheAccessor;
 import com.soybeany.util.file.BdFileUtils;
 import okhttp3.Response;

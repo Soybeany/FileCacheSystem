@@ -19,10 +19,10 @@ public class MapRepositoryImpl implements SecretKeyProvider.Repository {
     }
 
     @Override
-    public synchronized void replaceToNewSecretKey(SecretKeyInfo old) throws Exception {
+    public synchronized void replaceToNewSecretKey(SecretKeyInfo old) {
         if (null != old) {
             if (!mMap.containsKey(old.key)) {
-                throw new Exception("指定的数据不存在");
+                throw new FcException("指定的数据不存在");
             }
             // 移除旧信息
             mMap.remove(old.key);
@@ -32,7 +32,7 @@ public class MapRepositoryImpl implements SecretKeyProvider.Repository {
     }
 
     @Override
-    public synchronized void generateNewSecretKeys(int count) throws Exception {
+    public synchronized void generateNewSecretKeys(int count) {
         for (int i = 0; i < count; i++) {
             createAndSaveNewInfo();
         }
@@ -53,7 +53,7 @@ public class MapRepositoryImpl implements SecretKeyProvider.Repository {
         return System.currentTimeMillis();
     }
 
-    private void createAndSaveNewInfo() throws Exception {
+    private void createAndSaveNewInfo() {
         SecretKeyInfo keyInfo = SecretKeyInfo.getDefaultNew(getCurrentTimestamp());
         mMap.put(keyInfo.key, keyInfo);
     }

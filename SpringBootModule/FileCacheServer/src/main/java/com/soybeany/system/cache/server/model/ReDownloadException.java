@@ -1,4 +1,4 @@
-package com.soybeany.system.cache.server.service;
+package com.soybeany.system.cache.server.model;
 
 import com.soybeany.exception.BdRtException;
 

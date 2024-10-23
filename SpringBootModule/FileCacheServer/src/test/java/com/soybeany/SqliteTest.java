@@ -1,5 +1,6 @@
 package com.soybeany;
 
+import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.util.file.BdFileUtils;
 import org.junit.jupiter.api.Test;
 
@@ -42,7 +43,7 @@ public class SqliteTest {
             String s = BdFileUtils.readString(is);
             System.out.println(s);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FcException(e);
         }
     }
 
@@ -52,7 +53,7 @@ public class SqliteTest {
              OutputStream os = Files.newOutputStream(file.toPath())) {
             BdFileUtils.readWriteStream(is, os);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FcException(e);
         }
     }
 

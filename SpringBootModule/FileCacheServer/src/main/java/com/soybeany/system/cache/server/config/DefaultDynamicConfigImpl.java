@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
+import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.system.cache.core.security.model.SecretKeyRetriever;
 import com.soybeany.system.cache.core.util.TokenUtils;
 import com.soybeany.system.cache.server.model.CacheLogWriter;
@@ -32,7 +33,7 @@ public class DefaultDynamicConfigImpl implements IDynamicConfigProvider, FileCac
                 return appServer;
             }
         }
-        throw new RuntimeException("没有该服务器的相关信息");
+        throw new FcException("没有该服务器的相关信息");
     }
 
     @Override
@@ -58,12 +59,12 @@ public class DefaultDynamicConfigImpl implements IDynamicConfigProvider, FileCac
         try (ResponseBody body = response.body()) {
             bodyStr = getNonNullBody(body).string();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FcException(e);
         }
         FileCacheHttpContract.Dto<String> dto = GSON.fromJson(bodyStr, new TypeToken<FileCacheHttpContract.Dto<String>>() {
         }.getType());
         if (!dto.norm) {
-            throw new RuntimeException(dto.msg);
+            throw new FcException(dto.msg);
         }
         return dto.data;
     }

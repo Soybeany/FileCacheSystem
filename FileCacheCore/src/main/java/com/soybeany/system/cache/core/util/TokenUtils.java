@@ -12,7 +12,7 @@ public class TokenUtils {
     private static final Gson GSON = new Gson();
     private static final String SEPARATOR = "-";
 
-    public static SecretKey generateNewKey() throws Exception {
+    public static SecretKey generateNewKey() {
         return AesUtils.generateKey();
     }
 

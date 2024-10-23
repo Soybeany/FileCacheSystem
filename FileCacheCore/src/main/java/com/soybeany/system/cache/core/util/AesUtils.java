@@ -1,6 +1,7 @@
 package com.soybeany.system.cache.core.util;
 
 import com.soybeany.exception.BdRtException;
+import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.util.HexUtils;
 
 import javax.crypto.Cipher;
@@ -20,11 +21,14 @@ class AesUtils {
     private static final String ALGORITHM = "AES";
     private static final Charset CHARSET = StandardCharsets.UTF_8;
 
-    public static SecretKey generateKey() throws NoSuchAlgorithmException {
-        KeyGenerator secretGenerator = KeyGenerator.getInstance(ALGORITHM);
-        SecureRandom secureRandom = new SecureRandom();
-        secretGenerator.init(secureRandom);
-        return secretGenerator.generateKey();
+    public static SecretKey generateKey() {
+        try {
+            KeyGenerator secretGenerator = KeyGenerator.getInstance(ALGORITHM);
+            secretGenerator.init(new SecureRandom());
+            return secretGenerator.generateKey();
+        } catch (NoSuchAlgorithmException e) {
+            throw new FcException(e);
+        }
     }
 
     public static String encrypt(String content, SecretKey secretKey) {

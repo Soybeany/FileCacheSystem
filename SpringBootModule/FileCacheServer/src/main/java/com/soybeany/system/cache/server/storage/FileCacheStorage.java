@@ -8,6 +8,7 @@ import com.soybeany.cache.v2.model.DataCore;
 import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.cache.v2.storage.StdStorage;
 import com.soybeany.system.cache.core.dto.FileUid;
+import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.system.cache.server.model.DataInfo;
 import com.soybeany.system.cache.server.util.InfoFileUtils;
 import com.soybeany.util.file.BdFileUtils;
@@ -49,7 +50,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         this.cacheDir = new File(cacheDir);
         BdFileUtils.mkDirs(this.cacheDir);
         if (maxUsedPercent < 0.1 || maxUsedPercent > 1) {
-            throw new RuntimeException("maxUsedPercent取值需在0.1~1之间");
+            throw new FcException("maxUsedPercent取值需在0.1~1之间");
         }
         minFreeSpaceRequired = (long) (this.cacheDir.getTotalSpace() * (1 - maxUsedPercent));
     }
@@ -70,14 +71,14 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     }
 
     public synchronized void deleteExpiredFiles() {
-        File[] serverDirs = Optional.ofNullable(cacheDir.listFiles()).orElseThrow(() -> new RuntimeException("本地缓存主目录不能为文件"));
+        File[] serverDirs = Optional.ofNullable(cacheDir.listFiles()).orElseThrow(() -> new FcException("本地缓存主目录不能为文件"));
         long curTimestamp = System.currentTimeMillis();
         // 遍历server目录
         for (File serverDir : serverDirs) {
             // 按meta文件清理数据文件
             Set<String> validDataFileNames = new HashSet<>();
             for (File metaFile : Optional.ofNullable(new File(serverDir, DIR_META).listFiles()).orElseGet(() -> new File[0])) {
-                MetaInfo info = getMetaInfo(metaFile).orElseThrow(() -> new RuntimeException("找不到metaInfo文件（" + metaFile.getName() + "）"));
+                MetaInfo info = getMetaInfo(metaFile).orElseThrow(() -> new FcException("找不到metaInfo文件（" + metaFile.getName() + "）"));
                 boolean isCurDataExpired = curTimestamp > info.pExpireAt;
                 deleteDataAndMetaFiles(metaFile, info, isCurDataExpired);
                 if (!isCurDataExpired) {
@@ -135,7 +136,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         if (file.isDirectory()) {
             File[] subFiles = file.listFiles();
             if (null == subFiles) {
-                throw new RuntimeException("文件夹依旧返回null");
+                throw new FcException("文件夹依旧返回null");
             }
             for (File subFile : subFiles) {
                 boolean success = onDeleteFile(subFile);
@@ -221,7 +222,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
                 }
             } catch (IOException e) {
                 deleteFile(dataFile);
-                DataCore<FileCacheAccessor> newCore = DataCore.fromException(new RuntimeException("本地缓存生成异常:" + e.getMessage()));
+                DataCore<FileCacheAccessor> newCore = DataCore.fromException(new FcException("本地缓存生成异常:" + e.getMessage()));
                 entity = new CacheEntity<>(newCore, currentTimeMillis + pTtlErr);
             }
         }
@@ -299,7 +300,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
             return true;
         });
         if (null == filesToDelete) {
-            throw new RuntimeException("文件夹依旧返回null");
+            throw new FcException("文件夹依旧返回null");
         }
         for (File file : filesToDelete) {
             String key = file.getName().substring(0, file.getName().lastIndexOf("_"));
@@ -308,21 +309,21 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         long freeSpaceNew = cacheDir.getFreeSpace();
         LOG.warn("触发了满磁盘自动清理(" + freeSpaceOld + " -> " + freeSpaceNew + ")，" + "清理了" + filesToDelete.length + "个文件");
         if (freeSpaceNew < minFreeSpaceRequired) {
-            throw new RuntimeException("自动清理失败，达不到最低空间剩余要求(" + minFreeSpaceRequired + ")");
+            throw new FcException("自动清理失败，达不到最低空间剩余要求(" + minFreeSpaceRequired + ")");
         }
     }
 
-    private RuntimeException getException(MetaInfo metaInfo) {
+    private FcException getException(MetaInfo metaInfo) {
         Exception e;
         try {
             e = (Exception) GSON.fromJson(metaInfo.exceptionJson, Class.forName(metaInfo.exceptionClazz));
         } catch (ClassNotFoundException ex) {
-            throw new RuntimeException("无法加载指定的类:" + metaInfo.exceptionClazz);
+            throw new FcException("无法加载指定的类:" + metaInfo.exceptionClazz);
         }
-        if (!(e instanceof RuntimeException)) {
-            e = new RuntimeException(e);
+        if (!(e instanceof FcException)) {
+            e = new FcException(e);
         }
-        return (RuntimeException) e;
+        return (FcException) e;
     }
 
     private String preTreatKey(String key) {

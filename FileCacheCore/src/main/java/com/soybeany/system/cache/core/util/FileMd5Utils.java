@@ -1,5 +1,6 @@
 package com.soybeany.system.cache.core.util;
 
+import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.util.HexUtils;
 
 import java.io.File;
@@ -28,7 +29,7 @@ public abstract class FileMd5Utils {
             }
             return HexUtils.bytesToHex(result);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new FcException(e);
         }
     }
 }

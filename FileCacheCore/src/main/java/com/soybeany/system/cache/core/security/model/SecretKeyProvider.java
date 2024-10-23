@@ -76,12 +76,12 @@ public class SecretKeyProvider {
          *
          * @param old 待替换的密钥信息，可为null
          */
-        void replaceToNewSecretKey(SecretKeyInfo old) throws Exception;
+        void replaceToNewSecretKey(SecretKeyInfo old);
 
         /**
          * 生成指定数目的新密钥
          */
-        void generateNewSecretKeys(int count) throws Exception;
+        void generateNewSecretKeys(int count);
 
         /**
          * 移除指定的密钥
@@ -152,18 +152,18 @@ public class SecretKeyProvider {
         private WithCreateTime toSecretKeyHolder(List<SecretKeyInfo> list) {
             // 检查密钥是否存在
             if (null == list || list.size() != mTotalKeyCount) {
-                throw new RuntimeException("没有足够数量的密钥");
+                throw new FcException("没有足够数量的密钥");
             }
             // 检查密钥是否已过期
             SecretKeyInfo newest = list.get(list.size() - 1);
             if (isTimeToRenewInfo(newest)) {
-                throw new RuntimeException("密钥已过期");
+                throw new FcException("密钥已过期");
             }
             // 对象转换
             WithCreateTime holder = new WithCreateTime();
             for (SecretKeyInfo info : list) {
                 if (null == info) {
-                    throw new RuntimeException("keyInfo不允许为null");
+                    throw new FcException("keyInfo不允许为null");
                 }
                 holder.map.put(info.key, info.toSecretKey());
             }

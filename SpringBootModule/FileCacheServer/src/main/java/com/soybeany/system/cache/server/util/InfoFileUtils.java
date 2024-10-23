@@ -1,6 +1,7 @@
 package com.soybeany.system.cache.server.util;
 
 import com.google.gson.Gson;
+import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.util.file.BdFileUtils;
 
 import java.io.*;
@@ -16,7 +17,7 @@ public class InfoFileUtils {
         try (ByteArrayInputStream stream = new ByteArrayInputStream(GSON.toJson(info).getBytes(StandardCharsets.UTF_8))) {
             BdFileUtils.readWriteStream(stream, infoFile);
         } catch (IOException e) {
-            throw new RuntimeException("写入info文件异常:" + e.getMessage());
+            throw new FcException("写入info文件异常:" + e.getMessage());
         }
     }
 
