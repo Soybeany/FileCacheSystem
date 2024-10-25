@@ -146,12 +146,12 @@ public class ManageService implements ICacheProvider {
         }
 
         @Override
-        public int onSetupExpiry(FileCacheAccessor fileCacheAccessor) {
+        public long onSetupExpiry(FileCacheAccessor fileCacheAccessor) {
             return fileCacheAccessor.dataInfo.pTtl;
         }
 
         @Override
-        public int onSetupExpiry(Exception e) {
+        public long onSetupExpiry(Exception e) {
             if (e instanceof ReDownloadException) {
                 return 100;
             }

@@ -14,7 +14,7 @@ public class DataInfo {
     public String contentType;
     public Long contentLength;
     public String contentDisposition;
-    public Integer pTtl;
+    public Long pTtl;
     public String md5;
     public String exInfo;
 

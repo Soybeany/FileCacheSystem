@@ -61,8 +61,8 @@ public class SecretKeyProvider {
         return getExpiryMillis(keyInfo.createTimestamp, mRepository.getCurrentTimestamp(), mRenewFrequencyMillis) <= 0;
     }
 
-    private int getExpiryMillis(long createTimestamp, long curTimestamp, long validTime) {
-        return (int) (createTimestamp + validTime - curTimestamp);
+    private long getExpiryMillis(long createTimestamp, long curTimestamp, long validTime) {
+        return createTimestamp + validTime - curTimestamp;
     }
 
     public interface Repository {
@@ -129,7 +129,7 @@ public class SecretKeyProvider {
         }
 
         @Override
-        public int onSetupExpiry(WithCreateTime holder) {
+        public long onSetupExpiry(WithCreateTime holder) {
             return getExpiryMillis(holder.lastUpdateTimestamp, mRepository.getCurrentTimestamp(), mRenewFrequencyMillis);
         }
 

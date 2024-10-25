@@ -40,7 +40,7 @@ public class SecretKeyRetriever {
         }
 
         @Override
-        public int onSetupExpiry(SecretKeyHolder.WithExpiry holder) {
+        public long onSetupExpiry(SecretKeyHolder.WithExpiry holder) {
             return holder.expiryMillis;
         }
     }

@@ -33,7 +33,7 @@ import java.util.Optional;
 @Service
 public class DownloadService implements FileCacheHttpContract {
 
-    private static final int DEFAULT_CACHE_AGE = 5 * 24 * 60 * 60 * 1000;
+    private static final long DEFAULT_CACHE_AGE = 5 * 24 * 60 * 60 * 1000;
 
     @Autowired
     private IDynamicConfigProvider configProvider;
@@ -62,7 +62,7 @@ public class DownloadService implements FileCacheHttpContract {
     private DataInfo fromResponse(Response response) {
         DataInfo info = new DataInfo();
         info.eTag = response.header("ETag");
-        info.pTtl = Optional.ofNullable(response.header("Age")).map(age -> Integer.parseInt(age) * 1000).orElse(DEFAULT_CACHE_AGE);
+        info.pTtl = Optional.ofNullable(response.header("Age")).map(age -> Long.parseLong(age) * 1000).orElse(DEFAULT_CACHE_AGE);
         info.contentType = response.header("Content-Type");
         info.contentLength = Optional.ofNullable(response.header("Content-Length")).map(Long::parseLong).orElse(null);
         info.contentDisposition = response.header("Content-Disposition");
