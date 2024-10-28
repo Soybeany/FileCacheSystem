@@ -43,6 +43,8 @@ public abstract class SecretKeyHolder implements Serializable {
 
     public static class WithExpiry extends SecretKeyHolder {
 
+        private static final long serialVersionUID = 1820964660588774927L;
+
         /**
          * 失效时间(millis)
          */
