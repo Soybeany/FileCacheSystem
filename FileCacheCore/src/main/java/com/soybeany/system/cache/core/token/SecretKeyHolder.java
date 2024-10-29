@@ -48,7 +48,8 @@ public abstract class SecretKeyHolder implements Serializable {
         /**
          * 失效时间(millis)
          */
-        public final long expiryMillis;
+        public final int expiryMillis;
+        public final long expiryMillisL;
 
         public static WithExpiry deserialize(String content) {
             try {
@@ -68,7 +69,8 @@ public abstract class SecretKeyHolder implements Serializable {
 
         public WithExpiry(SecretKeyHolder holder, long expiryMillis) {
             super(holder);
-            this.expiryMillis = expiryMillis;
+            this.expiryMillis = (int) expiryMillis;
+            this.expiryMillisL = expiryMillis;
         }
     }
 }
