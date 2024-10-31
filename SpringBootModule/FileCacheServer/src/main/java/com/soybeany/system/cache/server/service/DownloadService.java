@@ -49,7 +49,7 @@ public class DownloadService implements FileCacheHttpContract {
         ServerInfo serverInfo = configProvider.getAppServer(fileUid);
         Map<String, String> headers = new HashMap<>();
         if (null != serverInfo.authorization) {
-            headers.put(FileCacheHttpContract.AUTHORIZATION, serverInfo.authorization);
+            headers.put(FileCacheHttpContract.HEADER_AUTHORIZATION, serverInfo.authorization);
         }
         downloadAppendService.beforeRequest(fileUid, headers);
         String fileToken = fileUid.fileId + (serverInfo.urlSuffix != null ? serverInfo.urlSuffix : "");

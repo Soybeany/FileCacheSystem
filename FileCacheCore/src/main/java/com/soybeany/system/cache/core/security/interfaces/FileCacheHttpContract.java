@@ -7,8 +7,10 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -33,7 +35,8 @@ public interface FileCacheHttpContract {
 
     // *****其它*****
 
-    String AUTHORIZATION = "Authorization";
+    String HEADER_AUTHORIZATION = "Authorization";
+    String HEADER_ERR_MSG = "errMsg";
 
     OkHttpClient CLIENT = getNewClient(5);
 
@@ -45,6 +48,21 @@ public interface FileCacheHttpContract {
                 .readTimeout(timeoutSec, TimeUnit.SECONDS)
                 .writeTimeout(timeoutSec, TimeUnit.SECONDS)
                 .build();
+    }
+
+    @SuppressWarnings("unused")
+    static void safeWrap(HttpServletResponse response, ICallback callback) throws IOException {
+        try {
+            callback.onInvoke();
+        } catch (Exception e) {
+            callback.onException(e);
+            if (response.isCommitted()) {
+                return;
+            }
+            response.reset();
+            response.setHeader(HEADER_ERR_MSG, URLEncoder.encode(e.getMessage(), "UTF-8"));
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
     }
 
     default Response getResponse(HostProvider hostProvider, String path, Map<String, String> headers) {
@@ -67,7 +85,7 @@ public interface FileCacheHttpContract {
                 // 关流
                 BdFileUtils.closeStream(response);
                 // 抛出异常信息
-                String decodedMsg = response.header("errMsg");
+                String decodedMsg = response.header(HEADER_ERR_MSG);
                 String errMsg = (null != decodedMsg ? URLDecoder.decode(decodedMsg, "UTF-8") : null);
                 throw new FcException("请求外部系统异常，code:" + response.code() + "，errMsg:" + errMsg);
             }
@@ -89,6 +107,12 @@ public interface FileCacheHttpContract {
     }
 
     // ********************类********************
+
+    interface ICallback {
+        void onInvoke() throws IOException;
+
+        void onException(Exception e);
+    }
 
     /**
      * 标准的dto
