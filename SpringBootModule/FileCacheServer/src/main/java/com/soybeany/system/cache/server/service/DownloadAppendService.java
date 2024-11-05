@@ -6,6 +6,7 @@ import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.model.DataInfo;
 import com.soybeany.system.cache.server.model.ReDownloadException;
+import com.soybeany.system.cache.server.model.RetryException;
 import com.soybeany.system.cache.server.storage.FileCacheAccessor;
 import com.soybeany.util.file.BdFileUtils;
 import okhttp3.Response;
@@ -124,10 +125,17 @@ public class DownloadAppendService implements FileCacheHttpContract {
 
     private Optional<FileCacheAccessor> write(Response response, DataInfo dataInfo, TempFileInfo info, boolean append) {
         BdFileUtils.mkParentDirs(info.getTempFile());
+        // 记录当次下载的内容长度
+        long before = info.getTempFile().length();
         try (FileOutputStream os = new FileOutputStream(info.getTempFile(), append)) {
             BdFileUtils.readWriteStream(getNonNullBody(response.body()).byteStream(), os);
         } catch (IOException e) {
-            throw new ReDownloadException("临时文件写入异常:" + e.getMessage());
+            long downloadBytes = info.getTempFile().length() - before;
+            String msg = "临时文件写入异常:" + e.getMessage();
+            if (downloadBytes > appConfig.tempFileThreshold) {
+                throw new RetryException(msg + ";但由于本次已成功下载" + downloadBytes + "字节，即将重试");
+            }
+            throw new ReDownloadException(msg);
         }
         return Optional.of(new RenameFileCacheAccessor(dataInfo, info.getTempFile()));
     }

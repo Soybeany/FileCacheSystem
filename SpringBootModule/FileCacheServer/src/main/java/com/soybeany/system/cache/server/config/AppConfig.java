@@ -20,9 +20,9 @@ public class AppConfig {
     public String fileCacheDir;
     public Float maxUsedPercent;
 
-    public long tempFileThreshold;
-    public long tempFileRetainMills;
-    public int downloadTimeoutSec;
+    public long tempFileThreshold = 10485760;
+    public long tempFileRetainMills = 3600000;
+    public int downloadTimeoutSec = 10;
 
     public HostProvider managerHosts;
 

@@ -8,9 +8,12 @@ import com.soybeany.system.cache.core.util.FileMd5Utils;
 import com.soybeany.system.cache.server.config.IDynamicConfigProvider;
 import com.soybeany.system.cache.server.config.ServerInfo;
 import com.soybeany.system.cache.server.model.DataInfo;
+import com.soybeany.system.cache.server.model.RetryException;
 import com.soybeany.system.cache.server.storage.FileCacheAccessor;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +36,7 @@ import java.util.Optional;
 @Service
 public class DownloadService implements FileCacheHttpContract {
 
+    private static final Logger LOG = LoggerFactory.getLogger(DownloadService.class);
     private static final long DEFAULT_CACHE_AGE = 5 * 24 * 60 * 60 * 1000;
 
     @Autowired
@@ -46,17 +50,23 @@ public class DownloadService implements FileCacheHttpContract {
     }
 
     public FileCacheAccessor startDownload(FileUid fileUid) {
-        ServerInfo serverInfo = configProvider.getAppServer(fileUid);
-        Map<String, String> headers = new HashMap<>();
-        if (null != serverInfo.authorization) {
-            headers.put(FileCacheHttpContract.HEADER_AUTHORIZATION, serverInfo.authorization);
+        while (true) {
+            ServerInfo serverInfo = configProvider.getAppServer(fileUid);
+            Map<String, String> headers = new HashMap<>();
+            if (null != serverInfo.authorization) {
+                headers.put(FileCacheHttpContract.HEADER_AUTHORIZATION, serverInfo.authorization);
+            }
+            downloadAppendService.beforeRequest(fileUid, headers);
+            String fileToken = fileUid.fileId + (serverInfo.urlSuffix != null ? serverInfo.urlSuffix : "");
+            Response response = getResponse(PollingHostProvider.fromArr(serverInfo.fileDownloadUrl), fileToken, headers);
+            DataInfo dataInfo = fromResponse(response);
+            try {
+                return downloadAppendService.getFileCacheAccessor(fileUid, response, dataInfo)
+                        .orElseGet(() -> FileCacheAccessor.fromStream(dataInfo, () -> getNonNullBody(response.body()).byteStream()));
+            } catch (RetryException e) {
+                LOG.info(e.getMessage());
+            }
         }
-        downloadAppendService.beforeRequest(fileUid, headers);
-        String fileToken = fileUid.fileId + (serverInfo.urlSuffix != null ? serverInfo.urlSuffix : "");
-        Response response = getResponse(PollingHostProvider.fromArr(serverInfo.fileDownloadUrl), fileToken, headers);
-        DataInfo dataInfo = fromResponse(response);
-        return downloadAppendService.getFileCacheAccessor(fileUid, response, dataInfo)
-                .orElseGet(() -> FileCacheAccessor.fromStream(dataInfo, () -> getNonNullBody(response.body()).byteStream()));
     }
 
     private DataInfo fromResponse(Response response) {
