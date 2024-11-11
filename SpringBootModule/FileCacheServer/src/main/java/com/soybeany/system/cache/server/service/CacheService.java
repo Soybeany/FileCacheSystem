@@ -36,9 +36,9 @@ import java.util.Optional;
  * @date 2020/12/4
  */
 @Service
-public class ManageService implements ICacheProvider {
+public class CacheService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ManageService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CacheService.class);
 
     @Autowired
     private AppConfig appConfig;
@@ -50,33 +50,26 @@ public class ManageService implements ICacheProvider {
     private FileCacheStorage cacheStorage;
     private DataManager<FileUid, FileCacheAccessor> dataManager;
 
-    @Override
-    public void onDownload(String token, HttpServletRequest request, HttpServletResponse response) {
+    // ***********************外部API****************************
+
+    public void download(String token, HttpServletRequest request, HttpServletResponse response) {
         handleContentInfo(token, response, (dataInfo, file) -> {
             // 自定义header设置
             if (null != dataInfo.exInfo) {
                 response.setHeader(ExInfoUtils.HEADER_EX_INFO, ExInfoUtils.encodeExInfo(dataInfo.exInfo));
             }
             // 数据下载
-            long contentLength = Optional.ofNullable(dataInfo.contentLength).orElseGet(file::length);
-            FileInfo fileInfo = new FileInfo(dataInfo.contentDisposition, contentLength, dataInfo.eTag);
             try {
-                FileServerUtils.randomAccessDownloadFile(fileInfo.contentType(dataInfo.contentType), request, response, file);
+                FileServerUtils.randomAccessDownloadFile(toFileInfo(dataInfo, file), request, response, file);
             } catch (Exception e) {
                 throw new FcException(e);
             }
-            return null;
-        }, e -> null);
+        });
     }
 
-    @Override
-    public String onEnsure(String token, HttpServletRequest request, HttpServletResponse response) {
-        return handleContentInfo(token, response, (dataInfo, file) -> "ok", e -> "exception");
-    }
-
-    public <T> T retrieveCache(FileUid fileUid, ICallback<T> callback) {
+    public void retrieveCache(FileUid fileUid, ICallback callback) {
         FileCacheAccessor.Local accessor = (FileCacheAccessor.Local) dataManager.getData(fileUid);
-        return callback.onHandle(accessor.dataInfo, accessor.file());
+        callback.onHandle(accessor.dataInfo, accessor.file());
     }
 
     @SuppressWarnings("unused")
@@ -90,6 +83,15 @@ public class ManageService implements ICacheProvider {
         }
     }
 
+    // ***********************子类重写****************************
+
+    protected FileInfo toFileInfo(DataInfo dataInfo, File file) {
+        long contentLength = Optional.ofNullable(dataInfo.contentLength).orElseGet(file::length);
+        FileInfo fileInfo = new FileInfo(dataInfo.contentDisposition, contentLength, dataInfo.eTag);
+        fileInfo.contentType(dataInfo.contentType);
+        return fileInfo;
+    }
+
     protected String toErrMsg(Exception e) {
         try {
             return URLEncoder.encode(e.getMessage(), "UTF-8");
@@ -97,6 +99,8 @@ public class ManageService implements ICacheProvider {
             return "please read logs";
         }
     }
+
+    // ***********************内部方法****************************
 
     @PostConstruct
     private void onInit() {
@@ -114,29 +118,24 @@ public class ManageService implements ICacheProvider {
         cacheStorage.close();
     }
 
-    private <T> T handleContentInfo(String token, HttpServletResponse response, ManageService.ICallback<T> callback, IExceptionHandler<T> handler) {
+    private void handleContentInfo(String token, HttpServletResponse response, CacheService.ICallback callback) {
         try {
             FileUid fileUid = configProvider.toFileUid(token);
-            return retrieveCache(fileUid, callback);
+            retrieveCache(fileUid, callback);
         } catch (Exception e) {
             LOG.error(LogUtils.exceptionToString(e));
             if (response.isCommitted()) {
-                return null;
+                return;
             }
             response.setHeader("errMsg", toErrMsg(e));
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return handler.onHandleException(e);
         }
     }
 
     // ***********************内部类****************************
 
-    public interface ICallback<T> {
-        T onHandle(DataInfo dataInfo, File file);
-    }
-
-    private interface IExceptionHandler<T> {
-        T onHandleException(Exception e);
+    public interface ICallback {
+        void onHandle(DataInfo dataInfo, File file);
     }
 
     private class Datasource implements IDatasource<FileUid, FileCacheAccessor> {

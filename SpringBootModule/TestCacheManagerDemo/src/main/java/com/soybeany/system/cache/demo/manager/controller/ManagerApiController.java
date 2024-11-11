@@ -1,7 +1,7 @@
-package com.soybeany.system.cache.manager.controller;
+package com.soybeany.system.cache.demo.manager.controller;
 
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract.Dto;
-import com.soybeany.system.cache.manager.service.IDataProvider;
+import com.soybeany.system.cache.manager.service.SecretKeyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,13 +16,13 @@ import static com.soybeany.system.cache.core.security.interfaces.FileCacheHttpCo
 class ManagerApiController {
 
     @Autowired
-    private IDataProvider dataProvider;
+    private SecretKeyService secretKeyService;
 
     // ********************标准API********************
 
     @GetMapping(GET_SECRET_KEY_LIST)
-    public Dto<String> getList() {
-        return Dto.norm(dataProvider.onGetSecretKeyString());
+    public Dto<String> getSecretKeyList() {
+        return Dto.norm(secretKeyService.getProvider().getHolderString());
     }
 
 }
