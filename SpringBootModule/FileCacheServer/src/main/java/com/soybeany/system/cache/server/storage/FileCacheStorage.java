@@ -11,6 +11,7 @@ import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.system.cache.server.model.DataInfo;
 import com.soybeany.system.cache.server.util.InfoFileUtils;
+import com.soybeany.util.Md5Utils;
 import com.soybeany.util.file.BdFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -327,7 +328,11 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     }
 
     private String preTreatKey(String key) {
-        return key.replaceAll("[/\\\\]", "-");
+        key = key.replaceAll("[/\\\\]", "-");
+        if (key.length() > 200) {
+            key = "(md5)" + Md5Utils.strToMd5(key);
+        }
+        return key;
     }
 
     private File getMetaFile(DataContext<FileUid> context, String key) {
