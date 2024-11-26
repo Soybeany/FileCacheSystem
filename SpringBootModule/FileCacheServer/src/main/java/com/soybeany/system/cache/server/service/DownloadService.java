@@ -3,7 +3,6 @@ package com.soybeany.system.cache.server.service;
 import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.core.security.model.PollingHostProvider;
-import com.soybeany.system.cache.core.util.ExInfoUtils;
 import com.soybeany.system.cache.core.util.FileMd5Utils;
 import com.soybeany.system.cache.server.config.IDynamicConfigProvider;
 import com.soybeany.system.cache.server.config.ServerInfo;
@@ -56,6 +55,9 @@ public class DownloadService implements FileCacheHttpContract {
             if (null != serverInfo.authorization) {
                 headers.put(FileCacheHttpContract.HEADER_AUTHORIZATION, serverInfo.authorization);
             }
+            if (null != fileUid.exInfo) {
+                headers.put(FileCacheHttpContract.HEADER_EX_INFO, fileUid.exInfo);
+            }
             downloadAppendService.beforeRequest(fileUid, headers);
             String fileToken = fileUid.fileId + (serverInfo.urlSuffix != null ? serverInfo.urlSuffix : "");
             Response response = getResponse(PollingHostProvider.fromArr(serverInfo.fileDownloadUrl), fileToken, headers);
@@ -77,7 +79,7 @@ public class DownloadService implements FileCacheHttpContract {
         info.contentLength = Optional.ofNullable(response.header("Content-Length")).map(Long::parseLong).orElse(null);
         info.contentDisposition = response.header("Content-Disposition");
         info.md5 = response.header(FileMd5Utils.HEADER_MD5);
-        info.exInfo = ExInfoUtils.decodeExInfo(response.header(ExInfoUtils.HEADER_EX_INFO));
+        info.exInfo = FileCacheHttpContract.decodeExInfo(response.header(FileCacheHttpContract.HEADER_EX_INFO));
         return info;
     }
 

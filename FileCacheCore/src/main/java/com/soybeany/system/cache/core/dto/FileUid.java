@@ -12,6 +12,7 @@ public class FileUid {
 
     public final String server;
     public final String fileId;
+    public String exInfo;
 
     @SuppressWarnings("unused")
     public static FileUid fromString(String fileUidStr) {

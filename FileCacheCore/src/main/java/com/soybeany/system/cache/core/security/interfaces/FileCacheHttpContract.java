@@ -9,6 +9,7 @@ import okhttp3.ResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Map;
@@ -37,6 +38,7 @@ public interface FileCacheHttpContract {
 
     String HEADER_AUTHORIZATION = "Authorization";
     String HEADER_ERR_MSG = "errMsg";
+    String HEADER_EX_INFO = "ex_info";
 
     OkHttpClient CLIENT = getNewClient(5);
 
@@ -62,6 +64,22 @@ public interface FileCacheHttpContract {
             response.reset();
             response.setHeader(HEADER_ERR_MSG, URLEncoder.encode(e.getMessage(), "UTF-8"));
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    static String decodeExInfo(String encodedMsg) {
+        try {
+            return null != encodedMsg ? URLDecoder.decode(encodedMsg, "utf-8") : null;
+        } catch (UnsupportedEncodingException e) {
+            throw new FcException(e);
+        }
+    }
+
+    static String encodeExInfo(String decodedMsg) {
+        try {
+            return null != decodedMsg ? URLEncoder.encode(decodedMsg, "utf-8") : null;
+        } catch (UnsupportedEncodingException e) {
+            throw new FcException(e);
         }
     }
 

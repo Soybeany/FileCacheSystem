@@ -8,8 +8,8 @@ import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.download.FileServerUtils;
 import com.soybeany.download.core.FileInfo;
 import com.soybeany.system.cache.core.dto.FileUid;
+import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.core.security.model.FcException;
-import com.soybeany.system.cache.core.util.ExInfoUtils;
 import com.soybeany.system.cache.core.util.LogUtils;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.config.IDynamicConfigProvider;
@@ -53,10 +53,10 @@ public class CacheService {
     // ***********************外部API****************************
 
     public void download(String token, HttpServletRequest request, HttpServletResponse response) {
-        handleContentInfo(token, response, (dataInfo, file) -> {
+        handleContentInfo(token, request, response, (dataInfo, file) -> {
             // 自定义header设置
             if (null != dataInfo.exInfo) {
-                response.setHeader(ExInfoUtils.HEADER_EX_INFO, ExInfoUtils.encodeExInfo(dataInfo.exInfo));
+                response.setHeader(FileCacheHttpContract.HEADER_EX_INFO, FileCacheHttpContract.encodeExInfo(dataInfo.exInfo));
             }
             // 数据下载
             try {
@@ -118,16 +118,17 @@ public class CacheService {
         cacheStorage.close();
     }
 
-    private void handleContentInfo(String token, HttpServletResponse response, CacheService.ICallback callback) {
+    private void handleContentInfo(String token, HttpServletRequest request, HttpServletResponse response, CacheService.ICallback callback) {
         try {
             FileUid fileUid = configProvider.toFileUid(token);
+            fileUid.exInfo = FileCacheHttpContract.decodeExInfo(request.getHeader(FileCacheHttpContract.HEADER_EX_INFO));
             retrieveCache(fileUid, callback);
         } catch (Exception e) {
             LOG.error(LogUtils.exceptionToString(e));
             if (response.isCommitted()) {
                 return;
             }
-            response.setHeader("errMsg", toErrMsg(e));
+            response.setHeader(FileCacheHttpContract.HEADER_ERR_MSG, toErrMsg(e));
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
