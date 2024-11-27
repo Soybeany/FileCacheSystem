@@ -37,7 +37,7 @@ public class SecretKeyInfo {
         try {
             return HexUtils.bytesToHex(SerializeUtils.serialize(secretKey));
         } catch (Exception e) {
-            throw new FcException(e);
+            throw new FcException("secretKey序列化异常:" + e.getMessage());
         }
     }
 
@@ -45,14 +45,16 @@ public class SecretKeyInfo {
         try {
             return SerializeUtils.deserialize(HexUtils.hexToByteArray(secretKeyJson));
         } catch (Exception e) {
-            throw new FcException(e);
+            throw new FcException("secretKey反序列化异常:" + e.getMessage());
         }
     }
 
+    @SuppressWarnings("unused")
     public String getKey() {
         return key;
     }
 
+    @SuppressWarnings("unused")
     public void setKey(String key) {
         this.key = key;
     }

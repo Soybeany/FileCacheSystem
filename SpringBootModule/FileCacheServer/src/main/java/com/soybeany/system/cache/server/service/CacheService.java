@@ -19,6 +19,7 @@ import com.soybeany.system.cache.server.model.DataInfo;
 import com.soybeany.system.cache.server.model.ReDownloadException;
 import com.soybeany.system.cache.server.storage.FileCacheAccessor;
 import com.soybeany.system.cache.server.storage.FileCacheStorage;
+import com.soybeany.util.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,7 @@ public class CacheService {
             try {
                 FileServerUtils.randomAccessDownloadFile(toFileInfo(dataInfo, file), request, response, file);
             } catch (Exception e) {
-                throw new FcException(e);
+                throw new FcException("下载异常:" + ExceptionUtils.getExceptionDetail(e));
             }
         });
     }

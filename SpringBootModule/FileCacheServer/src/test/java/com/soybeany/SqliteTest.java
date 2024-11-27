@@ -43,7 +43,7 @@ public class SqliteTest {
             String s = BdFileUtils.readString(is);
             System.out.println(s);
         } catch (IOException e) {
-            throw new FcException(e);
+            throw new FcException(e.getMessage());
         }
     }
 
@@ -53,7 +53,7 @@ public class SqliteTest {
              OutputStream os = Files.newOutputStream(file.toPath())) {
             BdFileUtils.readWriteStream(is, os);
         } catch (IOException e) {
-            throw new FcException(e);
+            throw new FcException(e.getMessage());
         }
     }
 

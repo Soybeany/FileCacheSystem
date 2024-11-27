@@ -322,7 +322,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
             throw new FcException("无法加载指定的类:" + metaInfo.exceptionClazz);
         }
         if (!(e instanceof FcException)) {
-            e = new FcException(e);
+            e = new FcException("缓存中的异常:" + e.getMessage() + "(" + e.getClass().getName() + ")");
         }
         return (FcException) e;
     }

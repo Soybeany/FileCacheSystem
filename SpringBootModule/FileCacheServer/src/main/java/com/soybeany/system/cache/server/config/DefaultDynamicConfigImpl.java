@@ -59,7 +59,7 @@ public class DefaultDynamicConfigImpl implements IDynamicConfigProvider, FileCac
         try (ResponseBody body = response.body()) {
             bodyStr = getNonNullBody(body).string();
         } catch (IOException e) {
-            throw new FcException(e);
+            throw new FcException("获取secretKeysData异常:" + e.getMessage());
         }
         FileCacheHttpContract.Dto<String> dto = GSON.fromJson(bodyStr, new TypeToken<FileCacheHttpContract.Dto<String>>() {
         }.getType());

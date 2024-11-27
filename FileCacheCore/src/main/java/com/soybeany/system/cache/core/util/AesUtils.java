@@ -27,7 +27,7 @@ class AesUtils {
             secretGenerator.init(new SecureRandom());
             return secretGenerator.generateKey();
         } catch (NoSuchAlgorithmException e) {
-            throw new FcException(e);
+            throw new FcException("Aes生成SecretKey异常:" + e.getMessage());
         }
     }
 

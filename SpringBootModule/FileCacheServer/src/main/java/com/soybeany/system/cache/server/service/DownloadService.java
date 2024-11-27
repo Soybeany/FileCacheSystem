@@ -107,7 +107,7 @@ public class DownloadService implements FileCacheHttpContract {
             }
             return token;
         } catch (InterruptedException e) {
-            throw new FcException(e);
+            throw new FcException("令牌获取异常:" + e.getMessage());
         }
     }
 

@@ -29,7 +29,7 @@ public abstract class FileMd5Utils {
             }
             return HexUtils.bytesToHex(result);
         } catch (Exception e) {
-            throw new FcException(e);
+            throw new FcException("MD5计算异常:" + e.getMessage());
         }
     }
 }

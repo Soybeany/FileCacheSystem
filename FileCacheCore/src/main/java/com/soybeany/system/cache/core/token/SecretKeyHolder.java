@@ -55,7 +55,7 @@ public abstract class SecretKeyHolder implements Serializable {
             try {
                 return SerializeUtils.deserialize(HexUtils.hexToByteArray(content));
             } catch (Exception e) {
-                throw new FcException(e);
+                throw new FcException("secretKeyHolder.WithExpiry序列化异常:" + e.getMessage());
             }
         }
 
@@ -63,7 +63,7 @@ public abstract class SecretKeyHolder implements Serializable {
             try {
                 return HexUtils.bytesToHex(SerializeUtils.serialize(obj));
             } catch (IOException e) {
-                throw new FcException(e);
+                throw new FcException("secretKeyHolder.WithExpiry反序列化异常:" + e.getMessage());
             }
         }
 

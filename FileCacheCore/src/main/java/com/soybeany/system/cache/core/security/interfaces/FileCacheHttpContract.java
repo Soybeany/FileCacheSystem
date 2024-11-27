@@ -71,7 +71,7 @@ public interface FileCacheHttpContract {
         try {
             return null != encodedMsg ? URLDecoder.decode(encodedMsg, "utf-8") : null;
         } catch (UnsupportedEncodingException e) {
-            throw new FcException(e);
+            throw new FcException("不支持的编码:" + e.getMessage());
         }
     }
 
@@ -79,7 +79,7 @@ public interface FileCacheHttpContract {
         try {
             return null != decodedMsg ? URLEncoder.encode(decodedMsg, "utf-8") : null;
         } catch (UnsupportedEncodingException e) {
-            throw new FcException(e);
+            throw new FcException("不支持的编码:" + e.getMessage());
         }
     }
 
@@ -109,7 +109,7 @@ public interface FileCacheHttpContract {
             }
             return response;
         } catch (IOException e) {
-            throw new FcException(e);
+            throw new FcException("请求外部系统IO异常，msg=" + e.getMessage());
         }
     }
 
