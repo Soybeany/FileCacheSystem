@@ -19,6 +19,6 @@ class TestController {
     @GetMapping("/test")
     void test() {
         FileUid fileUid = new FileUid("app", "1234");
-        cacheProvider.retrieveCache(fileUid, (from, d, f) -> System.out.println("ok"));
+        cacheProvider.retrieveCache("测试", fileUid, (from, d, f) -> System.out.println("ok"));
     }
 }

@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.net.URLEncoder;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * @author Soybeany
@@ -56,7 +57,7 @@ public class CacheService {
     // ***********************外部API****************************
 
     public void download(String token, HttpServletRequest request, HttpServletResponse response) {
-        handleContentInfo(token, request, response, (from, dataInfo, file) -> {
+        handleContentInfo("下载", token, request, response, (from, dataInfo, file) -> {
             // 自定义header设置
             if (null != dataInfo.exInfo) {
                 response.setHeader(FileCacheHttpContract.HEADER_EX_INFO, FileCacheHttpContract.encodeExInfo(dataInfo.exInfo));
@@ -71,10 +72,13 @@ public class CacheService {
         });
     }
 
-    public void retrieveCache(FileUid fileUid, ICallback callback) {
-        DataPack<FileCacheAccessor> dataPack = dataManager.getDataPack(fileUid);
+    public void retrieveCache(String desc, FileUid fileUid, ICallback callback) {
+        DataPack<FileCacheAccessor> dataPack = time("缓存", () -> dataManager.getDataPack(fileUid));
         FileCacheAccessor.Local accessor = (FileCacheAccessor.Local) dataPack.getData();
-        callback.onHandle(dataPack.provider, accessor.dataInfo, accessor.file());
+        time(desc, () -> {
+            callback.onHandle(dataPack.provider, accessor.dataInfo, accessor.file());
+            return null;
+        });
     }
 
     @SuppressWarnings("unused")
@@ -89,6 +93,16 @@ public class CacheService {
     }
 
     // ***********************子类重写****************************
+
+    private <T> T time(String desc, Supplier<T> action) {
+        LOG.info(desc + "开始");
+        long startTime = System.currentTimeMillis();
+        try {
+            return action.get();
+        } finally {
+            LOG.info(desc + "结束，耗时:" + (System.currentTimeMillis() - startTime) + "ms");
+        }
+    }
 
     protected FileInfo toFileInfo(DataInfo dataInfo, File file) {
         long contentLength = Optional.ofNullable(dataInfo.contentLength).orElseGet(file::length);
@@ -131,11 +145,11 @@ public class CacheService {
         }
     }
 
-    private void handleContentInfo(String token, HttpServletRequest request, HttpServletResponse response, CacheService.ICallback callback) {
+    private void handleContentInfo(String desc, String token, HttpServletRequest request, HttpServletResponse response, CacheService.ICallback callback) {
         try {
             FileUid fileUid = configProvider.toFileUid(token);
             fileUid.exInfo = FileCacheHttpContract.decodeExInfo(request.getHeader(FileCacheHttpContract.HEADER_EX_INFO));
-            retrieveCache(fileUid, callback);
+            retrieveCache(desc, fileUid, callback);
         } catch (Exception e) {
             LOG.error(LogUtils.exceptionToString(e));
             if (response.isCommitted()) {
