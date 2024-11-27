@@ -1,5 +1,6 @@
 package com.soybeany.system.cache.server.service;
 
+import com.soybeany.cache.v2.contract.ICacheStorage;
 import com.soybeany.cache.v2.contract.IDatasource;
 import com.soybeany.cache.v2.core.DataManager;
 import com.soybeany.cache.v2.exception.NoDataSourceException;
@@ -38,6 +39,7 @@ import java.util.Optional;
 @Service
 public class CacheService {
 
+    private static final String HEADER_DATA_FROM = "x-data-from";
     private static final Logger LOG = LoggerFactory.getLogger(CacheService.class);
 
     @Autowired
@@ -53,11 +55,12 @@ public class CacheService {
     // ***********************外部API****************************
 
     public void download(String token, HttpServletRequest request, HttpServletResponse response) {
-        handleContentInfo(token, request, response, (dataInfo, file) -> {
+        handleContentInfo(token, request, response, (from, dataInfo, file) -> {
             // 自定义header设置
             if (null != dataInfo.exInfo) {
                 response.setHeader(FileCacheHttpContract.HEADER_EX_INFO, FileCacheHttpContract.encodeExInfo(dataInfo.exInfo));
             }
+            response.setHeader(HEADER_DATA_FROM, getFromDesc(from));
             // 数据下载
             try {
                 FileServerUtils.randomAccessDownloadFile(toFileInfo(dataInfo, file), request, response, file);
@@ -68,8 +71,9 @@ public class CacheService {
     }
 
     public void retrieveCache(FileUid fileUid, ICallback callback) {
-        FileCacheAccessor.Local accessor = (FileCacheAccessor.Local) dataManager.getData(fileUid);
-        callback.onHandle(accessor.dataInfo, accessor.file());
+        DataPack<FileCacheAccessor> dataPack = dataManager.getDataPack(fileUid);
+        FileCacheAccessor.Local accessor = (FileCacheAccessor.Local) dataPack.getData();
+        callback.onHandle(dataPack.provider, accessor.dataInfo, accessor.file());
     }
 
     @SuppressWarnings("unused")
@@ -118,6 +122,14 @@ public class CacheService {
         cacheStorage.close();
     }
 
+    private String getFromDesc(Object from) {
+        if (from instanceof ICacheStorage) {
+            return "cache";
+        } else {
+            return from instanceof IDatasource ? "source" : "other(" + from + ")";
+        }
+    }
+
     private void handleContentInfo(String token, HttpServletRequest request, HttpServletResponse response, CacheService.ICallback callback) {
         try {
             FileUid fileUid = configProvider.toFileUid(token);
@@ -136,7 +148,7 @@ public class CacheService {
     // ***********************内部类****************************
 
     public interface ICallback {
-        void onHandle(DataInfo dataInfo, File file);
+        void onHandle(Object from, DataInfo dataInfo, File file);
     }
 
     private class Datasource implements IDatasource<FileUid, FileCacheAccessor> {
