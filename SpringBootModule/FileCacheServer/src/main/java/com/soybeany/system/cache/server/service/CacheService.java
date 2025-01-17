@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.net.URLEncoder;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -65,7 +64,7 @@ public class CacheService {
             response.setHeader(HEADER_DATA_FROM, getFromDesc(from));
             // 数据下载
             try {
-                FileServerUtils.randomAccessDownloadFile(toFileInfo(dataInfo, file), request, response, file);
+                FileServerUtils.supply(toFileInfo(dataInfo), request, response, file);
             } catch (Exception e) {
                 throw new FcException("下载异常:" + ExceptionUtils.getExceptionDetail(e));
             }
@@ -104,9 +103,8 @@ public class CacheService {
         }
     }
 
-    protected FileInfo toFileInfo(DataInfo dataInfo, File file) {
-        long contentLength = Optional.ofNullable(dataInfo.contentLength).orElseGet(file::length);
-        FileInfo fileInfo = new FileInfo(dataInfo.contentDisposition, contentLength, dataInfo.eTag);
+    protected FileInfo.Server toFileInfo(DataInfo dataInfo) {
+        FileInfo.Server fileInfo = new FileInfo.Server(dataInfo.contentDisposition, dataInfo.eTag);
         fileInfo.contentType(dataInfo.contentType);
         return fileInfo;
     }
