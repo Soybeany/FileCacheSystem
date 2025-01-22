@@ -17,6 +17,7 @@ import com.soybeany.system.cache.server.config.IDynamicConfigProvider;
 import com.soybeany.system.cache.server.model.CacheLogWriter;
 import com.soybeany.system.cache.server.model.DataInfo;
 import com.soybeany.system.cache.server.model.ReDownloadException;
+import com.soybeany.system.cache.server.model.TaskState;
 import com.soybeany.system.cache.server.storage.FileCacheAccessor;
 import com.soybeany.system.cache.server.storage.FileCacheStorage;
 import com.soybeany.util.ExceptionUtils;
@@ -31,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.net.URLEncoder;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -43,6 +45,8 @@ public class CacheService {
     private static final String HEADER_DATA_FROM = "x-data-from";
     private static final Logger LOG = LoggerFactory.getLogger(CacheService.class);
 
+    private final Map<String, Set<String>> downloadingMap = new HashMap<>();
+
     @Autowired
     private AppConfig appConfig;
     @Autowired
@@ -54,6 +58,17 @@ public class CacheService {
     private DataManager<FileUid, FileCacheAccessor> dataManager;
 
     // ***********************外部API****************************
+
+    public Map<String, TaskState> getStates(String server) {
+        Map<String, TaskState> result = new HashMap<>();
+        // 查下载中
+        Optional.ofNullable(downloadingMap.get(server))
+                .ifPresent(list -> list.forEach(n -> result.put(n, TaskState.DOWNLOADING)));
+        // 查本地目录
+        cacheStorage.listFileNames(server)
+                .forEach(n -> result.put(n, TaskState.COMPLETED));
+        return result;
+    }
 
     public void download(String token, HttpServletRequest request, HttpServletResponse response) {
         handleContentInfo("下载", token, request, response, (from, dataInfo, file) -> {
@@ -167,7 +182,16 @@ public class CacheService {
     private class Datasource implements IDatasource<FileUid, FileCacheAccessor> {
         @Override
         public FileCacheAccessor onGetData(FileUid fileUid) {
-            return downloadService.startDownload(fileUid);
+            try {
+                synchronized (downloadingMap) {
+                    downloadingMap.computeIfAbsent(fileUid.server, k -> new HashSet<>()).add(fileUid.fileId);
+                }
+                return downloadService.startDownload(fileUid);
+            } finally {
+                synchronized (downloadingMap) {
+                    Optional.ofNullable(downloadingMap.get(fileUid.server)).ifPresent(m -> m.remove(fileUid.fileId));
+                }
+            }
         }
 
         @Override

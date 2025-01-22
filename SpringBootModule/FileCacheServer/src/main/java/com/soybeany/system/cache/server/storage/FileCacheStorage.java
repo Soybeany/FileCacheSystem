@@ -22,9 +22,12 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * todo 新建meta文件管理系统，顺带支持多文件分段管理；文件下载部分，就只需要支持简单的断点续传即可
+ *
  * @author Soybeany
  * @since 2022/8/16
  */
@@ -69,6 +72,16 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
 
     public void close() {
         EXECUTOR_SERVICE.shutdown();
+    }
+
+    public List<String> listFileNames(String server) {
+        String[] fileNames = new File(cacheDir, "/" + server + DIR_META).list();
+        if (null == fileNames) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(fileNames)
+                .map(fileName -> fileName.substring(0, fileName.lastIndexOf(".")))
+                .collect(Collectors.toList());
     }
 
     public synchronized void deleteExpiredFiles() {
@@ -137,12 +150,12 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         if (file.isDirectory()) {
             File[] subFiles = file.listFiles();
             if (null == subFiles) {
-                throw new FcException("文件夹依旧返回null");
+                throw new FcException("文件夹(" + file.getAbsolutePath() + ")访问异常");
             }
             for (File subFile : subFiles) {
                 boolean success = onDeleteFile(subFile);
                 if (!success) {
-                    LOG.warn("文件(" + file.getAbsolutePath() + ")删除异常");
+                    LOG.warn("文件(" + subFile.getAbsolutePath() + ")删除异常");
                     return false;
                 }
             }

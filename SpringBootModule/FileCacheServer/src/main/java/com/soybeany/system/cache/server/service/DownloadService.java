@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
  * @author Soybeany
  * @date 2020/12/1
  */
+// todo 1.获取全列表 2.查询指定的FileUid处于哪种状态：任务队列；令牌等待(等待下载)、下载中；已下载；没有
 @Service
 public class DownloadService implements FileCacheHttpContract {
 
