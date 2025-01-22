@@ -10,6 +10,7 @@ import com.soybeany.cache.v2.storage.StdStorage;
 import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.system.cache.server.model.DataInfo;
+import com.soybeany.system.cache.server.model.DiscSpaceInfo;
 import com.soybeany.system.cache.server.util.InfoFileUtils;
 import com.soybeany.util.Md5Utils;
 import com.soybeany.util.file.BdFileUtils;
@@ -47,6 +48,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
      * 全部缓存的根目录
      */
     private final File cacheDir;
+    private final long totalSpace;
     private final long minFreeSpaceRequired;
 
     public FileCacheStorage(String cacheDir, float maxUsedPercent) {
@@ -56,7 +58,8 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         if (maxUsedPercent < 0.1 || maxUsedPercent > 1) {
             throw new FcException("maxUsedPercent取值需在0.1~1之间");
         }
-        minFreeSpaceRequired = (long) (this.cacheDir.getTotalSpace() * (1 - maxUsedPercent));
+        totalSpace = this.cacheDir.getTotalSpace();
+        minFreeSpaceRequired = (long) (totalSpace * (1 - maxUsedPercent));
     }
 
     public void start() {
@@ -82,6 +85,14 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         return Arrays.stream(fileNames)
                 .map(fileName -> fileName.substring(0, fileName.lastIndexOf(".")))
                 .collect(Collectors.toList());
+    }
+
+    public DiscSpaceInfo getDiscSpaceInfo() {
+        DiscSpaceInfo info = new DiscSpaceInfo();
+        info.totalSpace = totalSpace;
+        info.freeSpace = cacheDir.getFreeSpace();
+        info.usableSpace = info.freeSpace - minFreeSpaceRequired;
+        return info;
     }
 
     public synchronized void deleteExpiredFiles() {

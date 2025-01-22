@@ -14,10 +14,7 @@ import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.system.cache.core.util.LogUtils;
 import com.soybeany.system.cache.server.config.AppConfig;
 import com.soybeany.system.cache.server.config.IDynamicConfigProvider;
-import com.soybeany.system.cache.server.model.CacheLogWriter;
-import com.soybeany.system.cache.server.model.DataInfo;
-import com.soybeany.system.cache.server.model.ReDownloadException;
-import com.soybeany.system.cache.server.model.TaskState;
+import com.soybeany.system.cache.server.model.*;
 import com.soybeany.system.cache.server.storage.FileCacheAccessor;
 import com.soybeany.system.cache.server.storage.FileCacheStorage;
 import com.soybeany.util.ExceptionUtils;
@@ -68,6 +65,10 @@ public class CacheService {
         cacheStorage.listFileNames(server)
                 .forEach(n -> result.put(n, TaskState.COMPLETED));
         return result;
+    }
+
+    public DiscSpaceInfo getDiscSpaceInfo() {
+        return cacheStorage.getDiscSpaceInfo();
     }
 
     public void download(String token, HttpServletRequest request, HttpServletResponse response) {
