@@ -9,10 +9,9 @@ import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.cache.v2.storage.StdStorage;
 import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.model.FcException;
-import com.soybeany.system.cache.server.model.DataInfo;
 import com.soybeany.system.cache.server.model.DiscSpaceInfo;
+import com.soybeany.system.cache.server.model.MetaInfo;
 import com.soybeany.system.cache.server.util.InfoFileUtils;
-import com.soybeany.util.Md5Utils;
 import com.soybeany.util.file.BdFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +22,11 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * todo 新建meta文件管理系统，顺带支持多文件分段管理；文件下载部分，就只需要支持简单的断点续传即可
+ * todo MetaInfo增加“partialSize(long)”标识使用分段：-1或不存在，表示不启用
  *
  * @author Soybeany
  * @since 2022/8/16
@@ -77,14 +76,13 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         EXECUTOR_SERVICE.shutdown();
     }
 
-    public List<String> listFileNames(String server) {
-        String[] fileNames = new File(cacheDir, "/" + server + DIR_META).list();
-        if (null == fileNames) {
-            return Collections.emptyList();
-        }
-        return Arrays.stream(fileNames)
-                .map(fileName -> fileName.substring(0, fileName.lastIndexOf(".")))
-                .collect(Collectors.toList());
+    public Map<String, MetaInfo> getMetaInfo(FileUid... fileUids) {
+        Map<String, MetaInfo> result = new HashMap<>();
+        Arrays.stream(fileUids).forEach(fileUid -> {
+            String key = fileUid.getKey();
+            getMetaInfo(getMetaFile(fileUid, key)).ifPresent(info -> result.put(key, info));
+        });
+        return result;
     }
 
     public DiscSpaceInfo getDiscSpaceInfo() {
@@ -196,7 +194,6 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
 
     @Override
     protected CacheEntity<FileCacheAccessor> onLoadCacheEntity(DataContext<FileUid> context, String key) throws NoCacheException {
-        key = preTreatKey(key);
         // 读取配置
         File metaFile = getMetaFile(context, key);
         MetaInfo metaInfo = getMetaInfo(metaFile).orElseThrow(NoCacheException::new);
@@ -226,7 +223,6 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         // 先尽可能保障空间足够
         confirmDiskSpace(context);
         // 再执行后续流程
-        key = preTreatKey(key);
         MetaInfo metaInfo = new MetaInfo();
         long currentTimeMillis = System.currentTimeMillis();
         metaInfo.curDataFileName = key + "_" + (currentTimeMillis / 1000);
@@ -272,7 +268,6 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
 
     @Override
     protected synchronized void onRemoveCacheEntity(DataContext<FileUid> context, String key) {
-        key = preTreatKey(key);
         File metaFile = getMetaFile(context, key);
         getMetaInfo(metaFile).ifPresent(info -> deleteDataAndMetaFiles(metaFile, info, true));
     }
@@ -351,31 +346,16 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         return (FcException) e;
     }
 
-    private String preTreatKey(String key) {
-        key = key.replaceAll("[/\\\\]", "-");
-        if (key.length() > 200) {
-            key = "(md5)" + Md5Utils.strToMd5(key);
-        }
-        return key;
+    private File getMetaFile(DataContext<FileUid> context, String key) {
+        return getMetaFile(context.param.param, key);
     }
 
-    private File getMetaFile(DataContext<FileUid> context, String key) {
-        return new File(cacheDir, "/" + context.param.param.server + DIR_META + "/" + key + SUFFIX_META);
+    private File getMetaFile(FileUid fileUid, String key) {
+        return new File(cacheDir, "/" + fileUid.server + DIR_META + "/" + key + SUFFIX_META);
     }
 
     private File getDataFile(DataContext<FileUid> context, MetaInfo info) {
         return new File(cacheDir, "/" + context.param.param.server + DIR_DATA + "/" + info.curDataFileName + SUFFIX_DATA);
     }
 
-    private static class MetaInfo {
-        public boolean norm;
-        public int version;
-        public String curDataFileName;
-        public Set<String> oldDataFileNames;
-        public String exceptionClazz;
-        public String exceptionJson;
-        public long pExpireAt;
-
-        public DataInfo dataInfo;
-    }
 }

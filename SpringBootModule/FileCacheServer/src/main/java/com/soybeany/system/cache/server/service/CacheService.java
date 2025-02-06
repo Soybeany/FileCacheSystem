@@ -56,19 +56,30 @@ public class CacheService {
 
     // ***********************外部API****************************
 
-    public Map<String, TaskState> getStates(String server) {
-        Map<String, TaskState> result = new HashMap<>();
-        // 查下载中
-        Optional.ofNullable(downloadingMap.get(server))
-                .ifPresent(list -> list.forEach(n -> result.put(n, TaskState.DOWNLOADING)));
-        // 查本地目录
-        cacheStorage.listFileNames(server)
-                .forEach(n -> result.put(n, TaskState.COMPLETED));
+    public Map<String, Set<String>> getDownloadingMap() {
+        Map<String, Set<String>> result = new HashMap<>();
+        downloadingMap.forEach((k, v) -> result.put(k, new HashSet<>(v)));
         return result;
+    }
+
+    public Map<String, MetaInfo> getCompletedMap(FileUid... fileUids) {
+        if (null == fileUids) {
+            return Collections.emptyMap();
+        }
+        return cacheStorage.getMetaInfo(fileUids);
     }
 
     public DiscSpaceInfo getDiscSpaceInfo() {
         return cacheStorage.getDiscSpaceInfo();
+    }
+
+    public void removeCache(FileUid... fileUids) {
+        if (null == fileUids) {
+            return;
+        }
+        for (FileUid fileUid : fileUids) {
+            dataManager.removeCache(fileUid);
+        }
     }
 
     public void download(String token, HttpServletRequest request, HttpServletResponse response) {
@@ -139,7 +150,7 @@ public class CacheService {
     private void onInit() {
         cacheStorage = new FileCacheStorage(appConfig.fileCacheDir, appConfig.maxUsedPercent);
         dataManager = DataManager.Builder
-                .get("文件缓存", new Datasource(), id -> id.fileId)
+                .get("文件缓存", new Datasource(), FileUid::getKey)
                 .withCache(cacheStorage)
                 .logger(new StdLogger<>(new CacheLogWriter()))
                 .build();

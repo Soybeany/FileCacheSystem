@@ -1,5 +1,7 @@
 package com.soybeany.system.cache.core.dto;
 
+import com.soybeany.util.Md5Utils;
+
 /**
  * 文件标签，确定唯一性
  *
@@ -31,5 +33,13 @@ public class FileUid {
     public FileUid(String server, String fileId) {
         this.server = server;
         this.fileId = fileId;
+    }
+
+    public String getKey() {
+        String key = fileId.replaceAll("[/\\\\]", "-");
+        if (key.length() > 200) {
+            key = "(md5)" + Md5Utils.strToMd5(key);
+        }
+        return key;
     }
 }
