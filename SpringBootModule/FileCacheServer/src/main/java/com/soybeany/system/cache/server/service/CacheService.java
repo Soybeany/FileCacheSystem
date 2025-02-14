@@ -90,14 +90,14 @@ public class CacheService {
             response.setHeader(HEADER_DATA_FROM, getFromDesc(from));
             // 数据下载
             try {
-                DataSupplier.start()
-                        .contentDisposition(dataInfo.contentDisposition, dataInfo.contentLength)
+                DataSupplier.builder()
+                        .contentDisposition(dataInfo.contentDisposition)
+                        .contentLength(dataInfo.contentLength)
+                        .callback(file, onSetupUseRangeMd5())
                         .contentType(dataInfo.contentType)
                         .eTag(dataInfo.eTag)
-                        .from()
-                        .file(file, onSetupUseRangeMd5())
-                        .randomAccess(request, onSetupNeedCheckIfRange())
-                        .to(response);
+                        .enableRandomAccess(request, onSetupNeedCheckIfRange())
+                        .start(response);
             } catch (Exception e) {
                 throw new FcException("下载异常:" + ExceptionUtils.getExceptionDetail(e));
             }
