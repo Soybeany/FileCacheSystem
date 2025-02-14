@@ -1,6 +1,6 @@
 package com.soybeany.system.cache.demo.app.controller;
 
-import com.soybeany.download.FileServerUtils;
+import com.soybeany.download.DataSupplier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +21,6 @@ class UserApiController {
     @GetMapping("/getContentByFileId/{token}")
     public void getList(@PathVariable String token, HttpServletRequest request, HttpServletResponse response) {
         File file = new File("C:\\Users\\soybeany\\Desktop\\windows-win32-direct3dhlsl.pdf");
-        FileServerUtils.supply(request, response, file);
+        DataSupplier.start().file(file).randomAccess(request, true).to(response);
     }
 }

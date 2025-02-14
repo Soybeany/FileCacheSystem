@@ -6,8 +6,7 @@ import com.soybeany.cache.v2.core.DataManager;
 import com.soybeany.cache.v2.exception.NoDataSourceException;
 import com.soybeany.cache.v2.log.StdLogger;
 import com.soybeany.cache.v2.model.DataPack;
-import com.soybeany.download.FileServerUtils;
-import com.soybeany.download.core.FileInfo;
+import com.soybeany.download.DataSupplier;
 import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.core.security.model.FcException;
@@ -91,7 +90,14 @@ public class CacheService {
             response.setHeader(HEADER_DATA_FROM, getFromDesc(from));
             // 数据下载
             try {
-                FileServerUtils.supply(toFileInfo(dataInfo), request, response, file);
+                DataSupplier.start()
+                        .contentDisposition(dataInfo.contentDisposition, dataInfo.contentLength)
+                        .contentType(dataInfo.contentType)
+                        .eTag(dataInfo.eTag)
+                        .from()
+                        .file(file, onSetupUseRangeMd5())
+                        .randomAccess(request, onSetupNeedCheckIfRange())
+                        .to(response);
             } catch (Exception e) {
                 throw new FcException("下载异常:" + ExceptionUtils.getExceptionDetail(e));
             }
@@ -130,10 +136,12 @@ public class CacheService {
         }
     }
 
-    protected FileInfo.Server toFileInfo(DataInfo dataInfo) {
-        FileInfo.Server fileInfo = new FileInfo.Server(dataInfo.contentDisposition, dataInfo.eTag);
-        fileInfo.contentType(dataInfo.contentType);
-        return fileInfo;
+    protected boolean onSetupUseRangeMd5() {
+        return true;
+    }
+
+    protected boolean onSetupNeedCheckIfRange() {
+        return true;
     }
 
     protected String toErrMsg(Exception e) {
