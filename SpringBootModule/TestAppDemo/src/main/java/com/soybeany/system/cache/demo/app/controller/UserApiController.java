@@ -21,6 +21,6 @@ class UserApiController {
     @GetMapping("/getContentByFileId/{token}")
     public void getList(@PathVariable String token, HttpServletRequest request, HttpServletResponse response) {
         File file = new File("C:\\Users\\soybeany\\Desktop\\windows-win32-direct3dhlsl.pdf");
-        DataSupplier.builder().file(file).enableRandomAccess(request, true).start(response);
+        DataSupplier.builder().file(file, true).enableRandomAccess(request, true).start(response);
     }
 }
