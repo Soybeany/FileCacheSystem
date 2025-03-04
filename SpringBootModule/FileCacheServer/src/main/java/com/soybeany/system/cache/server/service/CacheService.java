@@ -7,6 +7,7 @@ import com.soybeany.cache.v2.exception.NoDataSourceException;
 import com.soybeany.cache.v2.log.StdLogger;
 import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.download.DataSupplier;
+import com.soybeany.download.core.Md5Type;
 import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.core.security.model.FcException;
@@ -93,7 +94,7 @@ public class CacheService {
                 DataSupplier.builder()
                         .contentDisposition(dataInfo.contentDisposition)
                         .contentLength(dataInfo.contentLength)
-                        .dataFrom(file, onSetupUseStdMd5())
+                        .dataFrom(file, onSetupMd5Type())
                         .contentType(dataInfo.contentType)
                         .eTag(dataInfo.eTag)
                         .enableRandomAccess(request)
@@ -136,8 +137,8 @@ public class CacheService {
         }
     }
 
-    protected boolean onSetupUseStdMd5() {
-        return true;
+    protected Md5Type onSetupMd5Type() {
+        return Md5Type.STD_PARTIAL;
     }
 
     protected String toErrMsg(Exception e) {

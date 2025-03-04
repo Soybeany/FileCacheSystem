@@ -1,6 +1,6 @@
 package com.soybeany.system.cache.server.model;
 
-import com.soybeany.util.file.BdFileUtils;
+import com.soybeany.download.DataSupplier;
 
 import java.io.File;
 
@@ -26,7 +26,7 @@ public class DataInfo {
         }
         // 尝试校验文件md5
         if (null != md5) {
-            isComplete &= md5.equals(BdFileUtils.md5(file));
+            isComplete &= md5.equals(DataSupplier.calMd5Old(file));
         }
         return isComplete;
     }
