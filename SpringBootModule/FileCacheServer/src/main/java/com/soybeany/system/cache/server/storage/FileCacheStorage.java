@@ -188,8 +188,22 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     }
 
     @Override
-    public boolean needDoubleCheck() {
-        return false;
+    public void onClearCache(DataContext.Core<FileUid, FileCacheAccessor> core) {
+        Optional.ofNullable(cacheDir.listFiles()).ifPresent(arr -> {
+            for (File file : arr) {
+                deleteFile(file);
+            }
+        });
+    }
+
+    @Override
+    public int cachedDataCount(DataContext.Core<FileUid, FileCacheAccessor> core) {
+        return Optional.ofNullable(cacheDir.listFiles())
+                .map(arr -> (int) Stream.of(arr)
+                        .flatMap(serverFile -> Arrays.stream(Optional.ofNullable(new File(serverFile, DIR_DATA).list()).orElseGet(() -> new String[0])))
+                        .count()
+                )
+                .orElse(0);
     }
 
     @Override
@@ -280,25 +294,6 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     @Override
     protected long onGetCurTimestamp() {
         return System.currentTimeMillis();
-    }
-
-    @Override
-    public void onClearCache(String storageId) {
-        Optional.ofNullable(cacheDir.listFiles()).ifPresent(arr -> {
-            for (File file : arr) {
-                deleteFile(file);
-            }
-        });
-    }
-
-    @Override
-    public int cachedDataCount(String storageId) {
-        return Optional.ofNullable(cacheDir.listFiles())
-                .map(arr -> (int) Stream.of(arr)
-                        .flatMap(serverFile -> Arrays.stream(Optional.ofNullable(new File(serverFile, DIR_DATA).list()).orElseGet(() -> new String[0])))
-                        .count()
-                )
-                .orElse(0);
     }
 
     // ***********************内部方法****************************

@@ -93,10 +93,10 @@ public class CacheService {
                 DataSupplier.builder()
                         .contentDisposition(dataInfo.contentDisposition)
                         .contentLength(dataInfo.contentLength)
-                        .callback(file, onSetupUseRangeMd5())
+                        .dataFrom(file, onSetupUseStdMd5())
                         .contentType(dataInfo.contentType)
                         .eTag(dataInfo.eTag)
-                        .enableRandomAccess(request, onSetupNeedCheckIfRange())
+                        .enableRandomAccess(request)
                         .start(response);
             } catch (Exception e) {
                 throw new FcException("下载异常:" + ExceptionUtils.getExceptionDetail(e));
@@ -136,11 +136,7 @@ public class CacheService {
         }
     }
 
-    protected boolean onSetupUseRangeMd5() {
-        return true;
-    }
-
-    protected boolean onSetupNeedCheckIfRange() {
+    protected boolean onSetupUseStdMd5() {
         return true;
     }
 

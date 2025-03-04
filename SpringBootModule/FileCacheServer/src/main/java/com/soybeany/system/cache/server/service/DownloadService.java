@@ -129,11 +129,11 @@ public class DownloadService implements FileCacheHttpContract {
 
     private DataInfo toDataInfo(Response response) {
         DataInfo info = new DataInfo();
-        info.eTag = response.header("ETag");
-        info.pTtl = Optional.ofNullable(response.header("Age")).map(age -> Long.parseLong(age) * 1000).orElse(DEFAULT_CACHE_AGE);
-        info.contentType = response.header("Content-Type");
-        info.contentLength = Optional.ofNullable(response.header("Content-Length")).map(Long::parseLong).orElse(null);
-        info.contentDisposition = response.header("Content-Disposition");
+        info.eTag = response.header(BdDownloadHeaders.E_TAG);
+        info.pTtl = Optional.ofNullable(response.header(BdDownloadHeaders.AGE)).map(age -> Long.parseLong(age) * 1000).orElse(DEFAULT_CACHE_AGE);
+        info.contentType = response.header(BdDownloadHeaders.CONTENT_TYPE);
+        info.contentLength = Optional.ofNullable(response.header(BdDownloadHeaders.CONTENT_LENGTH)).map(Long::parseLong).orElse(null);
+        info.contentDisposition = response.header(BdDownloadHeaders.CONTENT_DISPOSITION);
         info.md5 = response.header(BdDownloadHeaders.CONTENT_MD5);
         info.exInfo = FileCacheHttpContract.decodeExInfo(response.header(FileCacheHttpContract.HEADER_EX_INFO));
         return info;
