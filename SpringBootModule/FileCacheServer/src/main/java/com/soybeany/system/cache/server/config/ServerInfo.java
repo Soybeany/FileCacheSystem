@@ -10,6 +10,7 @@ public class ServerInfo {
     public String fileDownloadUrl;
     public String urlSuffix;
     public String authorization;
+    public Integer checkIntervalSec;
 
     public void setName(String name) {
         this.name = name;
@@ -25,5 +26,9 @@ public class ServerInfo {
 
     public void setAuthorization(String authorization) {
         this.authorization = authorization;
+    }
+
+    public void setCheckIntervalSec(Integer checkIntervalSec) {
+        this.checkIntervalSec = checkIntervalSec;
     }
 }

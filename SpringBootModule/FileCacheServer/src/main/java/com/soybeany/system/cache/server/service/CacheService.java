@@ -1,5 +1,6 @@
 package com.soybeany.system.cache.server.service;
 
+import com.soybeany.cache.v2.contract.ICacheChecker;
 import com.soybeany.cache.v2.contract.ICacheStorage;
 import com.soybeany.cache.v2.contract.IDatasource;
 import com.soybeany.cache.v2.core.DataManager;
@@ -51,6 +52,12 @@ public class CacheService {
     @Autowired
     private IDynamicConfigProvider configProvider;
 
+    private final ICacheChecker<FileUid, FileCacheAccessor> checker = (fileUid, dataPack) -> {
+        if (!dataPack.norm()) {
+            return false;
+        }
+        return !downloadService.isNotModified(fileUid, dataPack.getData().dataInfo.eTag);
+    };
     private FileCacheStorage cacheStorage;
     private DataManager<FileUid, FileCacheAccessor> dataManager;
 
@@ -73,13 +80,12 @@ public class CacheService {
         return cacheStorage.getDiscSpaceInfo();
     }
 
-    public void removeCache(FileUid... fileUids) {
-        if (null == fileUids) {
-            return;
-        }
-        for (FileUid fileUid : fileUids) {
-            dataManager.removeCache(fileUid);
-        }
+    public void invalidCache(FileUid fileUid) {
+        dataManager.invalidCache(fileUid);
+    }
+
+    public boolean checkCache(FileUid fileUid) {
+        return dataManager.checkCache(fileUid, checker);
     }
 
     public void download(String token, HttpServletRequest request, HttpServletResponse response) {
@@ -157,6 +163,8 @@ public class CacheService {
         dataManager = DataManager.Builder
                 .get("文件缓存", new Datasource(), FileUid::getKey)
                 .withCache(cacheStorage)
+                .enableDataCheck(fileUid -> Optional.ofNullable(configProvider.getAppServer(fileUid).checkIntervalSec)
+                        .orElse(Integer.MAX_VALUE) * 1000L, checker)
                 .logger(new StdLogger<>(new CacheLogWriter()))
                 .build();
         cacheStorage.start();
