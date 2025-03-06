@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -248,14 +247,11 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
             try {
                 accessor.writeTo(dataFile);
                 // 改写缓存核心
-                if (accessor.dataInfo.isFileComplete(dataFile)) {
-                    metaInfo.dataInfo = accessor.dataInfo;
-                    DataCore<FileCacheAccessor> newCore = DataCore.fromData(FileCacheAccessor.fromFile(metaInfo.dataInfo, dataFile));
-                    entity = new CacheEntity<>(newCore, entity.pExpireAt);
-                } else {
-                    throw new IOException("文件大小不正确，可能下载不完整");
-                }
-            } catch (IOException e) {
+                accessor.dataInfo.checkFileIntegrity(dataFile);
+                metaInfo.dataInfo = accessor.dataInfo;
+                DataCore<FileCacheAccessor> newCore = DataCore.fromData(FileCacheAccessor.fromFile(metaInfo.dataInfo, dataFile));
+                entity = new CacheEntity<>(newCore, entity.pExpireAt);
+            } catch (Exception e) {
                 deleteFile(dataFile);
                 DataCore<FileCacheAccessor> newCore = DataCore.fromException(new FcException("本地缓存生成异常:" + e.getMessage()));
                 entity = new CacheEntity<>(newCore, currentTimeMillis + pTtlErr);

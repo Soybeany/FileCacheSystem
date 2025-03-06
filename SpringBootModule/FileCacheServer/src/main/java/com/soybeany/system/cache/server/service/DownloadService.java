@@ -156,11 +156,22 @@ public class DownloadService implements FileCacheHttpContract {
         info.eTag = response.header(BdDownloadHeaders.E_TAG);
         info.pTtl = Optional.ofNullable(response.header(BdDownloadHeaders.AGE)).map(age -> Long.parseLong(age) * 1000).orElse(DEFAULT_CACHE_AGE);
         info.contentType = response.header(BdDownloadHeaders.CONTENT_TYPE);
-        info.contentLength = Optional.ofNullable(response.header(BdDownloadHeaders.CONTENT_LENGTH)).map(Long::parseLong).orElse(null);
+        info.contentLength = getContentLength(response);
         info.contentDisposition = response.header(BdDownloadHeaders.CONTENT_DISPOSITION);
         info.md5 = response.header(BdDownloadHeaders.CONTENT_MD5);
         info.exInfo = FileCacheHttpContract.decodeExInfo(response.header(FileCacheHttpContract.HEADER_EX_INFO));
         return info;
     }
 
+    private Long getContentLength(Response response) {
+        String contentLengthStr = response.header(BdDownloadHeaders.CONTENT_RANGE);
+        if (null != contentLengthStr) {
+            String[] parts = contentLengthStr.split("/");
+            if (parts.length < 2) {
+                throw new FcException(BdDownloadHeaders.CONTENT_RANGE + "格式异常(" + contentLengthStr + ")");
+            }
+            return Long.parseLong(parts[1]);
+        }
+        return Optional.ofNullable(response.header(BdDownloadHeaders.CONTENT_LENGTH)).map(Long::parseLong).orElse(null);
+    }
 }

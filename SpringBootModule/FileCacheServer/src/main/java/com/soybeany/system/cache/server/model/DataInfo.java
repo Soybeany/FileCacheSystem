@@ -1,6 +1,7 @@
 package com.soybeany.system.cache.server.model;
 
 import com.soybeany.download.DataSupplier;
+import com.soybeany.system.cache.core.security.model.FcException;
 
 import java.io.File;
 
@@ -18,17 +19,17 @@ public class DataInfo {
     public String md5;
     public String exInfo;
 
-    public boolean isFileComplete(File file) {
-        boolean isComplete = true;
+    public void checkFileIntegrity(File file) {
         // 尝试校验文件长度
-        if (null != contentLength) {
-            isComplete &= contentLength.equals(file.length());
+        long fileLength;
+        if (null != contentLength && !contentLength.equals(fileLength = file.length())) {
+            throw new FcException("文件长度不同(" + contentLength + " - " + fileLength + ")");
         }
         // 尝试校验文件md5
-        if (null != md5) {
-            isComplete &= md5.equals(DataSupplier.calMd5Old(file));
+        String fileMd5;
+        if (null != md5 && !md5.equals(fileMd5 = DataSupplier.calMd5Old(file))) {
+            throw new FcException("文件md5不同(" + md5 + " - " + fileMd5 + ")");
         }
-        return isComplete;
     }
 
 }
