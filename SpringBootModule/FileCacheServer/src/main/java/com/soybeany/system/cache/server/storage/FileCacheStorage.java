@@ -177,6 +177,10 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         InfoFileUtils.write(metaFile, info);
     }
 
+    private static MetaInfo getMetaInfoOrThrow(File metaFile) {
+        return getMetaInfo(metaFile).orElseThrow(() -> new FcException("Meta文件(" + metaFile.getName() + ")缺失"));
+    }
+
     private static Optional<MetaInfo> getMetaInfo(File metaFile) {
         return InfoFileUtils.read(metaFile, MetaInfo.class);
     }
@@ -184,6 +188,21 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     @Override
     public String desc() {
         return "FILE";
+    }
+
+    @Override
+    public void setNextCheckStamp(DataContext<FileUid> context, long stamp) {
+        File metaFile = getMetaFile(context, getKey(context));
+        MetaInfo metaInfo = getMetaInfoOrThrow(metaFile);
+        metaInfo.nextCheckStamp = stamp;
+        writeMetaInfo(metaFile, metaInfo);
+    }
+
+    @Override
+    public long getNextCheckStamp(DataContext<FileUid> context) {
+        File metaFile = getMetaFile(context, getKey(context));
+        MetaInfo metaInfo = getMetaInfoOrThrow(metaFile);
+        return Optional.ofNullable(metaInfo.nextCheckStamp).orElse(0L);
     }
 
     @Override

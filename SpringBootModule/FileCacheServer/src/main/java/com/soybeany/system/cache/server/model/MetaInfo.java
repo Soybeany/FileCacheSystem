@@ -12,4 +12,5 @@ public class MetaInfo {
     public long pExpireAt;
 
     public DataInfo dataInfo;
+    public Long nextCheckStamp;
 }
