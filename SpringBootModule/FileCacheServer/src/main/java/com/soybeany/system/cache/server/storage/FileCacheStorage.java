@@ -240,7 +240,8 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
             core = DataCore.fromData(FileCacheAccessor.fromFile(metaInfo.dataInfo, dataFile));
             // 在临近失效时间时，更新缓存失效时间，同时避免频繁更新
             long currentTimeMillis = System.currentTimeMillis();
-            if (metaInfo.pExpireAt - currentTimeMillis < metaInfo.dataInfo.pTtl / 2) {
+            long ttl = metaInfo.pExpireAt - currentTimeMillis;
+            if (ttl > 0 && ttl < metaInfo.dataInfo.pTtl / 2) {
                 metaInfo.pExpireAt = currentTimeMillis + metaInfo.dataInfo.pTtl;
                 writeMetaInfo(metaFile, metaInfo);
             }
@@ -283,12 +284,13 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
             metaInfo.exceptionClazz = exception.getClass().getName();
         });
         metaInfo.pExpireAt = entity.pExpireAt;
-        // 拷贝未完成删除的历史文件
+        // 拷贝其它成员变量
         File metaFile = getMetaFile(context, key);
         getMetaInfo(metaFile).ifPresent(previous -> {
             metaInfo.version = previous.version;
             metaInfo.oldDataFileNames = Optional.ofNullable(previous.oldDataFileNames).orElseGet(HashSet::new);
             metaInfo.oldDataFileNames.add(previous.curDataFileName);
+            metaInfo.nextCheckStamp = previous.nextCheckStamp;
         });
         // 更新配置
         writeMetaInfo(metaFile, metaInfo);
