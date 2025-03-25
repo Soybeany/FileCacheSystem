@@ -186,7 +186,7 @@ public class DownloadAppendService implements FileCacheHttpContract {
             throw new ReDownloadException("范围值不对应");
         }
         // 修正内容长度
-        dataInfo.contentLength = Long.parseLong(matcher.group(2));
+        dataInfo.contentLength = Long.parseLong(matcher.group(3));
     }
 
     // ***********************内部类****************************

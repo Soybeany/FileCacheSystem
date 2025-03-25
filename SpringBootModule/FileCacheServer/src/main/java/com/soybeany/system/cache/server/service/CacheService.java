@@ -99,7 +99,7 @@ public class CacheService {
             try {
                 DataSupplier.builder()
                         .contentDisposition(dataInfo.contentDisposition)
-                        .contentLength(dataInfo.contentLength)
+                        .contentLength(file.length())
                         .dataFrom(file, onSetupMd5Type())
                         .contentType(dataInfo.contentType)
                         .eTag(dataInfo.eTag)
