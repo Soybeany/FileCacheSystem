@@ -84,6 +84,10 @@ public interface FileCacheHttpContract {
     }
 
     default Response getResponse(HostProvider hostProvider, String path, Map<String, String> headers) {
+        return getResponse(CLIENT, hostProvider, path, headers);
+    }
+
+    default Response getResponse(OkHttpClient client, HostProvider hostProvider, String path, Map<String, String> headers) {
         if (!path.startsWith("/")) {
             path = "/" + path;
         }
@@ -93,12 +97,12 @@ public interface FileCacheHttpContract {
                 builder.header(entry.getKey(), entry.getValue());
             }
         }
-        return getResponse(builder.build());
+        return getResponse(client, builder.build());
     }
 
-    default Response getResponse(Request request) {
+    default Response getResponse(OkHttpClient client, Request request) {
         try {
-            Response response = getClient().newCall(request).execute();
+            Response response = client.newCall(request).execute();
             if (!response.isSuccessful()) {
                 // 关流
                 BdFileUtils.closeStream(response);
@@ -118,10 +122,6 @@ public interface FileCacheHttpContract {
             throw new FcException("响应主体为空");
         }
         return body;
-    }
-
-    default OkHttpClient getClient() {
-        return CLIENT;
     }
 
     // ********************类********************

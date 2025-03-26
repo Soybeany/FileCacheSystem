@@ -53,11 +53,6 @@ public class DownloadService implements FileCacheHttpContract {
     @Autowired
     private DownloadAppendService downloadAppendService;
 
-    @Override
-    public OkHttpClient getClient() {
-        return FileCacheHttpContract.getNewClient(configProvider.getDownloadTimeoutSeconds());
-    }
-
     public FileCacheAccessor startDownload(FileUid fileUid) {
         ServerInfo serverInfo = configProvider.getAppServer(fileUid);
         // 尝试获得令牌
@@ -72,7 +67,7 @@ public class DownloadService implements FileCacheHttpContract {
     public boolean isNotModified(FileUid fileUid, String eTag) {
         ServerInfo serverInfo = configProvider.getAppServer(fileUid);
         try {
-            Response response = getResponse(serverInfo, getPath(fileUid, serverInfo), getHeaders(fileUid, serverInfo));
+            Response response = getResponse(configProvider.getCheckTimeoutSeconds(), serverInfo, getPath(fileUid, serverInfo), getHeaders(fileUid, serverInfo));
             return eTag.equals(response.header(BdDownloadHeaders.E_TAG));
         } catch (Exception e) {
             LOG.warn("更新检测异常: {}", e.getMessage());
@@ -87,7 +82,7 @@ public class DownloadService implements FileCacheHttpContract {
         while (true) {
             Map<String, String> headers = getHeaders(fileUid, serverInfo);
             downloadAppendService.beforeRequest(fileUid, headers);
-            Response response = getResponse(serverInfo, path, headers);
+            Response response = getResponse(configProvider.getDownloadTimeoutSeconds(), serverInfo, path, headers);
             DataInfo dataInfo = toDataInfo(response);
             try {
                 return downloadAppendService.getFileCacheAccessor(fileUid, response, dataInfo)
@@ -98,8 +93,9 @@ public class DownloadService implements FileCacheHttpContract {
         }
     }
 
-    private Response getResponse(ServerInfo serverInfo, String path, Map<String, String> headers) {
-        return getResponse(PollingHostProvider.fromArr(serverInfo.fileDownloadUrl), path, headers);
+    private Response getResponse(int timeoutSec, ServerInfo serverInfo, String path, Map<String, String> headers) {
+        OkHttpClient client = FileCacheHttpContract.getNewClient(timeoutSec);
+        return getResponse(client, PollingHostProvider.fromArr(serverInfo.fileDownloadUrl), path, headers);
     }
 
     private String getPath(FileUid fileUid, ServerInfo serverInfo) {

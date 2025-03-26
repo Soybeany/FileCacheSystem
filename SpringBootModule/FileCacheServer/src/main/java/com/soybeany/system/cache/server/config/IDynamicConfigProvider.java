@@ -9,6 +9,8 @@ public interface IDynamicConfigProvider {
 
     FileUid toFileUid(String token);
 
+    int getCheckTimeoutSeconds();
+
     int getDownloadTimeoutSeconds();
 
 }

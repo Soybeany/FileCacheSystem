@@ -22,6 +22,7 @@ public class AppConfig {
 
     public long tempFileThreshold = 10485760;
     public long tempFileRetainMills = 3600000;
+    public int checkTimeoutSec = 10;
     public int downloadTimeoutSec = 10;
     public int concurrentMaxConnections = 5;
     public int concurrentWaitTimeoutSec = 300;
@@ -46,6 +47,10 @@ public class AppConfig {
 
     public void setTempFileRetainSec(int tempFileRetainSec) {
         this.tempFileRetainMills = tempFileRetainSec * 1000L;
+    }
+
+    public void setCheckTimeoutSec(int checkTimeoutSec) {
+        this.checkTimeoutSec = checkTimeoutSec;
     }
 
     public void setDownloadTimeoutSec(int downloadTimeoutSec) {

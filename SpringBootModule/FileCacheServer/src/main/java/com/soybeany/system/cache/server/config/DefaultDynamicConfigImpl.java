@@ -42,6 +42,11 @@ public class DefaultDynamicConfigImpl implements IDynamicConfigProvider, FileCac
     }
 
     @Override
+    public int getCheckTimeoutSeconds() {
+        return appConfig.checkTimeoutSec;
+    }
+
+    @Override
     public int getDownloadTimeoutSeconds() {
         return appConfig.downloadTimeoutSec;
     }
