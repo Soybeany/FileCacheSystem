@@ -25,6 +25,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import static com.soybeany.download.core.BdDownloadHeaders.BYTES;
+import static com.soybeany.download.core.BdDownloadHeaders.RANGE;
+
 /**
  * * 检查有没临时文件
  * - 有，走断点续传
@@ -67,7 +70,9 @@ public class DownloadService implements FileCacheHttpContract {
     public boolean isNotModified(FileUid fileUid, String eTag) {
         ServerInfo serverInfo = configProvider.getAppServer(fileUid);
         try {
-            Response response = getResponse(configProvider.getCheckTimeoutSeconds(), serverInfo, getPath(fileUid, serverInfo), getHeaders(fileUid, serverInfo));
+            Map<String, String> headers = getHeaders(fileUid, serverInfo);
+            headers.put(RANGE, BYTES + "=0-1");
+            Response response = getResponse(configProvider.getCheckTimeoutSeconds(), serverInfo, getPath(fileUid, serverInfo), headers);
             return eTag.equals(response.header(BdDownloadHeaders.E_TAG));
         } catch (Exception e) {
             LOG.warn("更新检测异常: {}", e.getMessage());
