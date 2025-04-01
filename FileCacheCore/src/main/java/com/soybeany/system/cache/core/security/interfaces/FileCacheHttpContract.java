@@ -83,10 +83,16 @@ public interface FileCacheHttpContract {
         }
     }
 
+    /**
+     * 要注意手工关流
+     */
     default Response getResponse(HostProvider hostProvider, String path, Map<String, String> headers) {
         return getResponse(CLIENT, hostProvider, path, headers);
     }
 
+    /**
+     * 要注意手工关流
+     */
     default Response getResponse(OkHttpClient client, HostProvider hostProvider, String path, Map<String, String> headers) {
         if (!path.startsWith("/")) {
             path = "/" + path;
@@ -100,6 +106,9 @@ public interface FileCacheHttpContract {
         return getResponse(client, builder.build());
     }
 
+    /**
+     * 要注意手工关流
+     */
     default Response getResponse(OkHttpClient client, Request request) {
         try {
             Response response = client.newCall(request).execute();
