@@ -23,6 +23,17 @@ public class DataInfo {
     public String md5;
     public String exInfo;
 
+    public static String calMd5(File file, Md5Type md5Type) {
+        switch (md5Type) {
+            case OLD:
+                return DataSupplier.calMd5Old(file);
+            case STD:
+                return BdFileUtils.md5(file);
+            default:
+                throw new FcException("使用了不支持的md5Type(" + md5Type + ")");
+        }
+    }
+
     public void checkFileIntegrity(File file) {
         // 尝试校验文件长度
         long fileLength;
@@ -31,17 +42,7 @@ public class DataInfo {
         }
         // 尝试校验文件md5
         if (null != md5) {
-            String fileMd5;
-            switch (Optional.ofNullable(md5Type).orElse(Md5Type.OLD)) {
-                case OLD:
-                    fileMd5 = DataSupplier.calMd5Old(file);
-                    break;
-                case STD:
-                    fileMd5 = BdFileUtils.md5(file);
-                    break;
-                default:
-                    throw new FcException("使用了不支持的md5Type(" + md5Type + ")");
-            }
+            String fileMd5 = calMd5(file, Optional.ofNullable(md5Type).orElse(Md5Type.OLD));
             if (!md5.equals(fileMd5)) {
                 throw new FcException("文件md5不同(" + md5 + " - " + fileMd5 + ")");
             }

@@ -94,9 +94,6 @@ public class CacheService {
             if (null != dataInfo.exInfo) {
                 response.setHeader(FcHeaders.EX_INFO, FileCacheHttpContract.encodeExInfo(dataInfo.exInfo));
             }
-            if (null != dataInfo.md5Type) {
-                response.setHeader(FcHeaders.MD5_TYPE, dataInfo.md5Type.name());
-            }
             response.setHeader(FcHeaders.DATA_FROM, getFromDesc(from));
             // 数据下载
             try {
@@ -106,7 +103,7 @@ public class CacheService {
                         .dataFrom(file, Md5Type.WITHOUT)
                         .contentType(dataInfo.contentType)
                         .eTag(dataInfo.eTag)
-                        .md5(range -> dataInfo.md5)
+                        .md5(range -> Md5Type.STD.equals(dataInfo.md5Type) ? dataInfo.md5 : DataInfo.calMd5(file, Md5Type.STD))
                         .enableRandomAccess(request)
                         .start(response);
             } catch (Exception e) {
