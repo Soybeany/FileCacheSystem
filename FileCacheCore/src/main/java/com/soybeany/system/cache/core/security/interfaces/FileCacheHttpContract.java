@@ -36,10 +36,6 @@ public interface FileCacheHttpContract {
 
     // *****其它*****
 
-    String HEADER_AUTHORIZATION = "Authorization";
-    String HEADER_ERR_MSG = "errMsg";
-    String HEADER_EX_INFO = "ex_info";
-
     OkHttpClient CLIENT = getNewClient(5);
 
     // ********************方法********************
@@ -62,7 +58,7 @@ public interface FileCacheHttpContract {
                 return;
             }
             response.reset();
-            response.setHeader(HEADER_ERR_MSG, URLEncoder.encode(e.getMessage(), "UTF-8"));
+            response.setHeader(FcHeaders.ERR_MSG, URLEncoder.encode(e.getMessage(), "UTF-8"));
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
@@ -116,7 +112,7 @@ public interface FileCacheHttpContract {
                 // 关流
                 BdFileUtils.closeStream(response);
                 // 抛出异常信息
-                String decodedMsg = response.header(HEADER_ERR_MSG);
+                String decodedMsg = response.header(FcHeaders.ERR_MSG);
                 String errMsg = (null != decodedMsg ? URLDecoder.decode(decodedMsg, "UTF-8") : null);
                 throw new FcException("请求外部系统异常，code:" + response.code() + "，errMsg:" + errMsg);
             }

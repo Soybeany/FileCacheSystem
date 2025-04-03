@@ -1,7 +1,9 @@
 package com.soybeany.system.cache.server.service;
 
 import com.soybeany.download.core.BdDownloadHeaders;
+import com.soybeany.download.core.Md5Type;
 import com.soybeany.system.cache.core.dto.FileUid;
+import com.soybeany.system.cache.core.security.interfaces.FcHeaders;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.system.cache.core.security.model.PollingHostProvider;
@@ -64,12 +66,20 @@ public class DownloadService implements FileCacheHttpContract {
         }
     }
 
-    public boolean isNotModified(FileUid fileUid, String eTag) {
+    public boolean isNotModified(FileUid fileUid, FileCacheAccessor.Local accessor) {
         ServerInfo serverInfo = configProvider.getAppServer(fileUid);
-        try (Response response = getResponse(configProvider.getCheckTimeoutSeconds(), serverInfo, getPath(fileUid, serverInfo), getHeaders(fileUid, serverInfo))) {
-            return eTag.equals(response.header(BdDownloadHeaders.E_TAG));
+        // 检查本地文件是否有被修改
+        try {
+            accessor.dataInfo.checkFileIntegrity(accessor.file());
         } catch (Exception e) {
-            LOG.warn("更新检测异常: {}", e.getMessage());
+            LOG.warn("本地源文件检测异常: {}", e.getMessage());
+            return false;
+        }
+        // 检查远端源文件是否有更新
+        try (Response response = getResponse(configProvider.getCheckTimeoutSeconds(), serverInfo, getPath(fileUid, serverInfo), getHeaders(fileUid, serverInfo))) {
+            return accessor.dataInfo.eTag.equals(response.header(BdDownloadHeaders.E_TAG));
+        } catch (Exception e) {
+            LOG.warn("远端源文件更新检测异常: {}", e.getMessage());
             return true;
         }
     }
@@ -104,11 +114,12 @@ public class DownloadService implements FileCacheHttpContract {
     private Map<String, String> getHeaders(FileUid fileUid, ServerInfo serverInfo) {
         Map<String, String> headers = new HashMap<>();
         if (null != serverInfo.authorization) {
-            headers.put(FileCacheHttpContract.HEADER_AUTHORIZATION, serverInfo.authorization);
+            headers.put(FcHeaders.AUTHORIZATION, serverInfo.authorization);
         }
         if (null != fileUid.exInfo) {
-            headers.put(FileCacheHttpContract.HEADER_EX_INFO, fileUid.exInfo);
+            headers.put(FcHeaders.EX_INFO, fileUid.exInfo);
         }
+        headers.put(FcHeaders.MD5_TYPE, Md5Type.STD.name());
         return headers;
     }
 
@@ -154,7 +165,10 @@ public class DownloadService implements FileCacheHttpContract {
         info.contentLength = Optional.ofNullable(response.header(BdDownloadHeaders.CONTENT_LENGTH)).map(Long::parseLong).orElse(null);
         info.contentDisposition = response.header(BdDownloadHeaders.CONTENT_DISPOSITION);
         info.md5 = response.header(BdDownloadHeaders.CONTENT_MD5);
-        info.exInfo = FileCacheHttpContract.decodeExInfo(response.header(FileCacheHttpContract.HEADER_EX_INFO));
+        if (null != info.md5) {
+            info.md5Type = Optional.ofNullable(response.header(FcHeaders.MD5_TYPE)).map(Md5Type::valueOf).orElse(Md5Type.OLD);
+        }
+        info.exInfo = FileCacheHttpContract.decodeExInfo(response.header(FcHeaders.EX_INFO));
         return info;
     }
 

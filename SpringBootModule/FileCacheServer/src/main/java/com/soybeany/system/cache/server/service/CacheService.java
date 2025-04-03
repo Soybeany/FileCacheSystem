@@ -10,6 +10,7 @@ import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.download.DataSupplier;
 import com.soybeany.download.core.Md5Type;
 import com.soybeany.system.cache.core.dto.FileUid;
+import com.soybeany.system.cache.core.security.interfaces.FcHeaders;
 import com.soybeany.system.cache.core.security.interfaces.FileCacheHttpContract;
 import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.system.cache.core.util.LogUtils;
@@ -40,7 +41,6 @@ import java.util.function.Supplier;
 @Service
 public class CacheService {
 
-    private static final String HEADER_DATA_FROM = "x-data-from";
     private static final Logger LOG = LoggerFactory.getLogger(CacheService.class);
 
     private final Map<String, Set<String>> downloadingMap = new HashMap<>();
@@ -56,7 +56,7 @@ public class CacheService {
         if (!dataPack.norm()) {
             return false;
         }
-        return !downloadService.isNotModified(fileUid, dataPack.getData().dataInfo.eTag);
+        return !downloadService.isNotModified(fileUid, (FileCacheAccessor.Local) dataPack.getData());
     };
     private FileCacheStorage cacheStorage;
     private DataManager<FileUid, FileCacheAccessor> dataManager;
@@ -92,17 +92,21 @@ public class CacheService {
         handleContentInfo("下载", token, request, response, (from, dataInfo, file) -> {
             // 自定义header设置
             if (null != dataInfo.exInfo) {
-                response.setHeader(FileCacheHttpContract.HEADER_EX_INFO, FileCacheHttpContract.encodeExInfo(dataInfo.exInfo));
+                response.setHeader(FcHeaders.EX_INFO, FileCacheHttpContract.encodeExInfo(dataInfo.exInfo));
             }
-            response.setHeader(HEADER_DATA_FROM, getFromDesc(from));
+            if (null != dataInfo.md5Type) {
+                response.setHeader(FcHeaders.MD5_TYPE, dataInfo.md5Type.name());
+            }
+            response.setHeader(FcHeaders.DATA_FROM, getFromDesc(from));
             // 数据下载
             try {
                 DataSupplier.builder()
                         .contentDisposition(dataInfo.contentDisposition)
                         .contentLength(file.length())
-                        .dataFrom(file, onSetupMd5Type())
+                        .dataFrom(file, Md5Type.WITHOUT)
                         .contentType(dataInfo.contentType)
                         .eTag(dataInfo.eTag)
+                        .md5(range -> dataInfo.md5)
                         .enableRandomAccess(request)
                         .start(response);
             } catch (Exception e) {
@@ -141,10 +145,6 @@ public class CacheService {
         } finally {
             LOG.info(desc + "结束，耗时:" + (System.currentTimeMillis() - startTime) + "ms");
         }
-    }
-
-    protected Md5Type onSetupMd5Type() {
-        return Md5Type.STD_PARTIAL;
     }
 
     protected String toErrMsg(Exception e) {
@@ -186,14 +186,14 @@ public class CacheService {
     private void handleContentInfo(String desc, String token, HttpServletRequest request, HttpServletResponse response, CacheService.ICallback callback) {
         try {
             FileUid fileUid = configProvider.toFileUid(token);
-            fileUid.exInfo = FileCacheHttpContract.decodeExInfo(request.getHeader(FileCacheHttpContract.HEADER_EX_INFO));
+            fileUid.exInfo = FileCacheHttpContract.decodeExInfo(request.getHeader(FcHeaders.EX_INFO));
             retrieveCache(desc, fileUid, callback);
         } catch (Exception e) {
             LOG.error(LogUtils.exceptionToString(e));
             if (response.isCommitted()) {
                 return;
             }
-            response.setHeader(FileCacheHttpContract.HEADER_ERR_MSG, toErrMsg(e));
+            response.setHeader(FcHeaders.ERR_MSG, toErrMsg(e));
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
