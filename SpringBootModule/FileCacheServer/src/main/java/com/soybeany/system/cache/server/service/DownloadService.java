@@ -164,10 +164,8 @@ public class DownloadService implements FileCacheHttpContract {
         info.contentType = response.header(BdDownloadHeaders.CONTENT_TYPE);
         info.contentLength = Optional.ofNullable(response.header(BdDownloadHeaders.CONTENT_LENGTH)).map(Long::parseLong).orElse(null);
         info.contentDisposition = response.header(BdDownloadHeaders.CONTENT_DISPOSITION);
+        info.md5Type = Optional.ofNullable(response.header(FcHeaders.MD5_TYPE)).map(Md5Type::valueOf).orElse(null);
         info.md5 = response.header(BdDownloadHeaders.CONTENT_MD5);
-        if (null != info.md5) {
-            info.md5Type = Optional.ofNullable(response.header(FcHeaders.MD5_TYPE)).map(Md5Type::valueOf).orElse(Md5Type.OLD);
-        }
         info.exInfo = FileCacheHttpContract.decodeExInfo(response.header(FcHeaders.EX_INFO));
         return info;
     }

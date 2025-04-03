@@ -6,6 +6,7 @@ import com.soybeany.system.cache.core.security.model.FcException;
 import com.soybeany.util.file.BdFileUtils;
 
 import java.io.File;
+import java.util.Optional;
 
 /**
  * @author Soybeany
@@ -31,7 +32,7 @@ public class DataInfo {
         // 尝试校验文件md5
         if (null != md5) {
             String fileMd5;
-            switch (md5Type) {
+            switch (Optional.ofNullable(md5Type).orElse(Md5Type.OLD)) {
                 case OLD:
                     fileMd5 = DataSupplier.calMd5Old(file);
                     break;
