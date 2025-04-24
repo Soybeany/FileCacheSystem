@@ -1,5 +1,6 @@
 package com.soybeany.system.cache.core.util;
 
+import com.soybeany.cache.v2.exception.BdCacheException;
 import com.soybeany.system.cache.core.security.model.FcException;
 
 import java.io.IOException;
@@ -10,7 +11,7 @@ public class LogUtils {
 
     public static String exceptionToString(Throwable e) {
         // 已知异常直接提取文本
-        if (e instanceof FcException) {
+        if (e instanceof FcException || e instanceof BdCacheException) {
             return e.getMessage();
         }
         // 未知异常打印堆栈
