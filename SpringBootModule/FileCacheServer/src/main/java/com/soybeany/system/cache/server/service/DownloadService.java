@@ -75,8 +75,11 @@ public class DownloadService implements FileCacheHttpContract {
             LOG.warn("本地源文件检测异常: {}", e.getMessage());
             return false;
         }
+        // 只校验ETag，不需要计算md5
+        Map<String, String> headers = getHeaders(fileUid, serverInfo);
+        headers.put(FcHeaders.MD5_TYPE, Md5Type.WITHOUT.name());
         // 检查远端源文件是否有更新
-        try (Response response = getResponse(configProvider.getCheckTimeoutSeconds(), serverInfo, getPath(fileUid, serverInfo), getHeaders(fileUid, serverInfo))) {
+        try (Response response = getResponse(configProvider.getCheckTimeoutSeconds(), serverInfo, getPath(fileUid, serverInfo), headers)) {
             return accessor.dataInfo.eTag.equals(response.header(BdDownloadHeaders.E_TAG));
         } catch (Exception e) {
             LOG.warn("远端源文件更新检测异常: {}", e.getMessage());
