@@ -91,9 +91,8 @@ public class DownloadService implements FileCacheHttpContract {
         while (true) {
             Map<String, String> headers = getHeaders(fileUid, serverInfo);
             downloadAppendService.beforeRequest(fileUid, headers);
-            Response response = getResponse(configProvider.getDownloadTimeoutSeconds(), serverInfo, path, headers);
-            DataInfo dataInfo = toDataInfo(response);
-            try {
+            try (Response response = getResponse(configProvider.getDownloadTimeoutSeconds(), serverInfo, path, headers)) {
+                DataInfo dataInfo = toDataInfo(response);
                 return downloadAppendService.getFileCacheAccessor(fileUid, response, dataInfo)
                         .orElseGet(() -> FileCacheAccessor.fromStream(dataInfo, () -> getNonNullBody(response.body()).byteStream()));
             } catch (RetryException e) {

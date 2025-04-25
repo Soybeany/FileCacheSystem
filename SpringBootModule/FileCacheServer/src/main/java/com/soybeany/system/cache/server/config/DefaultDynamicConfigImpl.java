@@ -59,9 +59,9 @@ public class DefaultDynamicConfigImpl implements IDynamicConfigProvider, FileCac
     }
 
     protected String getSecretKeysData() {
-        Response response = getResponse(appConfig.managerHosts, FileCacheHttpContract.GET_SECRET_KEY_LIST, null);
         String bodyStr;
-        try (ResponseBody body = response.body()) {
+        try (Response response = getResponse(appConfig.managerHosts, FileCacheHttpContract.GET_SECRET_KEY_LIST, null);
+             ResponseBody body = response.body()) {
             bodyStr = getNonNullBody(body).string();
         } catch (IOException e) {
             throw new FcException("获取secretKeysData异常:" + e.getMessage());

@@ -10,6 +10,7 @@ import com.soybeany.system.cache.server.model.RetryException;
 import com.soybeany.system.cache.server.storage.FileCacheAccessor;
 import com.soybeany.util.file.BdFileUtils;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,8 +128,9 @@ public class DownloadAppendService implements FileCacheHttpContract {
         BdFileUtils.mkParentDirs(info.getTempFile());
         // 记录当次下载的内容长度
         long before = info.getTempFile().length();
-        try (FileOutputStream os = new FileOutputStream(info.getTempFile(), append)) {
-            BdFileUtils.readWriteStream(getNonNullBody(response.body()).byteStream(), os);
+        try (FileOutputStream os = new FileOutputStream(info.getTempFile(), append);
+             ResponseBody body = response.body()) {
+            BdFileUtils.readWriteStream(getNonNullBody(body).byteStream(), os);
         } catch (IOException e) {
             long downloadBytes = info.getTempFile().length() - before;
             String msg = "临时文件写入异常:" + e.getMessage();
