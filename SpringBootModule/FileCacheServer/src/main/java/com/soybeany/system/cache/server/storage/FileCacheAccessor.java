@@ -3,11 +3,11 @@ package com.soybeany.system.cache.server.storage;
 import com.soybeany.system.cache.server.model.DataInfo;
 import com.soybeany.util.file.BdFileUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.function.Supplier;
 
 /**
  * 使用本地文件系统进行存储
@@ -29,8 +29,8 @@ public abstract class FileCacheAccessor {
         return new Local(info, file);
     }
 
-    public static FileCacheAccessor fromStream(DataInfo info, Supplier<InputStream> provider) {
-        return new Stream(info, provider);
+    public static FileCacheAccessor fromBytes(DataInfo info, byte[] bytes) {
+        return new Bytes(info, bytes);
     }
 
     // ***********************成员方法****************************
@@ -62,18 +62,18 @@ public abstract class FileCacheAccessor {
         }
     }
 
-    public static class Stream extends FileCacheAccessor {
+    public static class Bytes extends FileCacheAccessor {
 
-        private final Supplier<InputStream> isProvider;
+        private final byte[] bytes;
 
-        public Stream(DataInfo info, Supplier<InputStream> isProvider) {
+        public Bytes(DataInfo info, byte[] bytes) {
             super(info);
-            this.isProvider = isProvider;
+            this.bytes = bytes;
         }
 
         @Override
         public void writeTo(File target) throws IOException {
-            try (InputStream is = isProvider.get()) {
+            try (ByteArrayInputStream is = new ByteArrayInputStream(bytes)) {
                 BdFileUtils.readWriteStream(is, target);
             }
         }

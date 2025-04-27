@@ -13,6 +13,8 @@ import com.soybeany.system.cache.server.config.ServerInfo;
 import com.soybeany.system.cache.server.model.DataInfo;
 import com.soybeany.system.cache.server.model.RetryException;
 import com.soybeany.system.cache.server.storage.FileCacheAccessor;
+import com.soybeany.util.file.BdFileUtils;
+import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
 import org.slf4j.Logger;
@@ -96,8 +98,16 @@ public class DownloadService implements FileCacheHttpContract {
             downloadAppendService.beforeRequest(fileUid, headers);
             try (Response response = getResponse(configProvider.getDownloadTimeoutSeconds(), serverInfo, path, headers)) {
                 DataInfo dataInfo = toDataInfo(response);
-                return downloadAppendService.getFileCacheAccessor(fileUid, response, dataInfo)
-                        .orElseGet(() -> FileCacheAccessor.fromStream(dataInfo, () -> getNonNullBody(response.body()).byteStream()));
+                // 先尝试按断点续传方式获取文件访问器
+                Optional<FileCacheAccessor> accessorOpt = downloadAppendService.getFileCacheAccessor(fileUid, response, dataInfo);
+                if (accessorOpt.isPresent()) {
+                    return accessorOpt.get();
+                }
+                // 按普通方式获取文件访问器
+                try (ByteOutputStream bos = new ByteOutputStream()) {
+                    BdFileUtils.readWriteStream(getNonNullBody(response.body()).byteStream(), bos);
+                    return FileCacheAccessor.fromBytes(dataInfo, bos.getBytes());
+                }
             } catch (RetryException e) {
                 LOG.info(e.getMessage());
             }

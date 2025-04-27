@@ -20,7 +20,7 @@ public class AppConfig {
     public String fileCacheDir;
     public Float maxUsedPercent;
 
-    public long tempFileThreshold = 10485760;
+    public long tempFileThreshold = toBytes(2);
     public long tempFileRetainMills = 3600000;
     public int checkTimeoutSec = 10;
     public int downloadTimeoutSec = 10;
@@ -42,7 +42,7 @@ public class AppConfig {
     }
 
     public void setTempFileThresholdM(int tempFileThresholdM) {
-        this.tempFileThreshold = tempFileThresholdM * 1024 * 1024L;
+        this.tempFileThreshold = toBytes(tempFileThresholdM);
     }
 
     public void setTempFileRetainSec(int tempFileRetainSec) {
@@ -69,4 +69,7 @@ public class AppConfig {
         this.managerHosts = PollingHostProvider.fromString(managerHosts);
     }
 
+    private long toBytes(int m) {
+        return m * 1024 * 1024L;
+    }
 }
