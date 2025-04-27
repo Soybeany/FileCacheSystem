@@ -14,7 +14,6 @@ import com.soybeany.system.cache.server.model.DataInfo;
 import com.soybeany.system.cache.server.model.RetryException;
 import com.soybeany.system.cache.server.storage.FileCacheAccessor;
 import com.soybeany.util.file.BdFileUtils;
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
 import org.slf4j.Logger;
@@ -22,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -104,9 +105,11 @@ public class DownloadService implements FileCacheHttpContract {
                     return accessorOpt.get();
                 }
                 // 按普通方式获取文件访问器
-                try (ByteOutputStream bos = new ByteOutputStream()) {
+                try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
                     BdFileUtils.readWriteStream(getNonNullBody(response.body()).byteStream(), bos);
-                    return FileCacheAccessor.fromBytes(dataInfo, bos.getBytes());
+                    return FileCacheAccessor.fromBytes(dataInfo, bos.toByteArray());
+                } catch (IOException e) {
+                    throw new FcException("BOS创建异常:" + e.getMessage());
                 }
             } catch (RetryException e) {
                 LOG.info(e.getMessage());
