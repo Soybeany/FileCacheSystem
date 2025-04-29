@@ -1,6 +1,6 @@
 package com.soybeany.system.cache.core.security.model;
 
-import com.soybeany.cache.v2.contract.IDatasource;
+import com.soybeany.cache.v2.contract.user.IDatasource;
 import com.soybeany.cache.v2.core.DataManager;
 import com.soybeany.cache.v2.log.ILogWriter;
 import com.soybeany.cache.v2.log.StdLogger;
@@ -52,7 +52,7 @@ public class SecretKeyProvider {
     private DataManager<String, WithCreateTime> getNewDataManager() {
         return DataManager.Builder
                 .get("密钥管理器", new Datasource())
-                .logger(null != mLogWriter ? new StdLogger<>(mLogWriter) : null)
+                .logger(null != mLogWriter ? new StdLogger(mLogWriter) : null)
                 .withCache(new LruMemCacheStorage.Builder<String, WithCreateTime>().build())
                 .build();
     }

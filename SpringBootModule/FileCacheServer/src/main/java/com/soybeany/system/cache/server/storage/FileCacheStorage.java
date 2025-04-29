@@ -3,9 +3,9 @@ package com.soybeany.system.cache.server.storage;
 import com.google.gson.Gson;
 import com.soybeany.cache.v2.exception.NoCacheException;
 import com.soybeany.cache.v2.model.CacheEntity;
-import com.soybeany.cache.v2.model.DataContext;
 import com.soybeany.cache.v2.model.DataCore;
 import com.soybeany.cache.v2.model.DataPack;
+import com.soybeany.cache.v2.model.DataParam;
 import com.soybeany.cache.v2.storage.StdStorage;
 import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.model.FcException;
@@ -191,22 +191,22 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     }
 
     @Override
-    public void setNextCheckStamp(DataContext<FileUid> context, long stamp) {
-        File metaFile = getMetaFile(context, getKey(context));
+    public void setNextCheckStamp(DataParam<FileUid> param, long stamp) {
+        File metaFile = getMetaFile(param, getStorageKey(param));
         MetaInfo metaInfo = getMetaInfoOrThrow(metaFile);
         metaInfo.nextCheckStamp = stamp;
         writeMetaInfo(metaFile, metaInfo);
     }
 
     @Override
-    public long getNextCheckStamp(DataContext<FileUid> context) {
-        File metaFile = getMetaFile(context, getKey(context));
+    public long getNextCheckStamp(DataParam<FileUid> param) {
+        File metaFile = getMetaFile(param, getStorageKey(param));
         MetaInfo metaInfo = getMetaInfoOrThrow(metaFile);
         return Optional.ofNullable(metaInfo.nextCheckStamp).orElse(0L);
     }
 
     @Override
-    public void onClearCache(DataContext.Core<FileUid, FileCacheAccessor> core) {
+    public void onClearCache() {
         Optional.ofNullable(cacheDir.listFiles()).ifPresent(arr -> {
             for (File file : arr) {
                 deleteFile(file);
@@ -215,7 +215,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     }
 
     @Override
-    public int cachedDataCount(DataContext.Core<FileUid, FileCacheAccessor> core) {
+    public int cachedDataCount() {
         return Optional.ofNullable(cacheDir.listFiles())
                 .map(arr -> (int) Stream.of(arr)
                         .flatMap(serverFile -> Arrays.stream(Optional.ofNullable(new File(serverFile, DIR_DATA).list()).orElseGet(() -> new String[0])))
@@ -225,14 +225,14 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     }
 
     @Override
-    protected CacheEntity<FileCacheAccessor> onLoadCacheEntity(DataContext<FileUid> context, String key) throws NoCacheException {
+    protected CacheEntity<FileCacheAccessor> onLoadCacheEntity(DataParam<FileUid> param, String key) throws NoCacheException {
         // 读取配置
-        File metaFile = getMetaFile(context, key);
+        File metaFile = getMetaFile(param, key);
         MetaInfo metaInfo = getMetaInfo(metaFile).orElseThrow(NoCacheException::new);
         DataCore<FileCacheAccessor> core;
         // 依据配置创建不同core
         if (metaInfo.norm) {
-            File dataFile = getDataFile(context, metaInfo);
+            File dataFile = getDataFile(param, metaInfo);
             // 文件不存在，或文件尺寸对不上
             if (!dataFile.exists()) {
                 throw new NoCacheException();
@@ -252,9 +252,9 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     }
 
     @Override
-    protected CacheEntity<FileCacheAccessor> onSaveCacheEntity(DataContext<FileUid> context, String key, CacheEntity<FileCacheAccessor> entity) {
+    protected CacheEntity<FileCacheAccessor> onSaveCacheEntity(DataParam<FileUid> param, String key, CacheEntity<FileCacheAccessor> entity) {
         // 先尽可能保障空间足够
-        confirmDiskSpace(context);
+        confirmDiskSpace(param);
         // 再执行后续流程
         MetaInfo metaInfo = new MetaInfo();
         long currentTimeMillis = System.currentTimeMillis();
@@ -263,7 +263,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         if (entity.dataCore.norm) {
             // 更新数据文件与配置文件
             FileCacheAccessor accessor = entity.dataCore.data;
-            File dataFile = getDataFile(context, metaInfo);
+            File dataFile = getDataFile(param, metaInfo);
             try {
                 accessor.writeTo(dataFile);
                 // 改写缓存核心
@@ -285,7 +285,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         });
         metaInfo.pExpireAt = entity.pExpireAt;
         // 拷贝其它成员变量
-        File metaFile = getMetaFile(context, key);
+        File metaFile = getMetaFile(param, key);
         getMetaInfo(metaFile).ifPresent(previous -> {
             metaInfo.version = previous.version;
             metaInfo.oldDataFileNames = Optional.ofNullable(previous.oldDataFileNames).orElseGet(HashSet::new);
@@ -298,8 +298,8 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     }
 
     @Override
-    protected synchronized void onRemoveCacheEntity(DataContext<FileUid> context, String key) {
-        File metaFile = getMetaFile(context, key);
+    protected synchronized void onRemoveCacheEntity(DataParam<FileUid> param, String key) {
+        File metaFile = getMetaFile(param, key);
         getMetaInfo(metaFile).ifPresent(info -> deleteDataAndMetaFiles(metaFile, info, true));
     }
 
@@ -315,7 +315,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
 
     // ***********************内部方法****************************
 
-    private void confirmDiskSpace(DataContext<FileUid> context) {
+    private void confirmDiskSpace(DataParam<FileUid> param) {
         // 空间占用没达到阈值，则不处理
         long freeSpaceOld = cacheDir.getFreeSpace();
         long spaceNeeded = minFreeSpaceRequired - freeSpaceOld;
@@ -324,7 +324,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         }
         // 得到所需删除的文件列表
         long[] remainSpaceToSqueeze = {spaceNeeded};
-        File[] filesToDelete = new File(cacheDir, "/" + context.param.param.server + DIR_DATA).listFiles(file -> {
+        File[] filesToDelete = new File(cacheDir, "/" + param.value.server + DIR_DATA).listFiles(file -> {
             if (remainSpaceToSqueeze[0] < 0) {
                 return false;
             }
@@ -336,7 +336,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         }
         for (File file : filesToDelete) {
             String key = file.getName().substring(0, file.getName().lastIndexOf("_"));
-            onRemoveCacheEntity(context, key);
+            onRemoveCacheEntity(param, key);
         }
         long freeSpaceNew = cacheDir.getFreeSpace();
         LOG.warn("触发了满磁盘自动清理(" + freeSpaceOld + " -> " + freeSpaceNew + ")，" + "清理了" + filesToDelete.length + "个文件");
@@ -358,16 +358,16 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
         return (FcException) e;
     }
 
-    private File getMetaFile(DataContext<FileUid> context, String key) {
-        return getMetaFile(context.param.param, key);
+    private File getMetaFile(DataParam<FileUid> param, String key) {
+        return getMetaFile(param.value, key);
     }
 
     private File getMetaFile(FileUid fileUid, String key) {
         return new File(cacheDir, "/" + fileUid.server + DIR_META + "/" + key + SUFFIX_META);
     }
 
-    private File getDataFile(DataContext<FileUid> context, MetaInfo info) {
-        return new File(cacheDir, "/" + context.param.param.server + DIR_DATA + "/" + info.curDataFileName + SUFFIX_DATA);
+    private File getDataFile(DataParam<FileUid> param, MetaInfo info) {
+        return new File(cacheDir, "/" + param.value.server + DIR_DATA + "/" + info.curDataFileName + SUFFIX_DATA);
     }
 
 }

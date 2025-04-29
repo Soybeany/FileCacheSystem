@@ -1,8 +1,8 @@
 package com.soybeany.system.cache.server.service;
 
-import com.soybeany.cache.v2.contract.ICacheChecker;
-import com.soybeany.cache.v2.contract.ICacheStorage;
-import com.soybeany.cache.v2.contract.IDatasource;
+import com.soybeany.cache.v2.contract.frame.ICacheStorage;
+import com.soybeany.cache.v2.contract.user.ICacheChecker;
+import com.soybeany.cache.v2.contract.user.IDatasource;
 import com.soybeany.cache.v2.core.DataManager;
 import com.soybeany.cache.v2.exception.NoDataSourceException;
 import com.soybeany.cache.v2.log.StdLogger;
@@ -162,7 +162,7 @@ public class CacheService {
                 .withCache(cacheStorage)
                 .enableDataCheck(fileUid -> Optional.ofNullable(configProvider.getAppServer(fileUid).checkIntervalSec)
                         .orElse(Integer.MAX_VALUE) * 1000L, checker)
-                .logger(new StdLogger<>(new CacheLogWriter()))
+                .logger(new StdLogger(new CacheLogWriter()))
                 .build();
         cacheStorage.start();
     }

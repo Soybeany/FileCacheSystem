@@ -1,6 +1,6 @@
 package com.soybeany.system.cache.core.security.model;
 
-import com.soybeany.cache.v2.contract.IDatasource;
+import com.soybeany.cache.v2.contract.user.IDatasource;
 import com.soybeany.cache.v2.core.DataManager;
 import com.soybeany.cache.v2.log.ILogWriter;
 import com.soybeany.cache.v2.log.StdLogger;
@@ -22,7 +22,7 @@ public class SecretKeyRetriever {
         mSecretKeyHolderStringProvider = secretKeyHolderStringProvider;
         mDataManager = DataManager.Builder
                 .get("密钥管理器", new Datasource())
-                .logger(new StdLogger<>(writer))
+                .logger(new StdLogger(writer))
                 // 有容量限制，也有时间限制
                 .withCache(new LruMemCacheStorage.Builder<String, SecretKeyHolder.WithExpiry>().build())
                 .enableRenewExpiredCache(true)
