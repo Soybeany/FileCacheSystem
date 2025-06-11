@@ -1,0 +1,30 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+title 分段下载
+
+start
+-[dotted]->fer;
+switch (测试?)
+case ( 条件 A )
+  :Text 1;
+case ( 条件 B )
+  :Text 2;
+case ( 条件 C )
+  :Text 3;
+case ( 条件 D )
+  :Text 4;
+case ( 条件 E )
+  :Text 5<
+  note right: fwef
+endswitch
+#yellow:(D)
+stop
+
+#yellow:(D)
+start
+:Text 3;
+stop
+
+@enduml
+
