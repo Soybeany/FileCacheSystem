@@ -2,7 +2,7 @@
   "properties": [
     {
       "name": "config.app-servers",
-      "type": "com.soybeany.system.cache.server.config.ServerInfo",
+      "type": "java.util.List<com.soybeany.system.cache.server.config.ServerInfo>",
       "description": "应用服务器配置."
     },
     {
