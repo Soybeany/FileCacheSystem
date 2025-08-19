@@ -42,11 +42,28 @@ public class DataInfo {
         }
         // 尝试校验文件md5
         if (null != md5) {
-            String fileMd5 = calMd5(file, Optional.ofNullable(md5Type).orElse(Md5Type.OLD));
+            String fileMd5 = calMd5(file, getNotNullMd5Type());
             if (!md5.equals(fileMd5)) {
                 throw new FcException("文件md5不同(" + md5 + " - " + fileMd5 + ")");
             }
         }
+    }
+
+    public boolean upgradeMd5(File file) {
+        // 若已是新版，则不用处理
+        if (!(Md5Type.OLD.equals(getNotNullMd5Type()))) {
+            return false;
+        }
+        // 重新计算
+        md5Type = Md5Type.STD;
+        md5 = calMd5(file, Md5Type.STD);
+        return true;
+    }
+
+    // ***********************内部方法****************************
+
+    private Md5Type getNotNullMd5Type() {
+        return Optional.ofNullable(md5Type).orElse(Md5Type.OLD);
     }
 
 }

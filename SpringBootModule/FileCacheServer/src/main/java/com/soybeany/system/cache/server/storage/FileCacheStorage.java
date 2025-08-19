@@ -1,11 +1,13 @@
 package com.soybeany.system.cache.server.storage;
 
 import com.google.gson.Gson;
+import com.soybeany.cache.v2.contract.frame.ILockSupport;
 import com.soybeany.cache.v2.exception.NoCacheException;
 import com.soybeany.cache.v2.model.CacheEntity;
 import com.soybeany.cache.v2.model.DataCore;
 import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.cache.v2.model.DataParam;
+import com.soybeany.cache.v2.storage.ReentrantLockSupport;
 import com.soybeany.cache.v2.storage.StdStorage;
 import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.model.FcException;
@@ -21,6 +23,7 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 import java.util.stream.Stream;
 
 /**
@@ -30,7 +33,7 @@ import java.util.stream.Stream;
  * @author Soybeany
  * @since 2022/8/16
  */
-public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
+public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> implements ILockSupport<Lock, Object> {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileCacheStorage.class);
     private static final Gson GSON = new Gson();
@@ -45,6 +48,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     /**
      * 全部缓存的根目录
      */
+    private final ILockSupport<Lock, Object> locker = new ReentrantLockSupport(desc());
     private final File cacheDir;
     private final long totalSpace;
     private final long minFreeSpaceRequired;
@@ -245,6 +249,11 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
                 metaInfo.pExpireAt = currentTimeMillis + metaInfo.dataInfo.pTtl;
                 writeMetaInfo(metaFile, metaInfo);
             }
+            // 如果是旧版md5，替换为新版
+            if (metaInfo.dataInfo.upgradeMd5(dataFile)) {
+                LOG.info("升级了" + key + "的md5");
+                writeMetaInfo(metaFile, metaInfo);
+            }
         } else {
             core = DataCore.fromException(getException(metaInfo));
         }
@@ -311,6 +320,26 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
     @Override
     protected long onGetCurTimestamp() {
         return System.currentTimeMillis();
+    }
+
+    @Override
+    public Lock onTryLock(String key) {
+        return locker.onTryLock(key);
+    }
+
+    @Override
+    public void onUnlock(Lock lock) {
+        locker.onUnlock(lock);
+    }
+
+    @Override
+    public Object onTryLockAll() {
+        return locker.onTryLockAll();
+    }
+
+    @Override
+    public void onUnlockAll(Object lock) {
+        locker.onUnlockAll(lock);
     }
 
     // ***********************内部方法****************************
