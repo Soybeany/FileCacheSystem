@@ -104,7 +104,13 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> imp
             // 按meta文件清理数据文件
             Set<String> validDataFileNames = new HashSet<>();
             for (File metaFile : Optional.ofNullable(new File(serverDir, DIR_META).listFiles()).orElseGet(() -> new File[0])) {
-                MetaInfo info = getMetaInfo(metaFile).orElseThrow(() -> new FcException("找不到metaInfo文件（" + metaFile.getName() + "）"));
+                Optional<MetaInfo> metaInfoOpt = getMetaInfo(metaFile);
+                if (!metaInfoOpt.isPresent()) {
+                    LOG.warn("文件（" + metaFile.getName() + "）读取异常，将被自动删除");
+                    deleteFile(metaFile);
+                    continue;
+                }
+                MetaInfo info = metaInfoOpt.get();
                 boolean isCurDataExpired = curTimestamp > info.pExpireAt;
                 deleteDataAndMetaFiles(metaFile, info, isCurDataExpired);
                 if (!isCurDataExpired) {
@@ -162,7 +168,8 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> imp
         if (file.isDirectory()) {
             File[] subFiles = file.listFiles();
             if (null == subFiles) {
-                throw new FcException("文件夹(" + file.getAbsolutePath() + ")访问异常");
+                LOG.warn("文件夹(" + file.getAbsolutePath() + ")访问异常");
+                return false;
             }
             for (File subFile : subFiles) {
                 boolean success = onDeleteFile(subFile);
