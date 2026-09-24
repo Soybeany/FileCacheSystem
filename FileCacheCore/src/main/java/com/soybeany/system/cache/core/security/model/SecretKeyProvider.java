@@ -4,6 +4,7 @@ import com.soybeany.cache.v2.contract.user.IDatasource;
 import com.soybeany.cache.v2.core.DataManager;
 import com.soybeany.cache.v2.log.ILogWriter;
 import com.soybeany.cache.v2.log.StdLogger;
+import com.soybeany.cache.v2.model.DataCore;
 import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.cache.v2.storage.LruMemCacheStorage;
 import com.soybeany.system.cache.core.token.SecretKeyHolder;
@@ -52,6 +53,14 @@ public class SecretKeyProvider {
     private DataManager<String, WithCreateTime> getNewDataManager() {
         return DataManager.Builder
                 .get("密钥管理器", new Datasource())
+                .cacheMissHandler((param, cachedPack, fetcher) -> {
+                    DataCore<WithCreateTime> dataCore = fetcher.getData();
+                    // 正常数据以其最后更新时间为起点计算剩余有效期，异常数据使用默认值(由各级缓存的有效期配置决定)
+                    long pTtl = dataCore.norm
+                            ? getExpiryMillis(dataCore.data.lastUpdateTimestamp, mRepository.getCurrentTimestamp(), mRenewFrequencyMillis)
+                            : Long.MAX_VALUE;
+                    return new DataPack<>(dataCore, fetcher.getProvider(), pTtl);
+                })
                 .logger(null != mLogWriter ? new StdLogger(mLogWriter) : null)
                 .withCache(new LruMemCacheStorage.Builder<String, WithCreateTime>().build())
                 .build();
@@ -126,11 +135,6 @@ public class SecretKeyProvider {
                 list = getInfoListFromRepository();
             }
             return toSecretKeyHolder(list);
-        }
-
-        @Override
-        public long onSetupExpiry(WithCreateTime holder) {
-            return getExpiryMillis(holder.lastUpdateTimestamp, mRepository.getCurrentTimestamp(), mRenewFrequencyMillis);
         }
 
         private List<SecretKeyInfo> getInfoListFromRepository() {

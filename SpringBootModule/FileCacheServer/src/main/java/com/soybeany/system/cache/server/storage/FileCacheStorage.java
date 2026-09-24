@@ -1,13 +1,11 @@
 package com.soybeany.system.cache.server.storage;
 
 import com.google.gson.Gson;
-import com.soybeany.cache.v2.contract.frame.ILockSupport;
 import com.soybeany.cache.v2.exception.NoCacheException;
 import com.soybeany.cache.v2.model.CacheEntity;
 import com.soybeany.cache.v2.model.DataCore;
 import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.cache.v2.model.DataParam;
-import com.soybeany.cache.v2.storage.ReentrantLockSupport;
 import com.soybeany.cache.v2.storage.StdStorage;
 import com.soybeany.system.cache.core.dto.FileUid;
 import com.soybeany.system.cache.core.security.model.FcException;
@@ -23,7 +21,6 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 import java.util.stream.Stream;
 
 /**
@@ -33,7 +30,7 @@ import java.util.stream.Stream;
  * @author Soybeany
  * @since 2022/8/16
  */
-public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> implements ILockSupport<Lock, Object> {
+public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileCacheStorage.class);
     private static final Gson GSON = new Gson();
@@ -46,15 +43,23 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> imp
     private static final String DIR_DATA = "/data";
 
     /**
+     * 正常数据的最大生存时间(单位：毫秒)
+     */
+    private static final long P_TTL = Integer.MAX_VALUE;
+    /**
+     * 异常数据的最大生存时间(单位：毫秒)
+     */
+    private static final long P_TTL_ERR = 60 * 1000;
+
+    /**
      * 全部缓存的根目录
      */
-    private final ILockSupport<Lock, Object> locker = new ReentrantLockSupport(desc());
     private final File cacheDir;
     private final long totalSpace;
     private final long minFreeSpaceRequired;
 
     public FileCacheStorage(String cacheDir, float maxUsedPercent) {
-        super(Integer.MAX_VALUE, 60 * 1000);
+        super((fileUid, dataCore) -> dataCore.norm ? P_TTL : P_TTL_ERR);
         this.cacheDir = new File(cacheDir);
         BdFileUtils.mkDirs(this.cacheDir);
         if (maxUsedPercent < 0.1 || maxUsedPercent > 1) {
@@ -290,7 +295,7 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> imp
             } catch (Exception e) {
                 deleteFile(dataFile);
                 DataCore<FileCacheAccessor> newCore = DataCore.fromException(new FcException("本地缓存生成异常:" + e.getMessage()));
-                entity = new CacheEntity<>(newCore, currentTimeMillis + pTtlErr);
+                entity = new CacheEntity<>(newCore, currentTimeMillis + P_TTL_ERR);
             }
         }
         // 记录配置
@@ -327,26 +332,6 @@ public class FileCacheStorage extends StdStorage<FileUid, FileCacheAccessor> imp
     @Override
     protected long onGetCurTimestamp() {
         return System.currentTimeMillis();
-    }
-
-    @Override
-    public Lock onTryLock(String key) {
-        return locker.onTryLock(key);
-    }
-
-    @Override
-    public void onUnlock(Lock lock) {
-        locker.onUnlock(lock);
-    }
-
-    @Override
-    public Object onTryLockAll() {
-        return locker.onTryLockAll();
-    }
-
-    @Override
-    public void onUnlockAll(Object lock) {
-        locker.onUnlockAll(lock);
     }
 
     // ***********************内部方法****************************

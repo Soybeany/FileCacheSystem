@@ -6,6 +6,7 @@ import com.soybeany.cache.v2.contract.user.IDatasource;
 import com.soybeany.cache.v2.core.DataManager;
 import com.soybeany.cache.v2.exception.NoDataSourceException;
 import com.soybeany.cache.v2.log.StdLogger;
+import com.soybeany.cache.v2.model.DataCore;
 import com.soybeany.cache.v2.model.DataPack;
 import com.soybeany.download.DataSupplier;
 import com.soybeany.download.core.Md5Type;
@@ -159,6 +160,20 @@ public class CacheService {
         cacheStorage = new FileCacheStorage(appConfig.fileCacheDir, appConfig.maxUsedPercent);
         dataManager = DataManager.Builder
                 .get("文件缓存", new Datasource(), FileUid::getKey)
+                .cacheMissHandler((param, cachedPack, fetcher) -> {
+                    DataCore<FileCacheAccessor> dataCore = fetcher.getData();
+                    long pTtl;
+                    if (dataCore.norm) {
+                        // 正常数据使用数据源自带的缓存有效期，最小为1ms(兼容有效期过小的场景)
+                        pTtl = Math.max(1, dataCore.data.dataInfo.pTtl);
+                    } else if (dataCore.exception instanceof ReDownloadException) {
+                        // 重下载异常防止短时间内重复下载
+                        pTtl = 100;
+                    } else {
+                        pTtl = Long.MAX_VALUE;
+                    }
+                    return new DataPack<>(dataCore, fetcher.getProvider(), pTtl);
+                })
                 .withCache(cacheStorage)
                 .enableDataCheck(fileUid -> Optional.ofNullable(configProvider.getAppServer(fileUid).checkIntervalSec)
                         .orElse(Integer.MAX_VALUE) * 1000L, checker)
@@ -214,19 +229,6 @@ public class CacheService {
                     Optional.ofNullable(downloadingMap.get(fileUid.server)).ifPresent(m -> m.remove(fileUid.fileId));
                 }
             }
-        }
-
-        @Override
-        public long onSetupExpiry(FileCacheAccessor fileCacheAccessor) {
-            return fileCacheAccessor.dataInfo.pTtl;
-        }
-
-        @Override
-        public long onSetupExpiry(Exception e) {
-            if (e instanceof ReDownloadException) {
-                return 100;
-            }
-            return IDatasource.super.onSetupExpiry(e);
         }
     }
 }
